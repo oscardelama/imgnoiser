@@ -9,7 +9,7 @@ Depends:
     R (>= 3.1.2)
 URL: https://github.com/odelama/imgnoiser
 BugReports: https://github.com/odelama/imgnoiser/issues
-License: MIT + file LICENSE
+License: GPL-2
 LazyData: true
 Imports:
     ggplot2 (>= 1.0.0),
