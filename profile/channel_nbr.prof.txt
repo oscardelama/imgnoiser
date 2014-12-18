@@ -1,0 +1,1 @@
+line profiling: sample.interval=20000

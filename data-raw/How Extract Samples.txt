@@ -1,0 +1,7 @@
+dcraw -D -4 "_ODL9650.NEF"
+convert -extract 32x32+20+20 _ODL9650.pgm cropSample.tif
+
+mogrify -extract 32x32+20+20 _ODL9650.pgm
+convert -depth 16 _ODL9650.pgm  _ODL9650.tif
+
+

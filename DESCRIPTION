@@ -1,0 +1,35 @@
+Package: imgnoiser
+Title: Measure, analyze and profile raw image noise
+Version: 0.0.0.9000
+Authors@R: person("Oscar", "de Lama", email = "titodelama@gmail.com",
+    role = c("aut", "cre"))
+Description: Tools supporting the analysis and characterization of
+    raw image noise.
+Depends:
+    R (>= 3.1.2)
+URL: https://github.com/odelama/imgnoiser
+BugReports: https://github.com/odelama/imgnoiser/issues
+License: MIT + file LICENSE
+LazyData: true
+Imports:
+    ggplot2 (>= 1.0.0),
+    FITSio (>= 2.0.0),
+    dplyr  (>= 0.3.0),
+    R6     (>= 2.0.1),
+    lazyeval (>= 0.1.9),
+    data.table (>= 1.9.4)
+Suggests:
+    testthat,
+    knitr
+Collate:
+    'fitModels.R'
+    'hvdvm_class.R'
+    'imgnoiser.R'
+    'imgnoiserOption.R'
+    'imnrUtils.R'
+    'imnrValidate.R'
+    'noiseVar_class.R'
+    'persistence.R'
+    'utils.R'
+    'vvm_class.R'
+VignetteBuilder: knitr

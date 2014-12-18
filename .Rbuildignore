@@ -1,0 +1,11 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^packrat/
+^\.Rprofile$
+^data-raw/
+^profile/
+^.*\.back$
+^local/
+^.RData
+^.Rhistory
+

@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+inst/doc
+local/*
+packrat/*
+*.lnk
+.RData
+.Rhistory

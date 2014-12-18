@@ -1,0 +1,1139 @@
+noise.var <- R6::R6Class('noise.var',
+
+  private = list(
+
+     '.channel.labels'  = NA # character()
+    ,'.green.channels'  = NA # numeric()
+    ,'.var.df'          = data.frame()
+    ,'.cov.df'          = data.frame()
+    ,'.std.src.data'    = list()
+    ,'.model'           = list()
+
+    ##------------------------------
+    ## check.model.name
+    ##------------------------------
+    ,check.model.name = function(name) {
+      if (name %nin% names(private$.model))
+        stop("The model name ", sQuote(name), " is unknown.")
+    }
+
+    ##------------------------------
+    ## pack
+    ##------------------------------
+    ,.pack = function(bag) {
+      bag[['noise.var.class']] <- list(
+         'channel.labels' = private$.channel.labels
+        ,'green.channels' = private$.green.channels
+        ,'var.df'         = private$.var.df
+        ,'cov.df'         = private$.cov.df
+        ,'std.src.data'   = private$.std.src.data
+        ,'model'          = private$.model
+        )
+      bag;
+    }
+
+    ##------------------------------
+    ## unpack
+    ##------------------------------
+    ,.unpack = function(bag) {
+
+      my.bag <- bag[['noise.var.class']]
+      private$.channel.labels  <- my.bag[['channel.labels']]
+      private$.green.channels  <- my.bag[['green.channels']]
+      private$.var.df          <- my.bag[['var.df']]
+      private$.cov.df          <- my.bag[['cov.df']]
+      private$.std.src.data    <- my.bag[['std.src.data']]
+      private$.model           <- my.bag[['model']]
+
+      bag[['noise.var.class']] <- NULL
+    }
+
+    ##------------------------------
+    ## select.model
+    ##------------------------------
+    ,select.model = function(
+        models,
+        select
+      ) {
+
+      # Validate the models list
+      if (!is.null(select)) {
+        select <- vector.alike(select, 1, Inf, type='?')
+        if (!is.numeric(select)) select <- as.character(select)
+      }
+
+      # Subset the models satisfying the select argument
+      if (!is.null(select)) {
+        # Keep only the valid select
+        if (is.numeric(select))
+          select <- select[select %in% seq_along(models)]
+        else
+          select <- select[select %in% names(models)]
+
+        if (length(select) == 0)
+          stop('No model satisfies the select condition.')
+        else
+          models <- models[select]
+      }
+
+      models;
+    }
+
+  ), #private
+
+  active = list(
+
+    ##------------------------------
+    ## var.df (documented in sub-class)
+    ##------------------------------
+    var.df = function(value) {
+      if (!missing(value)) stop('The "var.df" variable is read-only.')
+
+#       if (nrow(private$.var.df) == 0)
+#         warning('There is no "var" information. You should probably run the digest() function before.')
+
+      return(private$.var.df)
+    }
+
+    ##------------------------------
+    ## cov.df  (documented in sub-class)
+    ##------------------------------
+    ,cov.df = function(value) {
+      if (!missing(value)) stop('The "cov.df" variable is read-only.')
+
+#       if (nrow(private$.cov.df) == 0)
+#         warning('There is no "cov" information. You should probably run the digest() function before.')
+
+      return(private$.cov.df)
+    }
+
+    ##------------------------------
+    ## channel.labels  (documented here)
+    ##------------------------------
+    ,channel.labels = function(value) {
+      if (!missing(value)) stop('The "channel.labels" variable is read-only.')
+
+      return(private$.channel.labels)
+    }
+
+    ##------------------------------
+    ## model.list  (documented here)
+    ##------------------------------
+    ,model.list = function(value) {
+      if (!missing(value)) stop('The "model.list" variable cannot be changed.')
+
+      model.names <- names(private$.model)
+      model.list <- list()
+      for (model.ix in seq_along(model.names)) {
+        model.list[[model.names[model.ix]]] <- private$.model[[model.ix]][['call']]
+      }
+      model.list
+    }
+
+  ), #active
+
+  public = list(
+
+    ##------------------------------
+    ## initialize  (documented here)
+    ##------------------------------
+    initialize = function(
+         channel.labels = imgnoiser.option('channel.labels')
+        ,green.channels = imgnoiser.option('green.channels')
+        ,has.RGGB.pattern = imgnoiser.option('has.RGGB.pattern')
+        ,avg.green.label = imgnoiser.option('avg.green.channel.label')
+       ) {
+
+      if (has.RGGB.pattern == TRUE) {
+        channel.labels <- imgnoiser.option('RGGB.channel.labels')
+        green.channels <- c(2L,3L)
+      } else {
+        if (!is.na(green.channels))
+          green.channels <- valid.green.channels(green.channels)
+      }
+
+      private$.channel.labels <- valid.channel.labels(channel.labels, avg.green.label)
+      private$.green.channels <- green.channels
+    }
+
+    ##------------------------------
+    ## fit.model  (documented here)
+    ##------------------------------
+    ,fit.model = function(
+         noise.obj
+        ,model.name
+        ,model.family
+        ,degree
+        ,formula = NULL
+        ,model.data
+        ,...
+      ) {
+
+      if (is.empty.df(private$.var.df) & is.empty.df(private$.cov.df))
+        stop("There is not var data to build a model.")
+
+      # Get the 'training' data for the regression
+      get.model.src.data.func <- imgnoiser.option('get.model.src.data')
+      model.src.data <- get.model.src.data.func(model.data, noise.obj)
+
+      x <- model.src.data[['data']]$x
+      y <- model.src.data[['data']]$y
+      split.by <- model.src.data[['data']]$split.by
+
+      if (length(x) == 0 | length(y) == 0)
+        stop(paste('Missing x or y components in the model', sQuote(model.name),"."))
+
+      if (length(x) != length(y))
+        stop(paste("The x and y components in the model", sQuote(model.name),"don't have the same length"))
+
+      if (length(x) != length(split.by))
+        stop(paste("The x and split.by model components in the model", sQuote(model.name),"don't have the same length"))
+
+      # Get the model fitter function
+      model.fitter.func <- imgnoiser.option('fit.model')
+      # Get the model value predictor function
+      model.predictor.func <- imgnoiser.option('get.model.predictions')
+      # Prepare the model formula
+      if (!is.null(formula)) formula <- lazy(formula)
+      formula <- get.model.formula(model.src.data, formula, degree, model.family)
+
+      # Placeholder for the model(s)
+      model.obj <- list()
+      # Placeholder for the split values
+      split.values <- vector()
+      # Placeholder for the model fitted data
+      predict.df <- data.frame()
+
+      splitted.x <- split(x, split.by)
+      splitted.y <- split(y, split.by)
+
+      ix_model <- 0L
+      for (split.value in names(splitted.y)) {
+        # Ignore the split if it has not enough data to fit a model
+        # if (length(splitted.x[[split.value]]) <= 1) next
+        # @TODO: Handle cases when the data make crash the fitting function
+        model <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
+        model.call.txt <- model[['call']]
+        model <- model[['model']]
+
+        grid <- build.model.grid(splitted.x[[split.value]])
+        predictions <- model.predictor.func(model.src.data, model, model.family, split.value, grid)
+        predict.df <- data.table::rbindlist(list(
+                           predict.df
+                          ,predictions
+                      ))
+
+        ix_model <- ix_model + 1L
+        # Pack the model object as a list item named as the split value
+        model.obj[[split.value]] <- model
+        split.values[ix_model] <- split.value
+      }
+
+      # Set the data source name in the call text
+      model.call.txt <- sub('<%MODEL%>', dQuote(model.src.data[['name']]), model.call.txt, fixed = TRUE)
+
+      #--- Save the model
+      if (model.name %in% private$.model) private$.model[model.name] <- NULL
+      model.src.data[['split.values']] <- split.values
+      private$.model[[model.name]] <- list(
+                     'source'      = model.src.data
+                    ,'predictions' = predict.df
+                    ,'fit'         = model.obj
+                    ,'call'        = model.call.txt
+                )
+
+      message('The model ', dQuote(model.name),' was succesfully fitted using:')
+      message(model.call.txt)
+      invisible(self);
+    }
+
+    ##------------------------------
+    ## get.model.predictions (documented here)
+    ##------------------------------
+    ,get.model.predictions = function(
+        model.name = imgnoiser.option('fit.model.name')
+      ) {
+
+      private$check.model.name(model.name)
+      private$.model[[model.name]][['predictions']]
+    }
+
+    ##------------------------------
+    ## print.model.summary (documented here)
+    ##------------------------------
+    ,print.model.summary = function(
+         model.name = imgnoiser.option('fit.model.name')
+        ,select=NULL
+        ,...
+      ) {
+
+      private$check.model.name(model.name)
+
+      ##----------------
+      ## Returns the last lines of the regular summary report: from
+      ## the part showing the Residuals five numbers to the end
+      ##----------------
+      get.model.summary <- function(fit, ...) {
+
+        model.summary <- capture.output(summary(fit, ...))
+        len <- length(model.summary)
+
+        for(line.ix in len:1) {
+         if (grepl('Residuals:', model.summary[line.ix], ignore.case = TRUE))
+           break
+        }
+
+        # If the last line is not blank, add one
+        last.line <- trim(model.summary[len])
+        if (last.line != '') {
+         len <- len + 1
+         model.summary[len] <- ''
+        }
+
+        # Return the selected lines
+        model.summary[line.ix:len]
+      }
+      ##----------
+
+      ## try({
+
+      # Use the local show.signif.stars option
+      old.option.value <- base::options('show.signif.stars')[[1L]]
+      options('show.signif.stars' = package.option('show.signif.stars')[[1L]])
+
+      model.str <- private$.model[[model.name]]
+      models <- model.str[['fit']]
+
+      # Subset the models satisfying the select argument
+      models <- private$select.model(models, select)
+
+      # Get the model data source
+      model.src.data <- model.str[['source']]
+
+      # Get the text with the call used for the fitting
+      call.txt <- model.str[['call']]
+
+      # Get the split variable name and values
+      split.name <- model.src.data[['label']][['term']]['split.by']
+      split.values <- names(models)
+
+      #List header
+      writeLines('#-------')
+      writeLines(paste0("# Model Name: ", dQuote(model.name)))
+      writeLines('#')
+      writeLines('# Call:')
+      writeLines(paste0("# ", call.txt))
+      writeLines('#-------\n')
+
+      for (model.ix in seq_along(models)) {
+        # New split
+        if (is.given(split.values[model.ix]))
+          cat("##-- ", split.name, " : ", dQuote(split.values[model.ix]), "--##\n\n")
+
+        # Print the summary
+        writeLines(get.model.summary(models[[model.ix]], ...))
+      }
+
+      options('show.signif.stars' = old.option.value)
+      invisible(self);
+    }
+
+    ##------------------------------
+    ## exists.model (documented here)
+    ##------------------------------
+    ,exists.model = function(
+        model.name = imgnoiser.option('fit.model.name')
+      ) {
+      model.list <- self$model.list
+      if (model.name %in% names(model.list)) {
+        message(model.list[model.name])
+        TRUE;
+      }
+      else {
+        message('The model', dQuote(model.name), ' does not exists.')
+        FALSE;
+      }
+    }
+
+    ##------------------------------
+    ## get.model (documented here)
+    ##------------------------------
+    ,get.model = function(
+         model.name = imgnoiser.option('fit.model.name')
+        ,select = NULL
+      ) {
+
+      private$check.model.name(model.name)
+      models <- private$.model[[model.name]][['fit']]
+
+      private$select.model(models, select);
+    }
+
+    ##------------------------------
+    ## remove.model
+    ##------------------------------
+    ,remove.model = function(
+        model.name = stop("A 'model.name' argument is required.")
+      ) {
+      private$check.model.name(model.name)
+      private$.model[[model.name]] <- NULL
+      message('The model with name', dQuote(model.name),'has been removed.')
+    }
+
+    ##------------------------------
+    ## plot
+    ##------------------------------
+    ,plot = function(
+         model.name = FALSE
+        ,obs = TRUE
+        ,print = TRUE
+        ,fit = TRUE
+        ,confid = FALSE
+        ,main = NA
+        ,subt = NA
+        ,xlab = NA
+        ,ylab = NA
+        ,xlim = NULL
+        ,ylim = NULL
+        ,warnings = FALSE
+    ) {
+      # The model.name argument is a single element atomic vector
+      vector.alike(model.name, 1, type='?')
+      confid <- vector.alike(confid, 1, type='l')
+      print <- vector.alike(print, 1, type='l')
+      fit <- vector.alike(fit, 1, type='l')
+      # Get user defaults
+      if (model.name == TRUE) model.name <- imgnoiser.option('fit.model.name')
+      point.size <- imgnoiser.option('plot.point.size')
+
+      if (model.name == FALSE) {
+        model.src <- private$.std.src.data
+        # Without a model this arguments are irrelevant, and ignored
+        fit <- FALSE
+        confid <- FALSE
+        if (obs != TRUE) message("Nothing to plot.")
+      } else {
+        # Validate the model name
+        private$check.model.name(model.name)
+        model.src <- private$.model[[model.name]][['source']]
+      }
+
+      label <- model.src[['label']]
+      split.variable <- label[['term']]['split.by']
+
+      # Get the labels
+      if (is.NA(main)) main <- label$main
+      if (is.NA(xlab)) xlab <- label$xlab
+      if (is.NA(ylab)) ylab <- label$ylab
+
+      # Initialize the plot
+      p <- ggplot2::ggplot()
+      if (is.given(xlab)) p <- p + ggplot2::xlab(xlab)
+      if (is.given(ylab)) p <- p + ggplot2::ylab(ylab)
+
+      #-- Set the titles
+      if (is.given(main) & is.given(subt))
+        p <- p + ggplot2::ggtitle(bquote(atop(.(main), atop(italic(.(subt)), ""))))
+      else
+        if (is.given(main))
+          p <- p + ggplot2::ggtitle(main)
+      #--
+
+      if (obs == TRUE) {
+        # Merge the model source data
+        model.df <- model.src[['data']]
+        p <- p + ggplot2::geom_point(ggplot2::aes(x=x, y=y, group=split.by, color=split.by), data=model.df, size=point.size, alpha=I(0.75))
+      }
+
+      if (fit == TRUE | confid == TRUE) {
+        # Get the model predictions
+        model.predictions.df <- private$.model[[model.name]][['predictions']]
+        # Use XY names
+        names(model.predictions.df)[1:3] <- names(label$term)[1:3]
+
+        if (fit == TRUE) {
+          # Use user line width
+          line.width <- imgnoiser.option('plot.line.width')
+          p <- p + ggplot2::geom_line(ggplot2::aes(x=x, y=y, group=split.by, color=split.by), data=model.predictions.df, size=line.width)
+        }
+
+        if (confid == TRUE)
+          p <- p + ggplot2::geom_smooth(ggplot2::aes(x=x, y=y, group=split.by, color=split.by, ymin = lcl, ymax = ucl), data=model.predictions.df, stat="identity")
+      }
+
+      # Change the label
+      if (is.given(split.variable))
+        p <- p + ggplot2::labs(colour=split.variable)
+
+      # Use user color pallete
+      color.pallette <- imgnoiser.option('color.pallette')
+      if (!is.null(color.pallette))
+        p <- p + ggplot2::scale_colour_manual(values=color.pallette)
+
+      # Fit new axis limits
+      if (!is.null(xlim) & length(xlim) >= 2) p <- p + ggplot2::xlim(xlim[1], xlim[2])
+      if (!is.null(ylim) & length(ylim) >= 2) p <- p + ggplot2::ylim(ylim[1], ylim[2])
+
+      if (print == TRUE)
+        if (warnings == FALSE)
+          suppressWarnings(print(p))
+        else
+          print(p)
+
+      invisible(p);
+
+    }
+
+  ) # public
+)
+
+#**********************
+# Begin of Documentation
+#**********************
+noise.var.doc <- list()
+
+#----------------------------------------------
+#' Get the channel labels
+#'
+#' A vector with the channel labels. This labels are set when an instance of the
+#' class is constructed using the \code{new} function.
+#'
+#' @usage
+#'   hvdvm$channel.labels
+#'
+#'   vvm$channel.labels
+#'
+#' @return A character vector with five values. The first two are for the first
+#'   row in the 2x2 Bayer pattern, the second pair are for the second row, and
+#'   the fifth to label computations merging both green channels.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Print the channel labels
+#' my.hvdvm$channel.labels
+#' #> [1] "Blue"    "Green B" "Green R" "Red"
+#' }
+#'
+#' @seealso \code{\link{hvdvm$new}}, \code{\link{vvm$new}}
+#'
+#' @aliases vvm$channel.labels
+#' @name hvdvm$channel.labels
+#----------------------------------------------
+noise.var.doc$channel.labels <- function()
+  NULL
+
+#----------------------------------------------
+#' Get the list of models
+#'
+#' Get a list with the currently fitted models.
+#'
+#' @usage
+#'   hvdvm$model.list
+#'
+#'   vvm$model.list
+#'
+#' @return A list where the names are those given to the fitted models and the
+#'   values are a character value with the call used to fit the model.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Print the list of models
+#' my.hvdvm$model.list
+#' #> $standard
+#' #> [1] "lm(formula = var ~ mean, data = model.src('std.var'))"
+#' #>
+#' #> $weighted
+#' #> [1] "lmrob(formula = var ~ mean, data = model.src('std.var'), weights = 1/mean^2)"
+#' }
+#'
+#' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
+#'
+#' @aliases vvm$channel.labels
+#' @name hvdvm$channel.labels
+#----------------------------------------------
+noise.var.doc$model.list <- function()
+  NULL
+
+#----------------------------------------------
+#' Create a new class instance
+#'
+#' Creates and initializes a new hvdvm or vvm class instance. The arguments and
+#' semantics of this function are the same in both classes. All arguments
+#' have defaults based on option values, so you can set those option and call
+#' this initialization functions without arguments.
+#'
+#' With the \code{channel.labels} argument you can specify the labels for the
+#' corresponding photistes color filters, starting at the top left corner, of
+#' each of your samples. You will find an introduction to the topic, and a
+#' procedure to identify the color of each channel, in the section \emph{"Sample
+#' Borders and Channel Identification"} of the \emph{"Collecting Image Samples"}
+#' vignette.
+#'
+#' With the \code{green.channels} argument you can mark which of the labels in
+#' the \code{channel.labels} vector correspond to the green channels. For
+#' example, if you set the \code{channel.labels} as \code{c('Verde A', 'Azul',
+#' 'Rojo', 'Verde R')} (in spanish), you should mark the first and the last
+#' channels ('verde' is the spanish word for green) as those corresponding to
+#' the green channels. Knowing which are the green channels the class can
+#' compute ditional statistics averaging both green channels.
+#'
+#' If the photosites colors in your samples has the RGGB pattern, set to
+#' \code{TRUE} the \code{has.RGGB.pattern} argument. In that case, the channel
+#' labels are taken from the option \code{imgnoiser.RGGB.channel.labels}, which
+#' by default contains the values \code{c('Red', 'Green R', 'Green B', 'Blue')}.
+#' If you don't like those labels you can change the value of that option before
+#' calling this function.
+#'
+#' @usage
+#'   hvdvm$new(
+#'      channel.labels = imgnoiser.option('channel.labels'),
+#'      green.channels = imgnoiser.option('green.channels'),
+#'      has.RGGB.pattern = imgnoiser.option('has.RGGB.pattern'),
+#'      avg.green.label = imgnoiser.option('avg.green.channel.label')
+#'      )
+#'
+#'   vvm$new(
+#'      channel.labels = imgnoiser.option('channel.labels'),
+#'      green.channels = imgnoiser.option('green.channels'),
+#'      has.RGGB.pattern = imgnoiser.option('has.RGGB.pattern'),
+#'      avg.green.label = imgnoiser.option('avg.green.channel.label')
+#'      )
+#'
+#' @param channel.labels A vector of characters for the labeling of each one of
+#'   the photosites colors in the (raw) image samples. Its default value is
+#'   taken from \code{\link{imgnoiser.option}('channel.labels')}.
+#'
+#' @param green.channels A vector with two integers, indices to the
+#'   \code{channel.labels} vector, marking them as the green channels. By
+#'   default is the value of \code{\link{imgnoiser.option}('green.channels')},
+#'   which is \code{NA}
+#'
+#' @param has.RGGB.pattern A logical value indicating if the image samples has
+#'   the RGGB pattern in the photosites colors. Its default value is taken from
+#'   \code{\link{imgnoiser.option}('has.RGGB.pattern')}, which by default is
+#'   \code{FALSE}, meaning the values passed for the \code{channels.labels} and
+#'   \code{green.channels} arguments are used as explained above.
+#'
+#'   When it is \code{TRUE} the value for the \code{channels.labels} argument is
+#'   taken from \code{\link{imgnoiser.option}('RGGB.channel.labels')} and the
+#'   \code{green.channels} argument is set to \code{c(2L,3L)}. In this case the
+#'   actual values passed for the \code{channels.labels} and
+#'   \code{green.channels} arguments are silently ignored.
+#'
+#' @param avg.green.label A single character value with the label for the
+#'   averaged green channel. It's defaulr value is taken from
+#'   \code{\link{imgnoiser.option}('avg.green.channel.label')}
+#'
+#' @return The new and initialized \code{hvdvm} class instance.
+#'
+#' @examples
+#' # Create an instance accepting all the default argument values
+#' my.hvdvm <- hvdvm$new()
+#'
+#' # Create an instance for samples with the RGGB pattern
+#' my.hvdvm <- hvdvm$new(is.RGGB = TRUE)
+#'
+#' # Specify the channel labels in Italian and mark which of those
+#' # are the green channels, both as options, and initialize the class
+#' # without passing arguments.
+#' imgnoiser.option('channel.labels', c('Verde', 'Blu', 'Rosso', 'Verde'))
+#' imgnoiser.option('green.channels', c(1,4))
+#' my.hvdvm <- hvdvm$new()
+#'
+#' @seealso See the section \emph{"Sample Borders and Channel Identification"}
+#'   in the \emph{"Collecting Image Samples"} vignette, \code{\link{hvdvm}},
+#'   \code{\link{imgnoiser.option}}
+#'
+#' @aliases vvm$new
+#' @name hvdvm$new
+#----------------------------------------------
+noise.var.doc$initialize <- function()
+  NULL
+
+#----------------------------------------------
+#' Fit a model to the noise data
+#'
+#' Fits a model through specific variables in the data computed and collected by
+#' the \code{digest} function. The arguments and semantics of this function are
+#' the same in both, the \code{\link{hvdvm}} and the \code{\link{vvm}} class.
+#'
+#' The model concept bundles variables selected from those computed by the
+#' \link{digest} function to an optional fitting model, that will be fitted over
+#' that selected data. Later -for example- you can plot the data in the model or
+#' the predictions from the fitted model.
+#'
+#' All the parameters have sensible default values that you can customize as
+#' options with \code{\link{imgnoiser.option}} function.
+#'
+#' @usage
+#'
+#'   hvdvm$fit.model(
+#'      model.name = imgnoiser.option('fit.model.name'),
+#'      model.family = imgnoiser.option('fit.model.family'),
+#'      degree = 1L,
+#'      formula = NULL,
+#'      model.data = imgnoiser.option('fit.model.data'),
+#'      ...
+#'      )
+#'
+#'   vvm$fit.model(
+#'      model.name = imgnoiser.option('fit.model.name'),
+#'      model.family = imgnoiser.option('fit.model.family'),
+#'      degree = 2L,
+#'      formula = NULL,
+#'      model.data = imgnoiser.option('fit.model.data'),
+#'      ...
+#'      )
+#'
+#' @param model.name The name you assign to the model this function will
+#'   create.
+#'
+#'   You can build many models and use later this name to refer to any of them.
+#'   You will use this name, for example, to get predicted values from the
+#'   fitted model or to plot the data in the model or the predictions. If there
+#'   is a model with this name, it will be over-written with the result of this
+#'   new one.
+#'
+#' @param model.family Name of one of the available models that will be fit to
+#'   the data addressed by the \code{model.data} argument. If you use
+#'   \code{NULL} for this argument, no model will be fitted over that data.
+#'
+#'   The available model families are:
+#'
+#'    \itemize{
+#'      \item \code{lm} Linear models supported by the \code{stats::lm}
+#'      function.
+#'
+#'      \item \code{lmrob} MM-type estimators for linear models, supported by
+#'      the \code{stats::lmrob} function.
+#'
+#'      \item \code{smooth.spline} Cubic smoothing spline fitting, supported by
+#'      the \code{stats::smooth.spline} function.
+#'    }
+#'
+#' @param degree The degree of a polynomial of \code{x} that will be fit over
+#'   the data. This is assuming the model familly supports that kind of fitting,
+#'   which is not the case for the \code{smooth.spline} model.
+#'
+#' @param formula An optional formula to be used in the fitting proccess. If it
+#'   is not provided, the formula will be constructed based on the \code{degree}
+#'   argument. If a formula is provided the \code{degree} argument will be
+#'   ignored.
+#'
+#' @param model.data.name Identifies the specific data that will be part of the
+#'   model.
+#'
+#'   By default, there is only one model, named \emph{std.var} with variance data
+#'   (from the hvdvm$var.df). This model has the \emph{mean} as predictor (x)
+#'   and the \emph{var} as predicted (y) variable. Those variables are grouped
+#'   by the corresponding \code{channel} variable (factor).
+#'
+#'   You can add more models changing the option \code{get.model.src.data} using
+#'   the \code{\link{imgnoiser.option}} function.
+#'
+#' @param ... Additional fitting model arguments that will be directly passed to
+#'   function supporting the model referred by the \code{model.family}
+#'   argument.
+#'
+#'   By default, the functions supporting the model families are called with the
+#'   model formula (or just \code{x} and \code{y} for the case of smooth.spline)
+#'   as the only argument. All the additional arguments, supported by the
+#'   function behind each model family, can be specified as part of this
+#'   \code{...} argument, they are passed directly as received here to the
+#'   corresponding model family function.
+#'
+#' @return The calling objects instance in invisible way (check the
+#'   \code{\link{invisible}} function).
+#'
+#'   This return value is irrelevant when the class is used in interactive
+#'   way. It can be useful for developers extending the class.
+#'
+#' @seealso The \code{\link{imgnoiser.option}} options \code{fit.model},
+#'   \code{get.model.predictions} and \code{get.model.src.data},
+#'   \code{\link{hvdvm$digest}}, \code{\link{vvm$digest}}
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Fit a model using all default values.
+#' my.hvdvm$fit.model()
+#' #> The model was succesfully fitted using:
+#' #> lm(formula = var ~ mean, data = model.src("std.var"))
+#'
+#' # Fit a robust weighted model with the name 'weighted'
+#' my.hvdvm$fit.model(model.name = 'weighted', model.family = 'lmrob', weights=1/mean^2)
+#' #> The model was succesfully fitted using:
+#' #> lmrob(formula = var ~ mean, data = model.src("std.var"), weights = 1/mean^2)
+#' }
+#'
+#' @aliases vvm$fit.model
+#' @name hvdvm$fit.model
+#----------------------------------------------
+noise.var.doc$fit.model <-
+      function( model.name = imgnoiser.option('fit.model.name')
+               ,model.family = imgnoiser.option('fit.model.family')
+               ,degree = 1L
+               ,formula = NULL
+               ,model.data.name = imgnoiser.option('fit.model.data')
+               , ...
+              )
+  NULL
+
+#----------------------------------------------
+#' Get predicted values
+#'
+#' Get the values predicted from a given fitted model.
+#'
+#' @usage
+#'   vvm$get.model.predictions(
+#'      model.name = imgnoiser.option('fit.model.name')
+#'      )
+#'
+#'   hvdvm$get.model.predictions(
+#'      model.name = imgnoiser.option('fit.model.name')
+#'      )
+#'
+#' @param model.name The name of the model whose predicitions are desired.
+#'
+#' @return A data frame with the predictions from the model. In the following
+#'   descriptions, we will call \code{pred.df} to this result.
+#'
+#'    \itemize{
+#'      \item \code{pred.df[,1]} The predictor variable in the data model. For
+#'      the default model (\code{std.var} ), this corresponds to the
+#'      \code{mean} column in the variance data.
+#'
+#'      The range of values in this column spans the range of the original data
+#'      used to fit the model. It contains 20 equally spaced values along the
+#'      range of the source data, plus 10 values logarithmically equally spaced.
+#'      If the range of the original data contains the zero or negative values,
+#'      the predictor variable will contain 30 equally spaced values.
+#'
+#'      \item \code{pred.df[,2]} The predicted variable according to the fitted
+#'      model. For the \code{std.var} default model, this corresponds to the
+#'      \code{var} column in the variance data.
+#'
+#'      \item \code{pred.df[,3]} The variable used to group the prediitions. For
+#'      the \code{std.var} default model, this corresponds to the
+#'      \code{channel} column in the variance data.
+#'
+#'      \item \code{sderr} The prediction standard error.
+#'
+#'      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
+#'      the predicted value minus the confidence factor multiplied by the
+#'      fitting standard error.
+#'
+#'      \item \code{ucl} The \emph{upper confidence limit}. It is computed as
+#'      the predicted value plus the confidence factor multiplied by the fitting
+#'      standard error.
+#'    }
+#'
+#'   The confidence factor used to compute the \code{lcl} and \code{ucl} columns
+#'   is set when the \code{fit.model} function is called taking the value of the
+#'   option \code{confid.factor} of the \code{\link{imgnoiser.option}} function.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Get the 'standard' model predictions
+#' preds.df <- my.hvdvm$get.model.predictions()
+#' # Set the lcl and ucl confidence limits using 2.5 as confidence factor
+#' preds.df$lcl <- preds.df[,2] - 2.5*preds.df$sderr
+#' preds.df$ucl <- preds.df[,2] + 2.5*preds.df$sderr
+#' }
+#'
+#' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
+#'
+#' @aliases vvm$get.model.predictions
+#' @name hvdvm$get.model.predictions
+#----------------------------------------------
+noise.var.doc$get.model.predictions <- function(model.name = imgnoiser.option('fit.model.name'))
+  NULL
+
+#----------------------------------------------
+#' Print a fitted model summary
+#'
+#' Print the summary of a fitted model.
+#'
+#' In the default (\code{std.var}) model, the variance (\code{var}) is predicted by
+#' the \emph{mean} for each \emph{channel} in the image samples. Therefore,
+#' there is a model fitted for each channel, and consequently the summary
+#' printed by this function contains four subsections, with the summary of the
+#' model fitted for each channel.
+#'
+#' @usage
+#'   vvm$print.model.summary(
+#'      model.name = imgnoiser.option('fit.model.name'),
+#'      select = NULL,
+#'      ...
+#'      )
+#'
+#'   hvdvm$print.model.summary(
+#'      model.name = imgnoiser.option('fit.model.name'),
+#'      select = NULL,
+#'      ...
+#'      )
+#'
+#' @param model.name The name of the fitted model whose summary is desired.
+#'
+#' @param select A vector with the indices or labels of the channels whose
+#'   summary is desired.
+#'
+#' @param ... Additional parameters for the \code{\link{summary}} which is
+#'   called by this function to get the model fitting summary information.
+#'
+#' @return Prints a report with four summaries, one for each fitted channel. The
+#'   report starts with a header with the model name and the call sentence used
+#'   to fit the models. Each summary is subtitled naming the corresponding
+#'   channel label. The exact summary content depends on the model family used
+#'   to fit the model.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Print the model summary for the 'standard' fitting
+#' my.hvdvm$print.model.summary()
+#' # Print the model for the 'weigthed' model including the correlation matrix
+#' my.hvdvm$print.model.summary('weigthed', correlation = TRUE)
+#' }
+#'
+#' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
+#' @aliases vvm$print.model.summary
+#' @name hvdvm$print.model.summary
+#----------------------------------------------
+noise.var.doc$print.model.summary <- function(
+             model.name = imgnoiser.option('fit.model.name')
+            ,select = NULL
+            ,...
+          )
+  NULL
+
+##------------------------------
+#' Find if a model exists
+#'
+#' Find if a model with a given name has already been fitted.
+#'
+#' @usage
+#'   hvdvm$exists.model(
+#'      model.name = imgnoiser.option('fit.model.name')
+#'      )
+#'
+#'   vvm$exists.model(
+#'      model.name = imgnoiser.option('fit.model.name')
+#'      )
+#'
+#' @param model.name A character vector with the name of the models we want to
+#'   know if already exists.
+#'
+#' @return A logical value. Returns TRUE only if the model given in
+#'   \code{model.name} exists, otherwise returns false.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Check if there is a model named 'log-sqrt'
+#' my.hvdvm$exists.model('log-sqrt')
+#' #> [1] FALSE
+#' # This function is "syntactic sugar" for the equivalent
+#' ('log-sqrt' %in% names(my.hvdvm$model.list))
+#' }
+#'
+#' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
+#'
+#' @aliases vvm$exists.model
+#' @name hvdvm$exists.model
+##------------------------------
+noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.name'))
+  NULL
+
+#----------------------------------------------
+#' Get a model objects
+#'
+#' Returns a list with the objects fitted in a model with a
+#' given name.
+#'
+#' The R functions that actually fit the models, like lm() or lmrob(), return an
+#' object which can be used in other R functions supporting them. As one model
+#' is fitted to the data from each channel there are four channel models for
+#' each single model fitted in call to the \code{fit.model} function. This
+#' function returns a list of those channel model objects.
+#'
+#' @usage
+#'   hvdvm$get.model(
+#'      model.name = imgnoiser.option('fit.model.name')
+#'      )
+#'
+#'   hvdvm$get.model(
+#'      model.name = imgnoiser.option('fit.model.name')
+#'      )
+#'
+#' @return A list whose names are the channel labels and the values are the
+#'   objects fitted for each channel.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Get a list with the 'weighted' model fitting objects
+#' ch.models <- my.hvdvm$get.model('weighted')
+#' #> class(ch.models)
+#' #> [1] "list"
+#' #> names(ch.models)
+#' #> [1] "Blue"    "Green B" "Green R" "Red"
+#' }
+#'
+#' @aliases vvm$get.model
+#' @name hvdvm$get.model
+#----------------------------------------------
+noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.name'))
+  NULL
+
+#----------------------------------------------
+#' Remove a fitted model
+#'
+#' Remove a model fitted with a given name.
+#'
+#' @usage
+#'   hvdvm$remove.model(
+#'      model.name = stop('A model name argument is required.')
+#'      )
+#'
+#'   vvm$remove.model(
+#'      model.name = stop('A model name argument is required.')
+#'      )
+#'
+#' @param model.name The name of the model that will be removed (deleted).
+#'
+#' @examples
+#' \dontrun{
+#'
+#' my.hvdvm$remove.model('weighted')
+#' #> The model with name "standard" has been removed.
+#' }
+#'
+#' @aliases vvm$remove.model
+#' @name hvdvm$remove.model
+#----------------------------------------------
+noise.var.doc$remove.model = function(model.name = stop('A model name argument is required.'))
+  NULL
+
+#----------------------------------------------
+#' Plot a fitted model or its source data
+#'
+#' @usage
+#'   hvdvm$plot(
+#'      model.name = FALSE,
+#'      obs = TRUE,
+#'      print = TRUE,
+#'      fit = TRUE,
+#'      confid = FALSE,
+#'      main = NA,
+#'      subt = NA,
+#'      xlab = NA,
+#'      ylab = NA,
+#'      xlim = NULL,
+#'      ylim = NULL,
+#'      warnings = FALSE
+#'      )
+#'
+#'   vvm$plot(
+#'      model.name = FALSE,
+#'      obs = TRUE,
+#'      print = TRUE,
+#'      fit = TRUE,
+#'      confid = FALSE,
+#'      main = NA,
+#'      subt = NA,
+#'      xlab = NA,
+#'      ylab = NA,
+#'      xlim = NULL,
+#'      ylim = NULL
+#'      warnings = FALSE
+#'      )
+#'
+#' @param model.name Name of the model whose prediction (see the \code{fit}
+#'   argument) or confidence area (see the \code{confid} argument) are desired
+#'   in the plot.
+#'
+#' @param obs If TRUE the observations will be included in the plot.
+#'
+#' @param print If TRUE the plot will be rendered in the output device. If you
+#'   want to customize the plot before printing it, set this parameter to FALSE
+#'   and use the returned ggplot2 value.
+#'
+#' @param fit If TRUE the predictions, of the model referred with the
+#'   \code{model.name} argument, will be plotted as a line for each channel.
+#'
+#' @param confid If TRUE the area between the predictions confidence limits, of
+#'   the model referred with the \code{model.name} argument, will be drawn with
+#'   a semi-transparent color.
+#'
+#' @param main The plot main title. If it is not given, the title in the model
+#'   data source will be used. A NULL value means no title is desired.
+#'
+#' @param subt The plot subt-title. If it is not given the plot won't have a
+#'   sub-title.
+#'
+#' @param xlab The plot x axis title. If it is not given, the corresponding
+#'   label in the model data source will be used. A NULL value means no axis
+#'   title is desired.
+#'
+#' @param ylab The plot y axis title. If it is not given, the corresponding
+#'   label in the model data source will be used. A NULL value means no axis
+#'   title is desired.
+#'
+#' @param xlim A vector with two values, where the second is greater than the
+#'   first. The limits for the x axis. See \code{warnings} to avoid the warnings
+#'   when using this parameter.
+#'
+#' @param ylim A vector with two values, where the second is greater than the
+#'   first. The limits for the y axis. See \code{warnings} to avoid the warnings
+#'   when using this parameter.
+#'
+#' @param warnings If TRUE, suppress the warnings when printing the plot.
+#'
+#' When using the \code{xlim} or \code{ylim} argument, ggplot2 throws some
+#' warnings about the data not being included in the plot because of those
+#' limits. That can be annoying, and by default all the warnings are turned off.
+#' You may want to change this default value if for some reason you want to get
+#' any warning that is being suppressed by this default.
+#'
+#' @return Invisibly returns a ggplot2 object which can be used to customize the
+#'   plot.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Plot the observations in the standrad data model
+#' my.hvdvm$plot()
+#'
+#' # Plot the model named 'standard' using a customized title
+#' my.hvdvm$plot(
+#'    model.name = TRUE,
+#'    main='Nikon D7000 - ISO 100'
+#'    subt = 'Half Var Delta versus Mean'
+#'    )
+#' }
+#'
+#' @aliases vvm$plot
+#' @name hvdvm$plot
+#----------------------------------------------
+noise.var.doc$plot <- function(
+                 obs = TRUE
+                ,print = TRUE
+                ,model.name = FALSE
+                ,fit = TRUE
+                ,confid = FALSE
+                ,main = NA
+                ,subt = NA
+                ,xlab = NA
+                ,ylab = NA
+      )
+  NULL
+
+rm(noise.var.doc)
+#**********************
+# End of Documentation
+#**********************
+
