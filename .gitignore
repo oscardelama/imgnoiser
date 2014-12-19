@@ -7,3 +7,4 @@ packrat/*
 *.lnk
 .RData
 .Rhistory
+*.imn

@@ -8,4 +8,5 @@
 ^local/
 ^.RData
 ^.Rhistory
-
+^vignettes/*.md
+^vignettes/*.html
