@@ -19,20 +19,20 @@ vignette: >
   library(gridExtra)
   library(ggplot2)
   options(digits=4)
-  output.format <- 'markdown'
   knitr::opts_chunk$set(
-     comment = "#"
+     comment = "##"
     ,prompt = FALSE
     ,collapse = TRUE
     ,dev = 'png'
     ,tidy = FALSE
   )
 
+output.format <- 'html'
 table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
   if (output.format == 'html')
     knitr::kable(t, caption=caption, align=NULL, digits=2)
   else
-    pandoc.table(t, style = "rmarkdown")
+    pander::pandoc.table(t, style = "rmarkdown")
 }
 ```
 
@@ -444,7 +444,7 @@ weighted.plot <- my.obj$plot(model.name='weighted', print=FALSE,
 # Use both plot objects for detailed customization.
 shared.legend(std.plot
              ,weighted.plot
-             ,'Two plots sharing title, y lable and legend'
+             ,'Two plots sharing title, y label and legend'
              ,'Variance (ADU^2)'
              )
 ```

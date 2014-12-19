@@ -3,6 +3,7 @@ title: "*vvm* Class Introduction"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
+    keep_md: true
     css: odlvignette.css
     number_sections: yes
 vignette: >
@@ -14,6 +15,7 @@ vignette: >
 ```{r echo = FALSE, message = FALSE}
   library(imgnoiser)
   library(printr)
+  library(pander)
   library(gridExtra)
   library(ggplot2)
   options(digits=4)
@@ -24,6 +26,16 @@ vignette: >
     ,dev = 'png'
     ,tidy = FALSE
   )
+
+output.format <- 'html'
+table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
+  if (output.format == 'html')
+    knitr::kable(t, caption=caption, align=NULL, digits=2)
+  else {
+    knitr::opts_chunk$set(comment = NA)
+    pander::pandoc.table(t, style = "rmarkdown")
+  }
+}
 ```
 
 The *vvm* acronym stands for "Variance versus Mean" and refers to a technique to study and profile the noise in digital camera raw images.
@@ -145,8 +157,8 @@ We can get the resulting *variance* reading the `vvm$var.df` variable.
 head(my.vvm$var.df)
 ```
 
-```{r, echo=FALSE, comment=" " } 
-knitr::kable(head(my.vvm$var.df), caption='**Variance and Mean results**', align=c('l','c','r','r'), digits=4)
+```{r, echo=FALSE, comment=NA } 
+table.print(head(my.vvm$var.df), caption='**Variance and Mean results**', align=c('l','c','r','r'), digits=4)
 ```
 
 The `pict`column shows the name of the image sample file.
@@ -175,8 +187,8 @@ In the following data frame, the columns `chan.a` and `chan.b` show the channels
 head(my.vvm$cov.df)
 ```
 
-```{r, echo=FALSE, comment=" " } 
-knitr::kable(head(my.vvm$cov.df), caption='**Covariance result**', align=c('l','c','c','r'), digits=2)
+```{r, echo=FALSE, comment=NA } 
+table.print(head(my.vvm$cov.df), caption='**Covariance result**', align=c('l','c','c','r'), digits=2)
 ```
 
 # Other *vvm* functions # {#other}
