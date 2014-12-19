@@ -3,6 +3,7 @@ title: "*hvdvm* and *vvm* Class Usage"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
+    keep_md: true
     css: odlvignette.css
     number_sections: yes
 vignette: >
@@ -14,18 +15,25 @@ vignette: >
 ```{r echo = FALSE, message = FALSE}
   library(imgnoiser)
   library(printr)
+  library(pander)
   library(gridExtra)
-  #library(tikzDevice)
   library(ggplot2)
   options(digits=4)
+  output.format <- 'markdown'
   knitr::opts_chunk$set(
      comment = "#"
     ,prompt = FALSE
     ,collapse = TRUE
-    #,dev = 'tikz'
     ,dev = 'png'
     ,tidy = FALSE
   )
+
+table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
+  if (output.format == 'html')
+    knitr::kable(t, caption=caption, align=NULL, digits=2)
+  else
+    pandoc.table(t, style = "rmarkdown")
+}
 ```
 
 The `hvdvm` and the `vvm` classes process the raw image samples in different way, and correspondingly their output must be interpreted in different way. From the point of view of these classes implementation, this mean they have very different `digest()` function and the data in their `var.df` and `cov.df` variables have different meanings. However, from an operational point of view, everything else in these classes works in the same way and with the same semantics. Of course, everything derived from their data, as plot or a fitted models must be interpreted considering the nature of their data.
@@ -89,13 +97,19 @@ If you don't have a class instance, you can easily get an overview of the `hvdvm
 You will get a list of the class functions with links to more detailed documentation of the `hvdvm` class components. The same applies to the `vvm` class.
 
 ```{r echo=FALSE, message=FALSE, results="hide"}
+imgnoiser.option('show.progress', FALSE)
+
 my.hvdvm <- hvdvm$new(has.RGGB.pattern = TRUE)
 my.vvm <- vvm$new(has.RGGB.pattern = TRUE)
 
-imgnoiser.option('show.progress', FALSE)
-# my.hvdvm$digest('../data-raw/iso100White.csv', '../data-raw/')
-my.hvdvm <- imgnoiser.load('../data-raw/my.hvdvm')
-my.vvm <- imgnoiser.load('../data-raw/my.vvm')
+my.hvdvm$digest('../data-raw/iso100White.csv', '../data-raw/')
+my.vvm$digest('crop_', 240, '../data-raw/')
+# 
+# imgnoiser.save(my.hvdvm, '../data-raw/my.hvdvm', save.options=FALSE, stop.overwrite=FALSE)
+# imgnoiser.save(my.vvm, '../data-raw/my.vvm', save.options=FALSE, stop.overwrite=FALSE)
+
+#my.hvdvm <- imgnoiser.load('../data-raw/my.hvdvm')
+#my.vvm <- imgnoiser.load('../data-raw/my.vvm')
 ```
 
 # Introduction to Model Fitting # {#intro-fit}
@@ -187,7 +201,7 @@ head(preds)
 preds <- my.vvm$get.model.predictions()
 ```
 ```{r, echo=FALSE, comment=" " } 
-knitr::kable(head(preds), caption='**Model predictions: lm**', align=c('r','r','r','c','r','r'), digits=2)
+table.print(head(preds), caption='**Model predictions: lm**', align=c('r','r','r','c','r','r'), digits=2)
 ```
 
 The columns in the resulting data frame are:
@@ -209,7 +223,7 @@ head(preds)
 ```
 
 ```{r, echo = FALSE, comment=" " } 
-knitr::kable(head(preds), caption='**Customized Confidence Limits**', align=c('r','r','r','c','r','r'), digits=2)
+table.print(head(preds), caption='**Customized Confidence Limits**', align=c('r','r','r','c','r','r'), digits=2)
 ```
 
 This model predictions span the complete range of predictor values in the original data source:
@@ -218,7 +232,7 @@ This model predictions span the complete range of predictor values in the origin
 my.obj <- my.vvm
 ```
 
-```{r }
+```{r eval=FALSE}
 # Get the predictor range from predictions
 pred.ranges <- t(sapply(split(preds$mean, preds$channel), range))
 # Get the predictor range from source data
@@ -226,6 +240,19 @@ src.ranges <- t(sapply(split(my.obj$var.df$mean, my.obj$var.df$channel), range))
 # Compare source and prediction ranges
 data.frame('pred.bot' = pred.ranges[,1], 'pred.top' = pred.ranges[,2],
            'src.bot'  = src.ranges[,1],  'src.top'  = src.ranges[,2])
+```
+
+```{r echo=FALSE, comment=""}
+# Get the predictor range from predictions
+pred.ranges <- t(sapply(split(preds$mean, preds$channel), range))
+# Get the predictor range from source data
+src.ranges <- t(sapply(split(my.obj$var.df$mean, my.obj$var.df$channel), range))
+# Compare source and prediction ranges
+cmp.df <-
+    data.frame('pred.bot' = pred.ranges[,1], 'pred.top' = pred.ranges[,2],
+               'src.bot'  = src.ranges[,1],  'src.top'  = src.ranges[,2])
+
+table.print(cmp.df, caption="Predictor vs Sourde data ranges", align=c('l','r','r','r','r'))
 ```
 
 There are 30 predictions per channel in this function results. When possible, 20 of them are equally spaced in the range of the predictor source data, plus 10 of them logarithmic equally spaced in that range. If that is not possible because there are zero or negative values in the predictor source range, there will be 30 equally spaced predictor values per channel. This makes this predicted data suitable for a nice plotting, which we will do later.
@@ -238,7 +265,7 @@ my.obj$get.model.predictions('weighted')
 ```
 
 ```{r, echo = FALSE, comment=" " } 
-knitr::kable(head(my.obj$get.model.predictions('weighted')), caption='**Model predictions: Weighted**', align=c('r','r','r','c','r','r'), digits=4)
+table.print(head(my.obj$get.model.predictions('weighted')), caption='**Model predictions: Weighted**', align=c('r','r','r','c','r','r'), digits=4)
 ```
 
 ## Model Summary ## {#model-sum}
@@ -294,18 +321,27 @@ preds.mean <- data.frame(mean=seq(1000, 2000, by=100))
 preds.var <- predict(std.model[['Blue']], newdata=preds.mean)
 preds <- data.frame(preds.mean, var=preds.var)
 
-knitr::kable(head(preds), caption='**Customized Model predictions**', align=c('r','r'), digits=4)
+table.print(head(preds), caption='**Customized Model predictions**', align=c('r','r'), digits=4)
 ```
 
 The `my.obj$get.model()` function has a `select` parameter to get a list with only selected models, i.e. for specific channels. We can select the channel by label or by index. For example, we will use the `confint()` function, to get the confidence intervals for the coefficients in the regression for the `Red` channel.
 
-```{r }
+```{r echo=FALSE, message=FALSE, results='hide'}
+my.obj <- my.hvdvm
+```
+
+
+```{r results='hide'}
 # Confidence intervals for the 'Red' model parameters (from the 'standard' fitting)
 models <- my.obj$get.model(select='Red')
 confint(models[[1]])
 ```
 
-## List, Query and Remove Fitted Models ## {#lqrem}
+```{r, echo=FALSE, comment=NA } 
+table.print(confint(models[[1]]))
+```
+
+## List, Query and Remove Fitted Models
 
 The `hvdvm$model.list` variable provides a list with the models already fitted.
 
