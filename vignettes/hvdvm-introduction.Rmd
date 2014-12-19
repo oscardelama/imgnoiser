@@ -23,16 +23,6 @@ knitr::opts_chunk$set(
     ,dev = 'png'
     ,tidy = FALSE
   )
-
-md_document <- FALSE
-table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
-  if (md_document == FALSE)
-    knitr::kable(t, caption=caption, align=NULL, digits=2)
-  else {
-    knitr::opts_chunk$set(comment = NA)
-    pander::pandoc.table(t, style = "rmarkdown")
-  }
-}
 #render("./vignettes/hvdvm-introduction.Rmd", output_format='md_document')
 ```
 

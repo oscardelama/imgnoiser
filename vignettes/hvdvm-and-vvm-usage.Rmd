@@ -25,14 +25,6 @@ vignette: >
     ,dev = 'png'
     ,tidy = FALSE
   )
-
-md_document <- FALSE
-table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
-  if (md_document == FALSE)
-    knitr::kable(t, caption=caption, align=NULL, digits=2)
-  else
-    pander::pandoc.table(t, style = "rmarkdown")
-}
 #render("./vignettes/hvdvm-and-vvm-usage.Rmd", output_format='md_document')
 ```
 
@@ -203,7 +195,7 @@ head(preds)
 preds <- my.vvm$get.model.predictions()
 ```
 ```{r, echo=FALSE, comment=" " } 
-table.print(head(preds), caption='**Model predictions: lm**', align=c('r','r','r','c','r','r'), digits=2)
+knitr::kable(head(preds), caption='**Model predictions: lm**', align=c('r','r','r','c','r','r'), digits=2)
 ```
 
 The columns in the resulting data frame are:
@@ -225,7 +217,7 @@ head(preds)
 ```
 
 ```{r, echo = FALSE, comment=" " } 
-table.print(head(preds), caption='**Customized Confidence Limits**', align=c('r','r','r','c','r','r'), digits=2)
+knitr::kable(head(preds), caption='**Customized Confidence Limits**', align=c('r','r','r','c','r','r'), digits=2)
 ```
 
 This model predictions span the complete range of predictor values in the original data source:
@@ -254,7 +246,7 @@ cmp.df <-
     data.frame('pred.bot' = pred.ranges[,1], 'pred.top' = pred.ranges[,2],
                'src.bot'  = src.ranges[,1],  'src.top'  = src.ranges[,2])
 
-table.print(cmp.df, caption="**Predictor vs Source data ranges**", align=c('l','r','r','r','r'))
+knitr::kable(cmp.df, caption="**Predictor vs Source data ranges**", align=c('l','r','r','r','r'))
 ```
 
 There are 30 predictions per channel in this function results. When possible, 20 of them are equally spaced in the range of the predictor source data, plus 10 of them logarithmic equally spaced in that range. If that is not possible because there are zero or negative values in the predictor source range, there will be 30 equally spaced predictor values per channel. This makes this predicted data suitable for a nice plotting, which we will do later.
@@ -267,7 +259,7 @@ my.obj$get.model.predictions('weighted')
 ```
 
 ```{r, echo = FALSE, comment=" " } 
-table.print(head(my.obj$get.model.predictions('weighted')), caption='**Model predictions: Weighted**', align=c('r','r','r','c','r','r'), digits=4)
+knitr::kable(head(my.obj$get.model.predictions('weighted')), caption='**Model predictions: Weighted**', align=c('r','r','r','c','r','r'), digits=4)
 ```
 
 ## Model Summary ## {#model-sum}
@@ -323,7 +315,7 @@ preds.mean <- data.frame(mean=seq(1000, 2000, by=100))
 preds.var <- predict(std.model[['Blue']], newdata=preds.mean)
 preds <- data.frame(preds.mean, var=preds.var)
 
-table.print(head(preds), caption='**Customized Model predictions**', align=c('r','r'), digits=4)
+knitr::kable(head(preds), caption='**Customized Model predictions**', align=c('r','r'), digits=4)
 ```
 
 The `my.obj$get.model()` function has a `select` parameter to get a list with only selected models, i.e. for specific channels. We can select the channel by label or by index. For example, we will use the `confint()` function, to get the confidence intervals for the coefficients in the regression for the `Red` channel.
@@ -340,7 +332,7 @@ confint(models[[1]])
 ```
 
 ```{r, echo=FALSE, comment=NA } 
-table.print(confint(models[[1]]))
+knitr::kable(confint(models[[1]]))
 ```
 
 ## List, Query and Remove Fitted Models

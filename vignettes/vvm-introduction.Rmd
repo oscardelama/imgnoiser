@@ -25,16 +25,6 @@ vignette: >
     ,dev = 'png'
     ,tidy = FALSE
   )
-
-md_document <- FALSE
-table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
-  if (md_document == FALSE)
-    knitr::kable(t, caption=caption, align=NULL, digits=2)
-  else {
-    knitr::opts_chunk$set(comment = NA)
-    pander::pandoc.table(t, style = "rmarkdown")
-  }
-}
 #render("./vignettes/vvm-introduction.Rmd", output_format='md_document')
 ```
 
@@ -158,7 +148,7 @@ head(my.vvm$var.df)
 ```
 
 ```{r, echo=FALSE, comment=NA } 
-table.print(head(my.vvm$var.df), caption='**Variance and Mean results**', align=c('l','c','r','r'), digits=4)
+knitr::kable(head(my.vvm$var.df), caption='**Variance and Mean results**', align=c('l','c','r','r'), digits=4)
 ```
 
 The `pict`column shows the name of the image sample file.
@@ -188,7 +178,7 @@ head(my.vvm$cov.df)
 ```
 
 ```{r, echo=FALSE, comment=NA } 
-table.print(head(my.vvm$cov.df), caption='**Covariance result**', align=c('l','c','c','r'), digits=2)
+knitr::kable(head(my.vvm$cov.df), caption='**Covariance result**', align=c('l','c','c','r'), digits=2)
 ```
 
 # Other *vvm* functions # {#other}
