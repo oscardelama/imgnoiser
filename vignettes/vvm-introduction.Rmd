@@ -42,7 +42,7 @@ The *vvm* acronym stands for "Variance versus Mean" and refers to a technique to
 
 The *variance* and the *mean* of the pixel values from raw image samples at different exposition levels have a known relationship, which is useful to profile a camera sensor noise response and to compute some sensor noise performance characteristic values.
 
-In the code examples, the function output is prefixed by `##`, single `#` represent real (user) comments.
+In the code examples, the function output is presented prefixed by `##`, while a single `#` represents real (user) comments.
 
 <div id="TOC">
 <div class="toctitle">Table of Contents </div>

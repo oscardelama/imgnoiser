@@ -49,6 +49,9 @@ The procedure is applied to the raw data from each of the four photosite channel
 
 The theoretical basis of this approach is explained in the article [*"A Simple DSLR Camera Sensor Noise Model"*](http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#theo-hvdvm), while the [*"Use of Linear Regressions to Model Camera Sensor Noise"*](http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#hvdvm-def) describes the practical application of that model. The article [*"Handling Heteroscedastic Data from Camera Sensor Noise"*](http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero) explains how to handle the heteroscedasticity that appear in the data computed by the `hvdvm` and `vvm` class.
 
+In the code examples, the function output is presented prefixed with `##`, while a single prefix `#` represents real (user) comments.
+
+
 <div id="TOC">
 <div class="toctitle">Table of Contents </div>
 - [The *hvdvm* procedure](#hvdvm-proc)
