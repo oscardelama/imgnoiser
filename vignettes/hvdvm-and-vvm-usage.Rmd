@@ -3,7 +3,6 @@ title: "*hvdvm* and *vvm* Class Usage"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
-    keep_md: true
     css: odlvignette.css
     number_sections: yes
 vignette: >
@@ -27,13 +26,14 @@ vignette: >
     ,tidy = FALSE
   )
 
-output.format <- 'html'
+md_document <- FALSE
 table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
-  if (output.format == 'html')
+  if (md_document == FALSE)
     knitr::kable(t, caption=caption, align=NULL, digits=2)
   else
     pander::pandoc.table(t, style = "rmarkdown")
 }
+#render("./vignettes/hvdvm-and-vvm-usage.Rmd", output_format='md_document')
 ```
 
 The `hvdvm` and the `vvm` classes process the raw image samples in different way, and correspondingly their output must be interpreted in different way. From the point of view of these classes implementation, this mean they have very different `digest()` function and the data in their `var.df` and `cov.df` variables have different meanings. However, from an operational point of view, everything else in these classes works in the same way and with the same semantics. Of course, everything derived from their data, as plot or a fitted models must be interpreted considering the nature of their data.

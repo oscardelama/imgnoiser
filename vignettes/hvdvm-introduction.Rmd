@@ -1,12 +1,12 @@
 ---
-title: "Introduction to *hvdvm*"
+title: "*hvdvm* Class Introduction"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     css: odlvignette.css
     number_sections: yes
 vignette: >
-  %\VignetteIndexEntry{Introduction to *hvdvm*}
+  %\VignetteIndexEntry{hvdvm Class Introduction}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---
@@ -17,12 +17,23 @@ library(printr)
 options(digits=4)
 
 knitr::opts_chunk$set(
-     comment = "#"
+     comment = "##"
     ,prompt = FALSE
     ,collapse = TRUE
     ,dev = 'png'
     ,tidy = FALSE
   )
+
+md_document <- FALSE
+table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
+  if (md_document == FALSE)
+    knitr::kable(t, caption=caption, align=NULL, digits=2)
+  else {
+    knitr::opts_chunk$set(comment = NA)
+    pander::pandoc.table(t, style = "rmarkdown")
+  }
+}
+#render("./vignettes/hvdvm-introduction.Rmd", output_format='md_document')
 ```
 
 The acronym *hvdvm* stands for "Half-Var-Delta versus Mean" and refers to a technique to remove the PRNU noise from digital camera raw images, by the use of two *"identical"* digital photographs, i.e. photos of the same scene, with identical setup, camera settings and target scene; as two consecutive images of a still target in a shooting burst. This technique is employed to characterize a digital camera sensor noise response.
@@ -67,9 +78,8 @@ As we have already seen, we will need pairs of photographs taken under identical
 
 Using the `choose()` function we can compute the number of pair combinations for a given number of *identical* shots. For example from 6 shots taken in the same conditions, 15 combinations will be processed by the class (bringing 15 observations for the model fitting).
 
-```{r eval = FALSE}
+```{r }
 choose(6, 2)
-#> [1] 15
 ```
 
 The `hvdvm` class needs information to identify the shots taken under identical conditions in the form of a .csv file, which we will call the *photo conditions file*. We can build that file using [ExifTool](http://www.sno.phy.queensu.ca/~phil/exiftool/) (free software), for example using the following command  (windows example).

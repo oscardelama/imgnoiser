@@ -3,7 +3,6 @@ title: "*vvm* Class Introduction"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
-    keep_md: true
     css: odlvignette.css
     number_sections: yes
 vignette: >
@@ -27,15 +26,16 @@ vignette: >
     ,tidy = FALSE
   )
 
-output.format <- 'html'
+md_document <- FALSE
 table.print <- function(t, caption=NULL, align=NULL, digits = getOption('digits')) {
-  if (output.format == 'html')
+  if (md_document == FALSE)
     knitr::kable(t, caption=caption, align=NULL, digits=2)
   else {
     knitr::opts_chunk$set(comment = NA)
     pander::pandoc.table(t, style = "rmarkdown")
   }
 }
+#render("./vignettes/vvm-introduction.Rmd", output_format='md_document')
 ```
 
 The *vvm* acronym stands for "Variance versus Mean" and refers to a technique to study and profile the noise in digital camera raw images.
