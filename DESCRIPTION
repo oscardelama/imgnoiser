@@ -20,7 +20,8 @@ Imports:
     data.table (>= 1.9.4)
 Suggests:
     testthat,
-    knitr
+    knitr,
+    rmarkdown
 Collate:
     'fitModels.R'
     'hvdvm_class.R'
