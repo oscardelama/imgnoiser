@@ -1,36 +1,45 @@
 Package: imgnoiser
+Type: Package
 Title: Measure, analyze and profile raw image noise
 Version: 0.0.0.9000
+Date: 2014-12-18
 Authors@R: person("Oscar", "de Lama", email = "titodelama@gmail.com",
     role = c("aut", "cre"))
-Description: Tools supporting the analysis and characterization of
-    raw image noise.
+Description: Tools supporting the measurement, analysis and characterization of
+    raw image noise from digital CMOS sensor cameras.
 Depends:
     R (>= 3.1.2)
 URL: https://github.com/odelama/imgnoiser
-BugReports: https://github.com/odelama/imgnoiser/issues
-License: GPL-2
+BugReports: https://github.com/oscardelama/imgnoiser/issues
+License: GPL-2 | file LICENSE
 LazyData: true
 Imports:
     ggplot2 (>= 1.0.0),
-    FITSio (>= 2.0.0),
     dplyr  (>= 0.3.0),
     R6     (>= 2.0.1),
     lazyeval (>= 0.1.9),
     data.table (>= 1.9.4)
 Suggests:
+    FITSio (>= 2.0.0),
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    robustbase,
+    gridExtra,
+    pander,
+    printr
 Collate:
-    'fitModels.R'
-    'hvdvm_class.R'
-    'imgnoiser.R'
-    'imgnoiserOption.R'
-    'imnrUtils.R'
-    'imnrValidate.R'
-    'noiseVar_class.R'
-    'persistence.R'
-    'utils.R'
-    'vvm_class.R'
+    'fit-model.r'
+    'noise-class.r'
+    'hvdvm-class.r'
+    'imgnoiser.r'
+    'imnr-utils.r'
+    'imnr-validate.r'
+    'options.r'
+    'persistence.r'
+    'pgm-file-format.r'
+    'split-cfa.r'
+    'utils.r'
+    'vvm-class.r'
+    'zzz.r'
 VignetteBuilder: knitr

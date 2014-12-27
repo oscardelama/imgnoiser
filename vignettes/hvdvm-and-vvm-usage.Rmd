@@ -14,10 +14,8 @@ vignette: >
 ```{r echo = FALSE, message = FALSE}
   library(imgnoiser)
   library(printr)
-  library(pander)
-  library(gridExtra)
-  library(ggplot2)
   options(digits=4)
+
   knitr::opts_chunk$set(
      comment = "##"
     ,prompt = FALSE
@@ -66,7 +64,7 @@ However, the first one won't work and will throw you an error. The second one wi
 
 The first case `?hvdvm$new` fails because the use of R6 classes in the style made for the development of the `imgnoiser` package is rather new and the R help system is not ready for them yet. To call the help documentation, use the second way as in `help('hvdvm$new')`. 
 
-If you don't recall which functions are available in a class isntance, just "print"" it and you will get a list of the class members.
+If you don't recall which functions are available in a class instance, just "print"" it and you will get a list of the class members.
 
 ```{r }
 my.vvm <- vvm$new()
@@ -96,8 +94,8 @@ imgnoiser.option('show.progress', FALSE)
 my.hvdvm <- hvdvm$new(has.RGGB.pattern = TRUE)
 my.vvm <- vvm$new(has.RGGB.pattern = TRUE)
 
-my.hvdvm$digest('../data-raw/iso100White.csv', '../data-raw/')
-my.vvm$digest('crop_', 240, '../data-raw/')
+my.hvdvm$digest('//localhost/data-raw/iso100White.csv', '//localhost/data-raw/')
+my.vvm$digest('crop_', 240, '//localhost/data-raw/')
 # 
 # imgnoiser.save(my.hvdvm, '../data-raw/my.hvdvm', save.options=FALSE, stop.overwrite=FALSE)
 # imgnoiser.save(my.vvm, '../data-raw/my.vvm', save.options=FALSE, stop.overwrite=FALSE)
@@ -169,15 +167,17 @@ We can call the `my.obj$fit.model()` function again but with an argument for the
 Lets fit a robust linear model using as weight the reciprocal squared values of the mean:
 
 ```{r eval=FALSE}
+library(robustbase)
 # This time we will set the model name and model family parameters
-my.object$fit.model(model.name = 'weighted', model.family = 'lmrob', weights=1/mean^2)
+my.object$fit.model(model.name = 'weighted', weights=1/mean^2)
 ```
 
 ```{r echo=FALSE}
-my.vvm$fit.model(model.name = 'weighted', model.family = 'lmrob', weights=1/mean^2)
+my.vvm$fit.model(model.name = 'weighted', weights=1/mean^2)
 ```
-```{r echo=FALSE, message=FALSE, results='hide'}
-my.hvdvm$fit.model(model.name = 'weighted', model.family = 'lmrob', weights=1/mean^2)
+```{r echo=FALSE}
+# , message=FALSE, results='hide'
+my.hvdvm$fit.model(model.name = 'weighted', weights=1/mean^2)
 ```
 
 Notice how we specify the `weights` argument for the `lmrob` function using the variable names in our model. All the parameters that don't correspond to the `my.obj$fit.model()` function are passed directly to the fitting function. This allows the use any and every parameter available for them.
@@ -368,6 +368,8 @@ my.obj$exists.model('standard')
 
 ```{r echo=FALSE}
 shared.legend <- function(g1, g2, main, ylab) {
+  library(ggplot2)
+  library(gridExtra)
 
   select <- function(x) {
     if ('name' %in% names(x))
@@ -377,7 +379,7 @@ shared.legend <- function(g1, g2, main, ylab) {
   }
 
   g_legend <- function(p){
-    tmp <- ggplotGrob(p)
+    tmp <- ggplot2::ggplotGrob(p)
     leg <- which(sapply(tmp$grobs, select) == "guide-box")
     legend <- tmp$grobs[[leg]]
     return(legend)
@@ -386,10 +388,9 @@ shared.legend <- function(g1, g2, main, ylab) {
   legend <- g_legend(g1)
   lwidth <- sum(legend$width)
 
-  ## using grid.arrange for convenience
   ## could also manually push viewports
-  gridExtra::grid.arrange(arrangeGrob(g1 + theme(legend.position="none"),
-                           g2 + theme(legend.position="none"),
+  gridExtra::grid.arrange(gridExtra::arrangeGrob(g1 + ggplot2::theme(legend.position="none"),
+                           g2 + ggplot2::theme(legend.position="none"),
                            main = main,
                            left = ylab), legend,
                widths=unit.c(unit(1, "npc") - lwidth, lwidth), nrow=1)

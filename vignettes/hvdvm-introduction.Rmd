@@ -65,7 +65,7 @@ Without the proper tools, the application of this technique is labor intensive, 
 
 # Input Data for the *hvdvm* Class {#hvdvm-input}
 
-We need a set of image file samples, with the `.fit` format, from shots taken to a uniformly lit flat plain surface. The vignette [*Collecting Image Samples"*](collecting-samples.html) contains a thorough explanation about how to get those image samples.
+We need a set of image file samples, with the [`FITS`](http://fits.gsfc.nasa.gov/) or the [`PGM`](http://netpbm.sourceforge.net/doc/pgm.html) format, from shots taken to a uniformly lit flat plain surface. The vignette [*Collecting Image Samples"*](collecting-samples.html) contains a thorough explanation about how to get those image samples.
 
 As we have already seen, we will need pairs of photographs taken under identical conditions. The functions in the `hvdvm` class will process every pair of samples from photographs taken under the same conditions (regardless of their order). 
 
@@ -82,7 +82,7 @@ The `hvdvm` class needs information to identify the shots taken under identical 
 This command will extract *common* (`-common`) exif metadata from the Nikon '.nef' image files (`-ext nef`) in the current directory (`./`) using the .csv format (`-csv`) and the output will be sorted by photo file name (`-sort`). The output redirection (`> ISO100Conds.csv`) will save the command output into the `"ISO100Conds.csv"` file in the current directory. We must edit this file to get at the end one containing this column names:
 
 ```{r, echo = FALSE, message = FALSE, results = "hide"}
-csv.df <- read.csv('../data-raw/iso100White.csv')
+csv.df <- read.csv('//localhost/data-raw/iso100White.csv')
 csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'ISO', 'shutter.speed', 'aperture', 'focal.length')]
 ```
 
@@ -107,9 +107,9 @@ The names of these columns is required exactly as shown in the list above. Howev
 
 Notice the `crop.file.name` and `lighting` columns do not come in the `ExifTool` .csv file. We must add those columns to the .csv file "by hand". The `crop.file.name` is the name of the sample image file cropped from the photo file indicated in the column `FileName` in the output of ExifTool. 
 
-As the rows in the `ExifTool` .csv file are sorted by photo file name, and the the crop files has a name with with an increasing numeric suffix (e.g. `crop_1.fit`, `crop_2.fit`, etc.) with the same sequence of the .csv sorted photo file names (that is the way `Iris` software will produce those crops), we can easily add the `crop.file.name` column and set the value `crop_1.fit` for the first row, `crop_2.fit` for the second one and so on. 
+As the rows in the `ExifTool` .csv file are sorted by photo file name, and the the crop files has a name with with an increasing numeric suffix (e.g. `crop_1.fit`, `crop_2.fit`, etc.) with the same sequence of the .csv sorted photo file names (that is the way `Iris` software will produce those crops), we can easily add the `crop.file.name` column and set the value `crop_1.fit` for the first row, `crop_2.fit` for the second one and so on.
 
-It is very important the crop file names and the photo file names are correctly matched, otherwise images taken with differente conditions will be paired and produce unexpected and invalid results. Furthermore, the crop file names should also be correct, so the class can open and read those image files, they must not include the file path, but just the file name and extension (e.g. `crop_12.fit`).
+It is very important the crop file names and the photo file names are correctly matched, otherwise images taken with differente conditions will be paired, producing unexpected and invalid results. Furthermore, the crop file names should also be correct, so the class can open and read those image files, they must not include the file path, but just the file name and extension (e.g. `crop_12.fit`).
 
 Finally we need to add the `lighting` column with information based on our notes about the changes in the intensity of the light over the target scene. The exact values for this column are not important. The class will just distinguish between the different values of this variable.
 
@@ -160,7 +160,7 @@ The function that reads and process the image samples using the *hvdm* technique
 For this example, the file is named `iso100White.csv` and looks like this:
 
 ```{r, echo=FALSE, message=FALSE, results="hide"}
-csv.df <- read.csv('../data-raw/iso100White.csv')
+csv.df <- read.csv('//localhost/data-raw/iso100White.csv')
 csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'ISO', 'shutter.speed', 'aperture', 'focal.length')]
 ```
 
@@ -185,7 +185,7 @@ When the `show.progress` option is `TRUE`, as it is by default, a progress bar w
 
 ```{r echo=FALSE, message=FALSE, results="hide"}
 imgnoiser.option('show.progress', FALSE)
-my.hvdvm$digest('../data-raw/iso100White.csv', '../data-raw/')
+my.hvdvm$digest('//localhost/data-raw/iso100White.csv', '//localhost/data-raw/')
 #my.hvdvm <- imgnoiser.load('../data-raw/my.hvdvm')
 ```
 

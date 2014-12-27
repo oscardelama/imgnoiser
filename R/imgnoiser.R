@@ -19,21 +19,14 @@
 
 
 ##------------------------------------
-#' The imgnoiser package
+#' imgnoiser.
 #'
 #' Tools to measure, analyze and profile raw image noise.
 #'
 #' The \pkg{imgnoiser} package contains tools aimed to automatize
-#' the measurement, analysis and profiling of image noise.
+#' the measurement, analysis and profiling of raw image noise.
 #'
 #' @docType package
-#' @name imgnoiser-package
+#' @name imgnoiser
 ##------------------------------------
 NULL
-
-#------------------------------------
-# .onAttach
-#------------------------------------
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Welcome to imgnoiser.")
-}

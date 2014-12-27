@@ -148,8 +148,8 @@
 #'  A single character value with the name of the default fitted model.
 #'
 #'  During the noise analysis, a given model family (check the
-#'  \code{\link{fit.model.family}} option) can be fit over a given data model
-#'  (check the \code{\link{fit.model.data}} option) with some specific fitting
+#'  \code{fit.model.family} option) can be fit over a given data model
+#'  (check the \code{fit.model.data} option) with some specific fitting
 #'  parameters. This particular combination can be saved with a given name which
 #'  is called the \emph{model name}.
 #'
@@ -191,7 +191,8 @@
 #'  A function returning the values predicted by a fitted model from a given
 #'  model family.
 #'
-#'  The default value for this option is \code{\link{imgnoiser.model.prediction}}.
+#'  The default value for this option is
+#'  \code{\link{imgnoiser.model.predictions}}.
 #'
 #'  The value of this option can be changed to refer to another function
 #'  providing the prediciton for additional model families. This other function
@@ -244,8 +245,8 @@
 #' # Get all the options in the imgnoiser package
 #' imgnoiser.option()
 #'
-#' # Get the default linear model
-#' imgnoiser.option('default.fit.model')
+#' # Get the default model family
+#' imgnoiser.option('fit.model.family')
 #'
 #' # Get the current show.progress option value
 #' old.show.progress <- imgnoiser.option('show.progress')
@@ -254,7 +255,7 @@
 #' # Show the show.progress option is off
 #' imgnoiser.option('show.progress')
 #' # Reset the show.progress option with the previous value
-#' set.imgnoiser.option('show.progress', old.show.progress)
+#' imgnoiser.option('show.progress', old.show.progress)
 #'
 #' @name imgnoiser.option
 #' @export
@@ -282,7 +283,7 @@ imgnoiser.option <- function(name, value) {
 #' Save all the package options in a file.
 #'
 #' @usage
-#'   imgnoiser.options.save <- function(
+#'   imgnoiser.options.save(
 #'      file.name = stop("A 'file.name' argument is required."),
 #'      stop.overwrite = imgnoiser.option('stop.save.overwrite')
 #'      )
@@ -373,7 +374,7 @@ imgnoiser.options.load <- function(
 }
 
 #------------------------------------
-# .onAttach
+# .onLoad
 #------------------------------------
 .onLoad <- function(libname, pkgname) {
 
@@ -399,7 +400,7 @@ imgnoiser.options.load <- function(
     ,'channel.labels'       = c('channel 1', 'channel 2', 'channel 3', 'channel 4')
     ,'has.RGGB.pattern'     = FALSE
     ,'RGGB.channel.labels'  = c('Red', 'Green R', 'Green B', 'Blue')
-    ,'green.channels'       = NA
+    ,'green.channels'       = NULL
     ,'avg.green.channel.label' = 'Green Avg'
     ,'conds.col.map'        = photo.conds.col.map
     ,'fit.model'            = imgnoiser.fit.model
@@ -411,16 +412,17 @@ imgnoiser.options.load <- function(
     ,'stop.save.overwrite'  = TRUE
   )
 
+  #---------------------
+  # For testing Only ===> Remove for production
+  options('imgnoiser' =  NULL)
+  options('imgnoiser' =  all.package.options)
+  return(invisible())
+  #--------------------
+
   current.package.options <- getOption('imgnoiser')
   if (is.null(current.package.options))
     current.package.options <- all.package.options
   else {
-    #---------------------
-    # For testing Only ===> Remove for production
-    options('imgnoiser' =  all.package.options)
-    return(invisible())
-    #--------------------
-
     missing.options <- !(names(all.package.options) %in% names(current.package.options))
     if (any(missing.options)) {
       if (any(!missing.options))

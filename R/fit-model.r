@@ -46,9 +46,9 @@
 #'   this argument, see details bout this in the description of the return
 #'   value.
 #'
-#' @param noise.obj An instance, either of the class \code{\link{hvdvm}} or
-#'   \code{\link{vvm}}. This object provide the data from which the data model will
-#'   be constructed.
+#' @param noise.obj An instance, either of the class \code{\link{hvdvm}}
+#'   or \code{\link{vvm}}. This object provide the data from which the
+#'   data model will be constructed.
 #'
 #' @return A list with the following elements:
 #'  \itemize{
@@ -95,7 +95,7 @@
 #'  For the \emph{standard} model, which actually is the only one supported, the
 #'  data comes from the variance information in the instance object given in the
 #'  \code{noise.obj} argument, get through the use of the function
-#'  \code{noise.obj$get.var()}.
+#'  \code{noise.obj$var.df}.
 #'
 #'  The \code{x} and \code{y} values in the function return value are the
 #'  \code{mean} and the \code{var} variables in the variance data, and as
@@ -110,7 +110,7 @@
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}, the
 #'   option \code{get.model.src.data} of \code{\link{imgnoiser.option}},
 #'   \code{\link{imgnoiser.fit.model}},
-#'   \code{\link{imgnoiser.model.prediction}}
+#'   \code{\link{imgnoiser.model.predictions}}
 #'
 #' @export
 #-----------------------------
@@ -177,14 +177,6 @@ imgnoiser.get.model.source.data <- function(model.name, noise.obj) {
 #'      model.call.params
 #'      )
 #'
-#' @param x A numeric vector, the predictor (aka regressor) variable in the
-#'   model.
-#'
-#' @param y A numeric vector, the predicted (aka response or regression)
-#'   variable in the model.
-#'
-#'   The \code{x} and \code{y} arguments must have the same length.
-#'
 #' @param model.family The name of the model family that will be fit over the
 #'   given data. The supported model families are:
 #'
@@ -208,7 +200,7 @@ imgnoiser.get.model.source.data <- function(model.name, noise.obj) {
 #'
 #' @param model.formula An object of the class \code{"formula"}, to be used in
 #'   the fitting process, like -for example- the \code{formula} argument when
-#'   fitting a linear model using the function \code{\link{lm}}.
+#'   fitting a linear model using the function \code{lm}.
 #'
 #'   This formula is either, given directly by the user in the argument
 #'   \code{formula}, in the call to the \code{fit.model} function, or indirectly
@@ -237,7 +229,7 @@ imgnoiser.get.model.source.data <- function(model.name, noise.obj) {
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}, the
 #'   option \code{fit.model} of \code{\link{imgnoiser.option}},
 #'   \code{\link{imgnoiser.get.model.source.data}},
-#'   \code{\link{imgnoiser.model.prediction}}
+#'   \code{\link{imgnoiser.model.predictions}}
 #'
 #' @export
 #-----------------------------
@@ -252,11 +244,11 @@ imgnoiser.fit.model <- function(model.family, model.formula, dom.data, model.cal
     # Fit a robust regression
     ,lmrob = {
       #require(robustbase)
-      if (!requireNamespace("robustbase", quietly = TRUE)) {
+      if (requireNamespace("robustbase", quietly = TRUE))
+        do.call(robustbase::lmrob, c(list(formula=model.formula, data=dom.data), model.call.params))
+      else
         stop("Package robustbase needed for this function to work. Please install it."
              ,call. = FALSE)
-      }
-      do.call(robustbase::lmrob, c(list(formula=model.formula, data=dom.data), model.call.params))
     }
 
     # Fit a smooth spline
@@ -273,15 +265,18 @@ imgnoiser.fit.model <- function(model.family, model.formula, dom.data, model.cal
 # Fit a model to the data.
 #
 # fit.model(model.src.data, split.value, lazy.formula = NULL, model.family, degree, ...)
+#
+#' @importFrom data.table setnames
 #-----------------------------
 util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, model.family, degree, ...) {
 
   # Get the model data
   dom.data <- model.src.data[['data']]
   if (!is.null(split.value))
-    dom.data <- subset(dom.data, split.by == split.value)
+    dom.data <- subset(dom.data, dom.data$split.by == split.value)
   # Use the model names
-  names(dom.data) <- model.src.data[['label']][['term']]
+  # names(dom.data) <- model.src.data[['label']][['term']]
+  data.table::setnames(dom.data,  model.src.data[['label']][['term']])
 
   dots <- lazyeval::lazy_dots(...)
 
@@ -310,9 +305,9 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #' Get model predictions
 #'
 #' Return predicted values from the models fitted with the
-#' \code{\link{fit.model}} function in the classes \code{hvdvm} and \code{vvm}.
-#' It is used internally and is exposed only to provide an easy way to extend
-#' the package by adding new models.
+#' \code{\link{hvdvm$fit.model}} or \code{\link{vvm$fit.model}} function. It is
+#' used internally and is exposed only to provide an easy way to extend the
+#' package by adding new models.
 #'
 #' This function is internally called by the package. It is not expected a
 #' direct call to this function. It is made public to allow the user extend the
@@ -327,7 +322,7 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #' option on the basis of supporting new model families, because this function
 #' uses the \code{stats::predict} function to get the model predictions and all
 #' the well-known fitting models have sub classed that generic function to
-#' support their predicitions (see the \code{\link{predict}} function).
+#' support their predicitions (see the \code{predict} function).
 #'
 #' Even though, the chance to override this function can be useful. For example,
 #' for the case when the data model must be transformed to fulfill
@@ -337,7 +332,7 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #' domain of the data source.
 #'
 #' @usage
-#'   imgnoiser.model.prediction(
+#'   imgnoiser.model.predictions(
 #'      model.src.data,
 #'      fit,
 #'      model.family,
@@ -404,6 +399,7 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #'   \code{\link{imgnoiser.get.model.source.data}},
 #'   \code{\link{imgnoiser.fit.model}}
 #'
+#' @importFrom data.table setnames
 #' @export
 #-----------------------------
 imgnoiser.model.predictions <- function(model.src.data, fit, model.family, split.value, x.df) {
@@ -412,7 +408,8 @@ imgnoiser.model.predictions <- function(model.src.data, fit, model.family, split
   # If not given, use 97.5% confidence level (normal case)
   if (!is.given(conf.factor)) conf.factor <- 1.96
   # Use domain names
-  names(x.df) <- model.src.data[['label']][['term']]['x']
+  #names(x.df) <- model.src.data[['label']][['term']]['x']
+  data.table::setnames(x.df, model.src.data[['label']][['term']]['x'])
 
   pred <- stats::predict(fit, newdata = x.df, se.fit = TRUE)
 
@@ -426,7 +423,8 @@ imgnoiser.model.predictions <- function(model.src.data, fit, model.family, split
         ,'ucl'       = pred$fit + conf.factor * pred$se.fit
         ,row.names   = NULL
       )
-  names(result)[1:3] <- model.src.data[['label']][['term']][1:3]
+  #names(result)[1:3] <- model.src.data[['label']][['term']][1:3]
+  data.table::setnames(result, 1:3, model.src.data[['label']][['term']][1:3])
 
   result
 }

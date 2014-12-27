@@ -22,8 +22,8 @@
 #' Load imoiser objects
 #'
 #' Load an instance of a imgnoiser object saved in a specified file. An instance
-#' of the \code{imgnoiser} classes \code{\link{hvdvm-class}},
-#' \code{\link{vvvm-class}} is loaded from the a given file.
+#' of the \code{imgnoiser} classes \code{\link{hvdvm}},
+#' \code{\link{vvm}} is loaded from the a given file.
 #'
 #' @usage
 #'   imgnoiser.load(
@@ -110,16 +110,16 @@ imgnoiser.load <- function(
 #' Save imoiser objects
 #'
 #' Save an instance of a \code{imgnoiser} object to the specified file. An
-#' instance of the classes \code{\link{hvdvm-class}}, \code{\link{vvvm-class}}
+#' instance of the classes \code{\link{hvdvm}}, \code{\link{vvm}}
 #' with all its internal data and models is saved to a file with a given name.
 #'
 #' @usage
-#'   imgnoiser.save <- function(
-#'      obj            = stop("A 'obj' argument is required.")
-#'      file.name      = deparse(substitute(obj))
-#'      save.options   = imgnoiser.option('obj.save.options')
+#'   imgnoiser.save(
+#'      obj            = stop("An 'obj' argument is required."),
+#'      file.name      = deparse(substitute(obj)),
+#'      save.options   = imgnoiser.option('obj.save.options'),
 #'      stop.overwrite = imgnoiser.option('stop.save.overwrite')
-#'      )
+#'    )
 #'
 #' @param obj The \code{imgnoiser} object that will be saved.
 #'

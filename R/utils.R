@@ -202,34 +202,3 @@ more.than.one <- function(x) {
   result;
 }
 
-#-----------------------------
-# sided.one.legend(x)
-#' @export
-#-----------------------------
-sided.one.legend <- function(g1, g2, name, main, ylab) {
-
-  select <- function(x) {
-    if ('name' %in% names(x))
-      x$name
-    else
-      'NULL'
-  }
-
-  g_legend <- function(p, name){
-    tmp <- ggplotGrob(p)
-    leg <- which(sapply(tmp$grobs, select) == "guide-box")
-    legend <- tmp$grobs[[leg]]
-    return(legend)
-  }
-
-  legend <- g_legend(g1, name)
-  lwidth <- sum(legend$width)
-
-  ## using grid.arrange for convenience
-  ## could also manually push viewports
-  gridExtra::grid.arrange(arrangeGrob(g1 + theme(legend.position="none"),
-                           g2 + theme(legend.position="none"),
-                           main = main,
-                           left = ylab), legend,
-               widths=unit.c(unit(1, "npc") - lwidth, lwidth), nrow=1)
-}

@@ -1,5 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+\.Rproj\.user/*.*
 ^packrat/
 ^\.Rprofile$
 ^data-raw/
@@ -10,3 +11,4 @@
 ^.Rhistory
 ^vignettes/*.md
 ^vignettes/*.html
+^\.travis\.yml$

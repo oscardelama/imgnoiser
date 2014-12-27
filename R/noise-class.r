@@ -17,7 +17,12 @@
 #     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------------
 
-
+#-----------------------------------------------------------------------------
+#' @import ggplot2
+#' @importFrom R6 R6Class
+#' @importFrom data.table rbindlist
+#' @importFrom data.table setnames
+#-----------------------------------------------------------------------------
 noise.var <- R6::R6Class('noise.var',
 
   private = list(
@@ -168,7 +173,7 @@ noise.var <- R6::R6Class('noise.var',
         channel.labels <- imgnoiser.option('RGGB.channel.labels')
         green.channels <- c(2L,3L)
       } else {
-        if (!is.na(green.channels))
+        if (!is.null(green.channels))
           green.channels <- valid.green.channels(green.channels)
       }
 
@@ -469,7 +474,8 @@ noise.var <- R6::R6Class('noise.var',
         # Get the model predictions
         model.predictions.df <- private$.model[[model.name]][['predictions']]
         # Use XY names
-        names(model.predictions.df)[1:3] <- names(label$term)[1:3]
+        # names(model.predictions.df)[1:3] <- names(label$term)[1:3]
+        data.table::setnames(model.predictions.df, 1:3, names(label$term)[1:3])
 
         if (fit == TRUE) {
           # Use user line width
@@ -518,10 +524,12 @@ noise.var.doc <- list()
 #' A vector with the channel labels. This labels are set when an instance of the
 #' class is constructed using the \code{new} function.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$channel.labels
 #'
 #'   vvm$channel.labels
+#'  }
 #'
 #' @return A character vector with five values. The first two are for the first
 #'   row in the 2x2 Bayer pattern, the second pair are for the second row, and
@@ -537,7 +545,7 @@ noise.var.doc <- list()
 #'
 #' @seealso \code{\link{hvdvm$new}}, \code{\link{vvm$new}}
 #'
-#' @aliases vvm$channel.labels
+#' @aliases vvm$channel.labels hvdvm$channel.labels
 #' @name hvdvm$channel.labels
 #----------------------------------------------
 noise.var.doc$channel.labels <- function()
@@ -548,10 +556,12 @@ noise.var.doc$channel.labels <- function()
 #'
 #' Get a list with the currently fitted models.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$model.list
 #'
 #'   vvm$model.list
+#'  }
 #'
 #' @return A list where the names are those given to the fitted models and the
 #'   values are a character value with the call used to fit the model.
@@ -570,8 +580,8 @@ noise.var.doc$channel.labels <- function()
 #'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
 #'
-#' @aliases vvm$channel.labels
-#' @name hvdvm$channel.labels
+#' @aliases vvm$model.list hvdvm$model.list
+#' @name hvdvm$model.list
 #----------------------------------------------
 noise.var.doc$model.list <- function()
   NULL
@@ -606,7 +616,8 @@ noise.var.doc$model.list <- function()
 #' If you don't like those labels you can change the value of that option before
 #' calling this function.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$new(
 #'      channel.labels = imgnoiser.option('channel.labels'),
 #'      green.channels = imgnoiser.option('green.channels'),
@@ -620,6 +631,7 @@ noise.var.doc$model.list <- function()
 #'      has.RGGB.pattern = imgnoiser.option('has.RGGB.pattern'),
 #'      avg.green.label = imgnoiser.option('avg.green.channel.label')
 #'      )
+#'  }
 #'
 #' @param channel.labels A vector of characters for the labeling of each one of
 #'   the photosites colors in the (raw) image samples. Its default value is
@@ -653,12 +665,12 @@ noise.var.doc$model.list <- function()
 #' my.hvdvm <- hvdvm$new()
 #'
 #' # Create an instance for samples with the RGGB pattern
-#' my.hvdvm <- hvdvm$new(is.RGGB = TRUE)
+#' my.hvdvm <- hvdvm$new(has.RGGB.pattern = TRUE)
 #'
 #' # Specify the channel labels in Italian and mark which of those
 #' # are the green channels, both as options, and initialize the class
 #' # without passing arguments.
-#' imgnoiser.option('channel.labels', c('Verde', 'Blu', 'Rosso', 'Verde'))
+#' imgnoiser.option('channel.labels', c('Verde B', 'Blu', 'Rosso', 'Verde R'))
 #' imgnoiser.option('green.channels', c(1,4))
 #' my.hvdvm <- hvdvm$new()
 #'
@@ -677,24 +689,26 @@ noise.var.doc$initialize <- function()
 #'
 #' Fits a model through specific variables in the data computed and collected by
 #' the \code{digest} function. The arguments and semantics of this function are
-#' the same in both, the \code{\link{hvdvm}} and the \code{\link{vvm}} class.
+#' the same in both, the \code{\link{hvdvm}} and the
+#' \code{\link{vvm}} class.
 #'
 #' The model concept bundles variables selected from those computed by the
-#' \link{digest} function to an optional fitting model, that will be fitted over
-#' that selected data. Later -for example- you can plot the data in the model or
-#' the predictions from the fitted model.
+#' \code{\link{hvdvm$digest}} or the \code{\link{vvm$digest}} function, to an
+#' optional fitting model, that will be fitted over that selected data. Then
+#' -for example- we can plot the data in the model with the predictions from the
+#' fitted model.
 #'
 #' All the parameters have sensible default values that you can customize as
-#' options with \code{\link{imgnoiser.option}} function.
+#' options with \code{\link{imgnoiser.option}()} function.
 #'
-#' @usage
-#'
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$fit.model(
 #'      model.name = imgnoiser.option('fit.model.name'),
 #'      model.family = imgnoiser.option('fit.model.family'),
 #'      degree = 1L,
 #'      formula = NULL,
-#'      model.data = imgnoiser.option('fit.model.data'),
+#'      model.data.name = imgnoiser.option('fit.model.data'),
 #'      ...
 #'      )
 #'
@@ -703,9 +717,10 @@ noise.var.doc$initialize <- function()
 #'      model.family = imgnoiser.option('fit.model.family'),
 #'      degree = 2L,
 #'      formula = NULL,
-#'      model.data = imgnoiser.option('fit.model.data'),
+#'      model.data.name = imgnoiser.option('fit.model.data'),
 #'      ...
 #'      )
+#'  }
 #'
 #' @param model.name The name you assign to the model this function will
 #'   create.
@@ -770,9 +785,9 @@ noise.var.doc$initialize <- function()
 #'   This return value is irrelevant when the class is used in interactive
 #'   way. It can be useful for developers extending the class.
 #'
-#' @seealso The \code{\link{imgnoiser.option}} options \code{fit.model},
-#'   \code{get.model.predictions} and \code{get.model.src.data},
-#'   \code{\link{hvdvm$digest}}, \code{\link{vvm$digest}}
+#' @seealso The \code{fit.model}, \code{get.model.predictions} and
+#'   \code{get.model.src.data} options. The \code{hvdvm$digest()},
+#'   \code{\link{vvm$digest}()} functions.
 #'
 #' @examples
 #' \dontrun{
@@ -783,12 +798,13 @@ noise.var.doc$initialize <- function()
 #' #> lm(formula = var ~ mean, data = model.src("std.var"))
 #'
 #' # Fit a robust weighted model with the name 'weighted'
+#' library(robustbase)
 #' my.hvdvm$fit.model(model.name = 'weighted', model.family = 'lmrob', weights=1/mean^2)
 #' #> The model was succesfully fitted using:
 #' #> lmrob(formula = var ~ mean, data = model.src("std.var"), weights = 1/mean^2)
 #' }
 #'
-#' @aliases vvm$fit.model
+#' @aliases vvm$fit.model hvdvm$fit.model
 #' @name hvdvm$fit.model
 #----------------------------------------------
 noise.var.doc$fit.model <-
@@ -806,7 +822,8 @@ noise.var.doc$fit.model <-
 #'
 #' Get the values predicted from a given fitted model.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   vvm$get.model.predictions(
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
@@ -814,6 +831,7 @@ noise.var.doc$fit.model <-
 #'   hvdvm$get.model.predictions(
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
+#'  }
 #'
 #' @param model.name The name of the model whose predicitions are desired.
 #'
@@ -883,7 +901,8 @@ noise.var.doc$get.model.predictions <- function(model.name = imgnoiser.option('f
 #' printed by this function contains four subsections, with the summary of the
 #' model fitted for each channel.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   vvm$print.model.summary(
 #'      model.name = imgnoiser.option('fit.model.name'),
 #'      select = NULL,
@@ -895,13 +914,14 @@ noise.var.doc$get.model.predictions <- function(model.name = imgnoiser.option('f
 #'      select = NULL,
 #'      ...
 #'      )
+#'  }
 #'
 #' @param model.name The name of the fitted model whose summary is desired.
 #'
 #' @param select A vector with the indices or labels of the channels whose
 #'   summary is desired.
 #'
-#' @param ... Additional parameters for the \code{\link{summary}} which is
+#' @param ... Additional parameters for the \code{summary} which is
 #'   called by this function to get the model fitting summary information.
 #'
 #' @return Prints a report with four summaries, one for each fitted channel. The
@@ -920,7 +940,7 @@ noise.var.doc$get.model.predictions <- function(model.name = imgnoiser.option('f
 #' }
 #'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
-#' @aliases vvm$print.model.summary
+#' @aliases vvm$print.model.summary hvdvm$print.model.summary
 #' @name hvdvm$print.model.summary
 #----------------------------------------------
 noise.var.doc$print.model.summary <- function(
@@ -935,7 +955,8 @@ noise.var.doc$print.model.summary <- function(
 #'
 #' Find if a model with a given name has already been fitted.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$exists.model(
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
@@ -943,6 +964,7 @@ noise.var.doc$print.model.summary <- function(
 #'   vvm$exists.model(
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
+#'  }
 #'
 #' @param model.name A character vector with the name of the models we want to
 #'   know if already exists.
@@ -962,7 +984,7 @@ noise.var.doc$print.model.summary <- function(
 #'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
 #'
-#' @aliases vvm$exists.model
+#' @aliases vvm$exists.model hvdvm$exists.model
 #' @name hvdvm$exists.model
 ##------------------------------
 noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.name'))
@@ -980,7 +1002,8 @@ noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.
 #' each single model fitted in call to the \code{fit.model} function. This
 #' function returns a list of those channel model objects.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$get.model(
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
@@ -988,6 +1011,7 @@ noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.
 #'   hvdvm$get.model(
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
+#'  }
 #'
 #' @return A list whose names are the channel labels and the values are the
 #'   objects fitted for each channel.
@@ -1003,7 +1027,7 @@ noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.
 #' #> [1] "Blue"    "Green B" "Green R" "Red"
 #' }
 #'
-#' @aliases vvm$get.model
+#' @aliases vvm$get.model hvdvm$get.model
 #' @name hvdvm$get.model
 #----------------------------------------------
 noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.name'))
@@ -1014,7 +1038,8 @@ noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.nam
 #'
 #' Remove a model fitted with a given name.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$remove.model(
 #'      model.name = stop('A model name argument is required.')
 #'      )
@@ -1022,6 +1047,7 @@ noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.nam
 #'   vvm$remove.model(
 #'      model.name = stop('A model name argument is required.')
 #'      )
+#'  }
 #'
 #' @param model.name The name of the model that will be removed (deleted).
 #'
@@ -1032,7 +1058,7 @@ noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.nam
 #' #> The model with name "standard" has been removed.
 #' }
 #'
-#' @aliases vvm$remove.model
+#' @aliases vvm$remove.model hvdvm$remove.model
 #' @name hvdvm$remove.model
 #----------------------------------------------
 noise.var.doc$remove.model = function(model.name = stop('A model name argument is required.'))
@@ -1041,7 +1067,8 @@ noise.var.doc$remove.model = function(model.name = stop('A model name argument i
 #----------------------------------------------
 #' Plot a fitted model or its source data
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$plot(
 #'      model.name = FALSE,
 #'      obs = TRUE,
@@ -1068,9 +1095,10 @@ noise.var.doc$remove.model = function(model.name = stop('A model name argument i
 #'      xlab = NA,
 #'      ylab = NA,
 #'      xlim = NULL,
-#'      ylim = NULL
+#'      ylim = NULL,
 #'      warnings = FALSE
 #'      )
+#'  }
 #'
 #' @param model.name Name of the model whose prediction (see the \code{fit}
 #'   argument) or confidence area (see the \code{confid} argument) are desired
@@ -1136,7 +1164,7 @@ noise.var.doc$remove.model = function(model.name = stop('A model name argument i
 #'    )
 #' }
 #'
-#' @aliases vvm$plot
+#' @aliases vvm$plot hvdvm$plot
 #' @name hvdvm$plot
 #----------------------------------------------
 noise.var.doc$plot <- function(
@@ -1149,6 +1177,9 @@ noise.var.doc$plot <- function(
                 ,subt = NA
                 ,xlab = NA
                 ,ylab = NA
+                ,xlim = NULL
+                ,ylim = NULL
+                ,warnings = FALSE
       )
   NULL
 

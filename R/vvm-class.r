@@ -18,8 +18,12 @@
 #-----------------------------------------------------------------------------
 
 
-#' @include noiseVar_class.R
+#-----------------------------------------------------------------------------
+#' @include noise-class.r
+#' @importFrom R6 R6Class
+#' @importFrom data.table rbindlist
 #' @export
+#-----------------------------------------------------------------------------
 vvm <- R6::R6Class('vvm', inherit = noise.var,
 
   public = list(
@@ -68,7 +72,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
 
-        cfa <- split_cfa(file.name, file.path)
+        cfa <- split.cfa(file.name, file.path)
 
         # Build a sythetic channel with the average of both green channels
         if (known.greens) {
@@ -145,7 +149,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     ## fit.model (documented here)
     ##------------------------------
     ,fit.model = function(
-      model.name = imgnoiser.option('fit.model.name')
+       model.name = imgnoiser.option('fit.model.name')
       ,model.family = imgnoiser.option('fit.model.family')
       ,degree = 2L
       ,formula = NULL
@@ -171,7 +175,7 @@ vvm.doc <- list()
 #' Read image samples and compute variance and covariance statistics for
 #' each channnel.
 #'
-#' The calling arguments describe the sequence of raw image files that will be
+#' The calling arguments describe the list of raw image files that will be
 #' processed. The image samples file names are expected to have the following
 #' pattern:
 #'
@@ -191,13 +195,15 @@ vvm.doc <- list()
 #' If your sample file names do not follow this pattern, you can specify them as
 #' a character vector used as argument for the \code{<img.file.name>} parameter.
 #'
-#' @usage
-#'   vvm.doc$digest(
+#' @section Usage:
+#'  \preformatted{
+#'   vvm$digest(
 #'      img.file.name = stop("The 'img.file.name' argument is required"),
 #'      img.file.count = NULL,
 #'      file.path = './',
 #'      img.file.name.ext = '.fit'
-#' )
+#'      )
+#'  }
 #'
 #' @param img.file.name A single character value, with the prefix of the raw
 #'   image samples file names. It can also be a character vector with the whole
@@ -212,8 +218,13 @@ vvm.doc <- list()
 #'
 #' @param img.file.name.ext The file name extension of the raw image file
 #'   samples. It can be 'fit' or 'fits'. This file name extension may start with
-#'   a period as in '.fit' or not ('fit'). When required, the function will add
+#'   a period as in '.fit' or not (e.g. 'fit'). When required, the function will add
 #'   the period '.' to build the sequence of file names.
+#'
+#'   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
+#'   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
+#'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format. The letter
+#'   case is irrelevant for the file name extension.
 #'
 #' @return A \code{invisible} instance of the calling object.
 #'
@@ -249,95 +260,102 @@ vvm.doc$digest <- function(
 #' from each pair of images samples taken under identical photographic
 #' conditions.
 #'
-#' After the \emph{vvm} processing, the resulting variance and mean value
-#' are expected to have a linear relationship.
+#' @section Usage:
+#'  \preformatted{
+#'   vvm$var.df
+#'  }
 #'
-#' @usage
-#'   vvm$get.var()
-#'
-#' @return A data.frame with the variance data from the channels in the
-#' image samples processed by the \code{\link{digest}} function. It contains the following
-#' columns:
+#' @return A data.frame with the variance data from the channels in the image
+#'   samples processed by the \code{\link{vvm$digest}} function. It contains the
+#'   following columns:
 #'
 #' \itemize{
 #'
-#'  \item \code{cond}: A key for the photographic conditions common to the two
-#'  processed samples. The detail of the photographic conditions is returned
-#'  by the \code{\link{vvm$get.photo.conditions}} function, where the key is
-#'  the value in this \code{cond} value.
+#'  \item \code{pict}: Name of the processed image sample file.
 #'
-#'  \item \code{pict1, pict2}: Name of the processed image samples files.
+#'  \item \code{channel}: The label of the channel in the sample file that was
+#'  processed.
 #'
-#'  \item \code{channel}: The label of the channel whose processed mean
-#'  and variance are shown in the following columns.
+#'  \item \code{mean}: The mean of the photosites values in the channel
+#'  \code{channel} in the image sample \code{pict}.
 #'
-#'  \item \code{mean}: The mean of the photosites values of the average image,
-#'  computed pixel by pixel, from the samples \code{pict1} and \code{pict2}.
-#'
-#'  \item \code{var}: The half of the photosite values variance of the
-#'  difference image, computed pixel by pixel, of the \code{pict1} image minus
-#'  the \code{pict2} one.
+#'  \item \code{var}: The variance of the photosites values in the channel
+#'  \code{channel} in the image sample \code{pict}.
 #' }
 #'
+#' As a convenience, when possible, there is a channel labeled \emph{"Green
+#' Avg"} with information summarizing both green channels in the sample. However
+#' this label can be customized in the instance object creation with the
+#' \code{\link{vvm$new}} function.
+#'
+#' When this data is included the \code{mean} column contains the mean
+#' photosites values considering both green channels as a single whole, the same
+#' applies for the corresponding \code{var} column.
+#'
+#' This data is computed only if the green channels have been specified in the
+#' instance creation using the \code{green.channels} argument of the
+#' \code{\link{vvm$new}} function.
+#'
 #' @examples
+#' \dontrun{
+#'
 #' # print the head of the variance data frame
-#' head(my.vvm$get.var())
+#' head(my.vvm$var.df)
 #'
 #' # Pass the variance data to other variable
-#' var <- my.vvm$get.var()
+#' var <- my.vvm$var.df
 #'
 #' # From here, it is just as like any data frame.
 #' # You can, for example, get a subset with the red channel rows with mean above 2000
 #' red.var <- subset(var, channel =='Red' & mean > 2000, var)
+#'  }
 #'
-#' @name vvm$get.var
+#' @name vvm$var.df
 #----------------------------------------------
-vvm.doc$get.var <- function() NULL
+vvm.doc$var.df <- function() NULL
 
 
 #----------------------------------------------
 #' Get the resulting covariance data.
 #'
-#' Returns the covariance data computed by the \code{\link{digest}} function
-#' from each pair of images samples taken under identical photographic
-#' conditions.
+#' Returns the covariance data computed by the \code{\link{vvm$digest}} function
+#' from each images sample.
 #'
-#' @usage
-#'   vvm$get.cov()
+#' @section Usage:
+#'  \preformatted{
+#'   vvm$cov.df
+#'  }
 #'
 #' @return A data.frame with the covariance data from the channels in the image
-#'   samples computed by the \code{\link{digest}} function. It contains the
+#'   samples computed by the \code{\link{vvm$digest}} function. It contains the
 #'   following columns:
 #'
 #' \itemize{
 #'
-#'  \item \code{cond}: A key for the photographic conditions common to the two
-#'  processed samples. The detail of the photographic conditions is returned
-#'  by the \code{\link{vvm$get.photo.conditions}} function, where the key is
-#'  the value in this \code{cond} value.
-#'
-#'  \item \code{pict1, pict2}: Name of the processed image samples files.
+#'  \item \code{pict1}: Name of the processed image sample file.
 #'
 #'  \item \code{chan.a, chan.b}: The label of the channels whose covariance is shown
-#'  in the following column \code{cov}.
+#'  in the \code{cov} column.
 #'
-#'  \item \code{cov}: The covariance between the channels \code{pict1, pict2} of the
-#'  difference image, computed pixel by pixel, of the \code{pict1} image minus
-#'  the \code{pict2} one.
+#'  \item \code{cov}: The covariance between the channels \code{chan.a, chan.b} in the
+#'  \code{pict1} image sample.
 #' }
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # print the head of the variance data frame
-#' head(my.vvm$get.cov())
+#' head(my.vvm$cov.df)
 #'
 #' # Merge the variance and covariance data
-#' merged <- merge(hvd$get.var(), hvd$get.cov(), by=c('pict1','pict2', 'cond'))
+#' merged <- merge(hvd$var.df, hvd$cov.df, by=c('pict1','pict2', 'cond'))
 #' # Plot all the covariances (y axis) with respect to the means (x axis)
 #' plot(merged$mean, merged$cov)
+#' }
 #'
-#' @name vvm$get.cov
+#' @name vvm$cov.df
 #----------------------------------------------
-vvm.doc$get.cov <- function() NULL
+vvm.doc$cov.df <- function() NULL
 
 rm(vvm.doc)
 

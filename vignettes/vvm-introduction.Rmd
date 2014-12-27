@@ -14,10 +14,8 @@ vignette: >
 ```{r echo = FALSE, message = FALSE}
   library(imgnoiser)
   library(printr)
-  library(pander)
-  library(gridExtra)
-  library(ggplot2)
   options(digits=4)
+
   knitr::opts_chunk$set(
      comment = "##"
     ,prompt = FALSE
@@ -60,11 +58,11 @@ Without the proper tools, the application of this technique is labor intensive, 
 
 The theoretical basis of this approach is explained in the article [*"A Simple DSLR Camera Sensor Noise Model"*](http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#VVM-theo), while the [*"Use of Linear Regressions to Model Camera Sensor Noise"*](http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#vvm-app) describes the practical application of that model. The article [*"Handling Heteroscedastic Data from Camera Sensor Noise"*](http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero) explains how to handle the heteroscedasticity that appear in the *Variance Versus Mean* relationship.
 
-# Input data for the *vvm* Class {#vvm-input}
+# Input Data for the *vvm* Class {#vvm-input}
 
 The input for the `vvm` class are the image sample files coming from raw photo files taken at different exposition levels. In the vignette ["collecting image samples"](collecting-image-samples.html) you will find more details about how to prepare those image samples.
 
-Actually, the only image [file format allowed is FITS](http://en.wikipedia.org/wiki/FITS). This corresponds to image file names with the extension '.fit' or '.fits'. However, not matter what the file name extension is, the `vvm` class expects files with FITS format. 
+The supported file name extensions are '.fit' or '.fits' for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format. The letter case is irrelevant for the file name extension.
 
 # Creating a *vvm* Instance {#create}
 
@@ -121,8 +119,8 @@ When the `show.progress` option is `TRUE` --as it is by default-- a progress bar
 
 ```{r echo=FALSE, message=FALSE, results="hide"}
 imgnoiser.option('show.progress', FALSE)
-my.vvm$digest('crop_', 240, '../data-raw/')
-imgnoiser.save(my.vvm, '../data-raw/my.vvm', stop.overwrite=FALSE)
+my.vvm$digest('crop_', 240, '//localhost/data-raw/')
+# imgnoiser.save(my.vvm, '//localhost/data-raw/my.vvm', stop.overwrite=FALSE)
 # my.vvm <- imgnoiser.load('../data-raw/my.vvm')
 ```
 

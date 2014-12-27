@@ -17,7 +17,12 @@
 #     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+#' @include noise-class.r
+#' @importFrom R6 R6Class
+#' @importFrom data.table rbindlist
 #' @export
+#-----------------------------------------------------------------------------
 hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
 
   private = list(
@@ -95,7 +100,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       splitted.channels <- list()
       split.channels <- function(.file.name, crop.files.path) {
         if (length(splitted.channels) == 0 || .file.name %nin% names(splitted.channels)) {
-          channels <- split_cfa(.file.name, crop.files.path)
+          channels <- split.cfa(.file.name, crop.files.path)
           splitted.channels[[.file.name]] <<- channels
           return (channels)
         } else
@@ -270,11 +275,13 @@ hvdvm.doc <- list()
 #' You can find more details about the input for this process in the
 #' \emph{"Introduction to the *hvdvm* technique"} vignette.
 #'
-#' @usage
+#' @section Usage:
+#'  \preformatted{
 #'   hvdvm$digest(
 #'      photo.conds.file,
 #'      crop.files.path = './'
 #'      )
+#'  }
 #'
 #' @param photo.conds.file The name of a .csv file describing the photographic
 #'   conditions under which each photograph was taken to produce the samples.
@@ -303,9 +310,11 @@ hvdvm.doc <- list()
 #'   \code{shutter.speed} as value, as in \code{list('ShutterSpeed' =
 #'   'shutter.speed')}.
 #'
-#'   The files named in the code{crop.file.name} column, regardless of their
-#'   file name extension, must have the
-#'   \href{http://en.wikipedia.org/wiki/FITS}{'FITS'} format.
+#'   The image sample file names in the \code{crop.file.name} column may have the
+#'   '.fit' or '.fits' extension for the
+#'   \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
+#'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format. The letter
+#'   case is irrelevant for the file name extension.
 #'
 #' @param crop.files.path The \code{photo.conds.file} argument refers to a file
 #'   containing a column named \code{crop.file.name} with the name of each image
@@ -314,8 +323,8 @@ hvdvm.doc <- list()
 #'   the \code{crop.file.name} values.
 #'
 #' @return The data resulting from this process can be seen using the functions
-#'   \code{\link{hvdvm$get.var}}, \code{\link{hvdvm$get.cov}} and
-#'   \code{\link{hvdvm$get.photo.conditions}}. Also, you can plot the result
+#'   \code{\link{hvdvm$var.df}}, \code{\link{hvdvm$cov.df}} and
+#'   \code{\link{hvdvm$photo.conditions.df}}. Also, you can plot the result
 #'   using the \code{\link{hvdvm$plot}} function.
 #'
 #' @seealso See the section \emph{"Input data for the *hvdvm* Procedure"} in the
@@ -323,10 +332,13 @@ hvdvm.doc <- list()
 #'   \code{\link{hvdvm}}.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # In this example, the conditions file and the image sample files are in
 #' # different folders, in this case specified with respect to the
 #' # current working directory.
 #' my.hvdvm$digest('./ISO100/White.csv', './ISO100/samples/')
+#' }
 #'
 #' @name hvdvm$digest
 #----------------------------------------------
@@ -339,18 +351,20 @@ hvdvm.doc$digest <- function() NULL
 #' Returns the variance data computed by the \code{\link{hvdvm$digest}}
 #' function.
 #'
-#' @usage
-#'   hvdvm$get.var
+#' @section Usage:
+#'  \preformatted{
+#'   hvdvm$var.df
+#'  }
 #'
 #' @return A data.frame with the variance data from the channels in the image
-#'   samples processed by the \code{\link{digest}} function. It contains the
+#'   samples processed by the \code{\link{hvdvm$digest}} function. It contains the
 #'   following columns:
 #'
 #' \itemize{
 #'
 #'  \item \code{cond}: A key for the photographic conditions common to the two
 #'  processed samples. The detail of the photographic conditions is returned
-#'  by the \code{\link{hvdvm$get.photo.conditions}} function, where the key is
+#'  by the \code{\link{hvdvm$photo.conditions.df}} function, where the key is
 #'  the value in this \code{cond} value.
 #'
 #'  \item \code{pict1, pict2}: Name of the processed image samples files.
@@ -368,48 +382,51 @@ hvdvm.doc$digest <- function() NULL
 #'
 #' @examples
 #' \dontrun{
+#'
 #' # print the head of the variance data frame
-#' head(my.hvdvm$get.var)
+#' head(my.hvdvm$var.df)
 #'
 #' # Pass the variance data to other variable
-#' var <- my.hvdvm$get.var
+#' var <- my.hvdvm$var.df
 #'
 #' # From here, it is just as like any data frame.
 #' # You can, for example, get a subset with the red channel rows with mean above 2000
 #' red.var <- subset(var, channel =='Red' & mean > 2000, var)
 #' }
 #'
-#' @seealso \code{\link{hvdvm$get.cov}}, \code{\link{hvdvm$get.photo.conditions}}
-#' @name hvdvm$get.var
+#' @seealso \code{\link{hvdvm$cov.df}}, \code{\link{hvdvm$photo.conditions.df}}
+#' @name hvdvm$var.df
 #----------------------------------------------
-hvdvm.doc$get.var <- function() NULL
+hvdvm.doc$var.df <- function() NULL
 
 
 #----------------------------------------------
 #' Get the resulting covariance data.
 #'
-#' Returns the covariance data computed by the \code{\link{digest}} function.
-#' This values are half of the covariance in the delta image, computed for each
-#' pair of channels combination.
+#' Returns the covariance data computed by the \code{\link{hvdvm$digest}}
+#' function. This values are half of the covariance in the delta image, computed
+#' for each pair of channels combination.
 #'
-#' @usage
-#'   hvdvm$get.cov
+#' @section Usage:
+#'  \preformatted{
+#'   hvdvm$cov.df
+#'  }
 #'
 #' @return A data.frame with the covariance data from the channels in each delta
-#'   image computed by the \code{\link{digest}} function. This data frame
+#'   image computed by the \code{\link{hvdvm$digest}} function. This data frame
 #'   contains the following columns:
 #'
 #' \itemize{
 #'
 #'  \item \code{cond}: A key for the photographic conditions common to the two
 #'  processed samples (\code{pict1, pict2}). The detail of the photographic
-#'  conditions is returned by the \code{\link{hvdvm$get.photo.conditions}}
+#'  conditions is returned by the \code{\link{hvdvm$photo.conditions.df}}
 #'  function, where the key is the value in this \code{cond} value.
 #'
 #'  \item \code{pict1, pict2}: Name of the processed image samples files.
 #'
 #'  \item \code{chan.a, chan.b}: The label of the channels whose covariance is shown
-#'  in the column \code{cov}.
+#'  in the \code{cov} column.
 #'
 #'  \item \code{cov}: The half of the photosite values covariance in the
 #'  \code{chan.a} and \code{chan.b} channels in the difference image, computed
@@ -417,18 +434,20 @@ hvdvm.doc$get.var <- function() NULL
 #' }
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # print the head of the variance data frame
-#' head(my.hvdvm$get.cov)
+#' head(my.hvdvm$cov.df)
 #'
 #' # Merge the variance and covariance data
-#' merged <- merge(hvd$get.var, hvd$get.cov, by=c('pict1','pict2', 'cond'))
+#' merged <- merge(hvd$var.df, hvd$cov.df, by=c('pict1','pict2', 'cond'))
 #' # Plot all the covariances (y axis) with respect to the means (x axis)
 #' plot(merged$mean, merged$cov)
-#'
-#' @seealso \code{\link{hvdvm$get.var}}, \code{\link{hvdvm$get.photo.conditions}}
-#' @name hvdvm$get.cov
+#' }
+#' @seealso \code{\link{hvdvm$var.df}}, \code{\link{hvdvm$photo.conditions.df}}
+#' @name hvdvm$cov.df
 #----------------------------------------------
-hvdvm.doc$get.cov <- function() NULL
+hvdvm.doc$cov.df <- function() NULL
 
 
 #----------------------------------------------
@@ -438,15 +457,17 @@ hvdvm.doc$get.cov <- function() NULL
 #' conditions under which the photographs, used to get the samples, were taken.
 #' It is computed by the \code{\link{hvdvm$digest}} function.
 #'
-#' @usage
-#'   hvdvm$get.photo.conditions
+#' @section Usage:
+#'  \preformatted{
+#'   hvdvm$photo.conditions.df
+#'  }
 #'
 #' @return A data.frame containing the following columns:
 #'  \enumerate{
 #'     \item\code{cond}
 #'      Is the key identifier of the conditions, which is referenced by the
-#'      variance and the covariance data in the \code{\link{hvdvm$get.var}} and
-#'      \code{\link{hvdvm$get.cov}} variables.
+#'      variance and the covariance data in the \code{\link{hvdvm$var.df}} and
+#'      \code{\link{hvdvm$cov.df}} variables.
 #'
 #'     \item\code{lighting}
 #'     \item\code{ISO}
@@ -462,19 +483,22 @@ hvdvm.doc$get.cov <- function() NULL
 #' \emph{hvdvm} technique requires pairs of images, only the conditions having
 #' more than one image sample are included here.
 #'
-#' @seealso \code{\link{hvdvm$digest}}, \code{\link{hvdvm$get.cov}},
-#'   \code{\link{hvdvm$get.var}}.
+#' @seealso \code{\link{hvdvm$digest}}, \code{\link{hvdvm$cov.df}},
+#'   \code{\link{hvdvm$var.df}}.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' # Find photographic conditions where more than 5 shots were taken
-#' phcond <- my.hvdvm$get.photo.conditions()
+#' phcond <- my.hvdvm$photo.conditions.df
 #' subset(phcond, count > 5)
+#' }
 #'
-#' @seealso \code{\link{hvdvm$get.var}}, \code{\link{hvdvm$get.cov}}
+#' @seealso \code{\link{hvdvm$var.df}}, \code{\link{hvdvm$cov.df}}
 #'
-#' @name hvdvm$get.photo.conditions
+#' @name hvdvm$photo.conditions.df
 #----------------------------------------------
-hvdvm.doc$get.photo.conditions <- function() NULL
+hvdvm.doc$photo.conditions.df <- function() NULL
 
 
 rm(hvdvm.doc)

@@ -75,9 +75,9 @@ Without such devices, we will just find the best evenly lit sample area in the i
 
 We can find the very best evenly lit image area using the *"Process > Filters > Variance..."* command in [`ImageJ` software](http://imagej.nih.gov/ij/), then we can crop that sample area from all the photo files, in just one step, using the command *"Digital photo > Decode RAW files"* in [`Iris` software](http://www.astrosurf.com/buil/us/iris/iris.htm). 
 
-The resulting files from `Iris` software will have a common prefix and a sequence number starting from `1`. They will also have the *.fit* name extension, which is expected by the classes in the `imgnoiser` package. For example, the common prefix can be `crop_` and if we feeded `Iris` with 245 photos, we will get the sample files named as `"crop_1.fit"`, `"crop_2.fit"` up to `"crop_245.fit"`. Please take into account the `imgnoiser` classes expects this sequence without a gap. So, if for any reason, you decided to exclude (and deleted) one or more crop files, to avoid the gap in the naming sequence you will have to delete all the crops and re-process the remaining raw files again with Iris software.
+The resulting files from `Iris` software will have a common prefix and a sequence number starting from `1`. They will also have the `.fit` name extension, which is supported by the classes in the `imgnoiser` package. For example, the common prefix can be `crop_` and if we feeded `Iris` with 245 photos, we will get the sample files named as `"crop_1.fit"`, `"crop_2.fit"` up to `"crop_245.fit"`.
 
-The `Iris` software saves the crops with the `.fit` extension name and those files has the [`FITS` format](http://en.wikipedia.org/wiki/FITS). Nevertheless, other software, when saving files with the `FITS` format use the `.fits` extension name. In the case when a function in the `imgnoiser` package must guess the file extension name, will look for files with the `.fit` name extension and if not found will try with the `.fits` one. However all the samples must have the same extension, either `.fit` or `.fits`.
+The `Iris` software saves the crops with the `.fit` extension name and those files has the [`FITS` format](http://en.wikipedia.org/wiki/FITS). Nevertheless, other software, when saving files with the `FITS` format use the `.fits` extension name. However, both (i.e. `.fit` and `.fits`) are supported; also the [`PGM` format](http://en.wikipedia.org/wiki/Netpbm_format) with the `.pgm` name extension is supported. The case is irrelevant for the file name extensions.
 
 # Preparing the samples with *Dcraw* and *ImageMagick* {#crop-dcraw}
 
@@ -93,9 +93,7 @@ After the processing the raw photo file with `Dcraw`, you will get a big `.pgm` 
 
 To extract the sample area of interest, getting rid of the big `.pgm` file, we can use the *ImageMagick* `-extract` command using the *mogrify* program:
 
-
     mogrify -extract 40x32+20+30 MyPhoto.pgm
-
 
 Using this command we will cut &ndash;for example&ndash; starting from the (20,30) image position, an area of 40 pixels of width and 32 pixels of height. The position coordinate system has as origin the image pixel at the top left corner as the (0,0) position.
 
@@ -103,11 +101,7 @@ Using this command we will cut &ndash;for example&ndash; starting from the (20,3
 
 After the execution of this command, instead of the big file from `Dcraw`, we will have one with the same name but with smaller size (3 KB), containing only our area of interest.
 
-There is a `pixmap` R package which can be used to read `.pgm` files, so the steps above would be enough to load the sample image on R and `imgnoiser` might be extended to process that kind of file. However, the `pixmap` package has a glitch and doesn't read correctly 16-bit image files. For that reason only, we must convert, with the *ImageMagick* `convert` program, the `.pgm` file to the `.fits` format, as in the following example:
-
-    convert -depth 16 MyPhoto.pgm  MyPhoto.fits
-
-Now we have a sample file which can be processed by `imgnoiser` classes. Probably in the future, we will automatize this procedure with a function in this package.
+Now we have a sample file which can be processed by `imgnoiser` classes.
 
 # Sample Borders and Channel Identification {#channel-id}
 

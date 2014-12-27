@@ -34,7 +34,7 @@ valid.channel.labels <- function(channel.labels, avg.green.label) {
 #-------------------------------------
 valid.green.channels <- function(green.channels) {
 
-  green.channels <- vector.alike(green.channels, 2)
+  green.channels <- vector.alike(green.channels, 2, type='i')
 
   check.all.whole.numbers(green.channels)
   limit.fails <- sum(green.channels %nin% 1:4)
