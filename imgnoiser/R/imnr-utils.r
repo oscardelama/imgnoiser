@@ -117,23 +117,10 @@ map.col.names <- function(df, col.map) {
   file.path <- Sys.getenv('IMNR_TEST_DATA')
 
   if (file.path == '')
-    file.path <- "G:/USERS/TITO/Google Drive/WEB_SITES/IMGNOISER-ENV/test-data/"
+    stop('IMNR_TEST_DATA environment variable not found.')
 
   if (!grepl('.*/$', file.path))
     file.path <- paste0(file.path, '/')
 
   file.path;
-
-  #   #current.dir <- tail(strsplit(toupper(getwd()), "/")[[1]], n=1)
-  #
-  #   if (in.travis.ci)
-  #     # In Travis CI
-  #     switch(
-  #       from.dir
-  #       ,'IMGNOISER' = '../test-data/'
-  #       ,'R' = '../../test-data/'
-  #       ,'VIGNETTES' = '../../test-data/'
-  #       ,'TESTTHAT' = '../../../test-data/'
-  #       ,'TESTS' = '../../test-data/'
-  #       ,{stop("Unexpected folder origin.")}
 }
