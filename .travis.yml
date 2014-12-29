@@ -36,4 +36,4 @@ notifications:
     on_failure: change
 
 env:
-  - BOOTSTRAP_LATEX=1 _R_CHECK_FORCE_SUGGESTS_=0 R_CHECK_ARGS="--no-build-vignettes --as-cran"
+  - BOOTSTRAP_LATEX=1 _R_CHECK_FORCE_SUGGESTS_=0 R_CHECK_ARGS="--as-cran"
