@@ -67,7 +67,7 @@ test_that("Channel labels inferred by RGGB pattern, but Avg green not desired", 
   expect_true(rng[2] >= 40)
 })
 
-test_that("Channel labels given but not Green average label", {
+test_that("The hvdvm$digest can receive as argument a data frame with the photo conditions", {
 
   nikon.channel.names <- c("greenB","blue","red","greenR")
   hvdvm.obj <- hvdvm$new(channel.labels=nikon.channel.names)

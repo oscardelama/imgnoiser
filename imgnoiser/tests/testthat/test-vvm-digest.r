@@ -65,3 +65,16 @@ test_that("Channel labels given but not Green average label", {
   # No green average.
   expect_true(var.len.after.digest(n, vvm.obj) == n*4)
 })
+
+test_that("The vvm$digest function can receive as argument an explicit list of sample file names", {
+
+  vvm.obj <- vvm$new(has.RGGB.pattern = TRUE)
+
+  # process n samples
+  n <- 16
+  sample.file.names <- paste0('crop_', 1:n, '.fit')
+  # There must be 5 channel values per sample
+  # including green average.
+  vvm.obj$digest(sample.file.names, file.path = test.data.folder)
+  expect_true(nrow(vvm.obj$var.df) == n*5)
+})

@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
     ,tidy = FALSE
   )
 
-#render("./vignettes/collecting-samples.Rmd", output_format='md_document')
+#rmarkdown::render("./vignettes/collecting-samples.Rmd", output_format='md_document')
 ```
 
 
