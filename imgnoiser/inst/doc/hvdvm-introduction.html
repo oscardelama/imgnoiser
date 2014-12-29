@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="date" content="2014-12-28" />
+
+<title>hvdvm Class Introduction</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E5%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%2016px%200%2012px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dtop%3A%200%2E3em%3B%0A%20%20%20%20margin%2Dleft%3A%201%2E5em%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20decimal%20outside%3B%0A%20%20%20%20line%2Dheight%3A%201%2E5em%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%202em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%20%20font%2Dsize%3A%2090%25%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%3A%201px%20solid%20%23E8E8E8%3B%0A%20%20border%2Dright%3A%201px%20solid%20%23E8E8E8%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%205px%2010px%3B%0A%7D%0A%0Apre%5Bclass%5E%3D%22source%22%5D%20%7B%0A%20%20border%3A%201px%20solid%20%23ECECEC%3B%0A%20%20border%2Dleft%3A%203px%20solid%20%23E4E4E4%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%3A%201px%20solid%20%23ECECEC%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2090%25%3B%0A%7D%0A%0Apre%20%3E%20code%20%7B%0A%20%20line%2Dheight%3A%201%2E2%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%200px%204px%3B%0A%20%20border%3A%201px%20solid%20%23D8D8E2%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%200%2E75em%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20margin%3A%204px%20auto%3B%0A%20%20box%2Dshadow%3A%200px%200px%204px%20%23EDECE5%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%201em%3B%0A%20%20font%2Dsize%3A%2028px%3B%0A%20%20line%2Dheight%3A%201%2E4%3B%0A%20%20color%3A%20hsl%28230%2C%2079%25%2C%2013%25%29%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title"><em>hvdvm</em> Class Introduction</h1>
+<h4 class="date"><em>2014-12-28</em></h4>
+</div>
+
+
+<p>The acronym <em>hvdvm</em> stands for “Half-Var-Delta versus Mean” and refers to a technique to remove the PRNU noise from digital camera raw images, by the use of two <em>“identical”</em> digital photographs, i.e. photos of the same scene, with identical setup, camera settings and target scene; as two consecutive images of a still target in a shooting burst. This technique is employed to characterize a digital camera sensor noise response.</p>
+<p>Without the PRNU noise component, the <code>variance</code> and the <code>mean</code> of the pixel values in a raw image file are expected to have a linear relationship. To measure sensor noise and not the light and shadows from the target scene, we are talking about a raw image file from the photograph of a uniformly lit plain surface (e.g a white cardboard).</p>
+<p>This technique is useful to measure some particular camera sensor characteristics. With the PRNU noise removed, the coefficients of the linear fit between the variance and the <code>mean</code> of the pixel values are:</p>
+<ul>
+<li><strong>Slope</strong>: the camera sensor conversion ratio from electrons to ADUs.</li>
+<li><strong>Intercept</strong>: the Read Noise variance.</li>
+</ul>
+<p>The procedure is applied to the raw data from each of the four photosite channels (colors) in the sensor 2x2 RGB <a href="http://en.wikipedia.org/wiki/Bayer_filter">Bayer filter</a>, bringing four independent linear fittings.</p>
+<p>The theoretical basis of this approach is explained in the article <a href="http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#theo-hvdvm"><em>“A Simple DSLR Camera Sensor Noise Model”</em></a>, while the <a href="http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#hvdvm-def"><em>“Use of Linear Regressions to Model Camera Sensor Noise”</em></a> describes the practical application of that model. The article <a href="http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero"><em>“Handling Heteroscedastic Data from Camera Sensor Noise”</em></a> explains how to handle the heteroscedasticity that appear in the data computed by the <code>hvdvm</code> and <code>vvm</code> class.</p>
+<p>In the code examples, the function output is presented prefixed with <code>##</code>, while a single prefix <code>#</code> represents real (user) comments.</p>
+<div id="TOC">
+<div class="toctitle">
+Table of Contents
+</div>
+<ul>
+<li><a href="#hvdvm-proc">The <em>hvdvm</em> procedure</a></li>
+<li><a href="#hvdvm-input">Input Data for the <em>hvdvm</em> Class</a></li>
+<li><a href="#create">Creating a <em>hvdvm</em> Instance</a></li>
+<li><a href="#digest">Digesting the Image Samples</a></li>
+<li><a href="#result">Getting the Computed Values</a>
+<ul>
+<li><a href="#var">Variance Result</a></li>
+<li><a href="#cov">Covariance Result</a></li>
+</ul></li>
+<li><a href="#other">Other <em>hvdvm</em> functions</a></li>
+</ul>
+</div>
+<div id="hvdvm-proc" class="section level1">
+<h1><span class="header-section-number">1</span> The <em>hvdvm</em> procedure</h1>
+<p>The procedure needs as input two image samples from two <em>identical</em> raw photo files. To remove the PRNU noise, the procedure <em>“synthesizes”</em> an image by subtracting each pixel value from one image sample to the corresponding pixel in the other. The half of the pixel values variance of that <em>synthesized</em> image is expected to have the same variance of those original samples but with the PRNU quadratic variance component removed.</p>
+<p>In the <code>imgnoiser::hvdvm</code> class, the half of the pixel values variance from the <em>synthesized</em> image is called <code>Half-Var-Delta</code> for short. The <code>Half-Var-Delta</code> and the <code>Mean</code> photosites values are expected to have a linear relationship. The <code>Mean</code> photosites values is computed from the average pixel values from both <em>identical</em> images. This is like <em>synthetizing</em> another image built by averaging each corresponding pixel on each sample. This computation is made using floating point arithmetic. At the end, the pixels in this last <em>synthetic</em> image are averaged to get the <code>mean</code> value that will be fitted against the <code>Half-Var-Delta</code> variable or <code>hvdvm</code> for short.</p>
+<p>Without the proper tools, the application of this technique is labor intensive, slow and error prone. The <code>hvdvm</code> class contains well suited tools to automatize the process and make it easy to apply over a large set of samples.</p>
+</div>
+<div id="hvdvm-input" class="section level1">
+<h1><span class="header-section-number">2</span> Input Data for the <em>hvdvm</em> Class</h1>
+<p>We need a set of image file samples, with the <a href="http://fits.gsfc.nasa.gov/"><code>FITS</code></a> or the <a href="http://netpbm.sourceforge.net/doc/pgm.html"><code>PGM</code></a> format, from shots taken to a uniformly lit flat plain surface. The vignette <a href="collecting-samples.html">*Collecting Image Samples“*</a> contains a thorough explanation about how to get those image samples.</p>
+<p>As we have already seen, we will need pairs of photographs taken under identical conditions. The functions in the <code>hvdvm</code> class will process every pair of samples from photographs taken under the same conditions (regardless of their order).</p>
+<p>Using the <code>choose()</code> function we can compute the number of pair combinations for a given number of <em>identical</em> shots. For example from 6 shots taken in the same conditions, 15 combinations will be processed by the class (bringing 15 observations for the model fitting).</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">choose</span>(<span class="dv">6</span>, <span class="dv">2</span>)
+## [1] 15</code></pre>
+<p>The <code>hvdvm</code> class needs information to identify the shots taken under identical conditions in the form of a .csv file, which we will call the <em>photo conditions file</em>. We can build that file using <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/">ExifTool</a> (free software), for example using the following command (windows example).</p>
+<pre><code>exiftool.exe -common -sort -ext nef -csv ./ &gt; ISO100Conds.csv</code></pre>
+<p>This command will extract <em>common</em> (<code>-common</code>) exif metadata from the Nikon ‘.nef’ image files (<code>-ext nef</code>) in the current directory (<code>./</code>) using the .csv format (<code>-csv</code>) and the output will be sorted by photo file name (<code>-sort</code>). The output redirection (<code>&gt; ISO100Conds.csv</code>) will save the command output into the <code>&quot;ISO100Conds.csv&quot;</code> file in the current directory. We must edit this file to get at the end one containing this column names:</p>
+<table>
+<caption><strong>iso100White.csv input file example</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">crop.file.name</th>
+<th align="center">photo.file.name</th>
+<th align="center">lighting</th>
+<th align="center">ISO</th>
+<th align="right">shutter.speed</th>
+<th align="center">aperture</th>
+<th align="right">focal.length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">crop_1.fit</td>
+<td align="center">_ODL9405.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_2.fit</td>
+<td align="center">_ODL9406.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_3.fit</td>
+<td align="center">_ODL9407.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_4.fit</td>
+<td align="center">_ODL9408.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_5.fit</td>
+<td align="center">_ODL9409.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_6.fit</td>
+<td align="center">_ODL9410.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+</tbody>
+</table>
+<p>The exact column names you will get from the <code>ExifToool.exe</code> command depend on your camera brand. However they will be easy to identify.</p>
+<p>The <code>hvdvm</code> class expects the <em>photo conditions file</em> contains the following columns.</p>
+<ul>
+<li><code>crop.file.name</code></li>
+<li><code>lighting</code></li>
+<li><code>ISO</code></li>
+<li><code>shutter.speed</code> (exposition time)</li>
+<li><code>aperture</code></li>
+<li><code>focal.length</code></li>
+</ul>
+<p>The sequence of the columns is not significant and there can be also other columns. Except for <code>crop.file.name</code> the exact values in these columns are not important, the procedure will just distinguish the differente values in them. For example, <code>shutter.speed</code> can contain <code>'1/50'</code> or <code>0.02</code> or just <code>'50'</code>.</p>
+<p>The names of these columns is required exactly as shown in the list above. However, there is an option in the <code>hvdvm</code> to make a mapping from other column names to this ones.</p>
+<p>Notice the <code>crop.file.name</code> and <code>lighting</code> columns do not come in the <code>ExifTool</code> .csv file. We must add those columns to the .csv file “by hand”. The <code>crop.file.name</code> is the name of the sample image file cropped from the photo file indicated in the column <code>FileName</code> in the output of ExifTool.</p>
+<p>As the rows in the <code>ExifTool</code> .csv file are sorted by photo file name, and the the crop files has a name with with an increasing numeric suffix (e.g. <code>crop_1.fit</code>, <code>crop_2.fit</code>, etc.) with the same sequence of the .csv sorted photo file names (that is the way <code>Iris</code> software will produce those crops), we can easily add the <code>crop.file.name</code> column and set the value <code>crop_1.fit</code> for the first row, <code>crop_2.fit</code> for the second one and so on.</p>
+<p>It is very important the crop file names and the photo file names are correctly matched, otherwise images taken with differente conditions will be paired, producing unexpected and invalid results. Furthermore, the crop file names should also be correct, so the class can open and read those image files, they must not include the file path, but just the file name and extension (e.g. <code>crop_12.fit</code>).</p>
+<p>Finally we need to add the <code>lighting</code> column with information based on our notes about the changes in the intensity of the light over the target scene. The exact values for this column are not important. The class will just distinguish between the different values of this variable.</p>
+<p>To begin with, you can fill the column with the value <code>Normal</code> and for those photos with higher lighting we can set the label <code>high</code>. If you increased the lighting twice during the shooting session, you can correspondingly tag those photos with the values <code>high A</code> and <code>high B</code> in the <code>lighting</code> column. Proceed with the same labeling schema for the shoots with lower lighting.</p>
+</div>
+<div id="create" class="section level1">
+<h1><span class="header-section-number">3</span> Creating a <em>hvdvm</em> Instance</h1>
+<p>To make use of the <code>hvdvm</code> class, and in general any other classes in the package. we need first to create an instance of the class, which is done calling the class <code>new</code> function. This function name for instance creation is standardized, so every class contains this function. For example there are <code>hvdvm$new()</code> and <code>vvm$new()</code> functions.</p>
+<p>The output of this instance constructor function is what is called a class instance object. This way the output of the <code>hvdvm$new()</code> function is a <code>hvdvm</code> instance object.</p>
+<p>Once we have an object of the class, we can access to the class functions and variables through that particular object. For example:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Create an 'hvdvm' instance object and save it in the 'my.hvdvm.object' variable</span>
+my.hvdvm.object &lt;-<span class="st"> </span><span class="kw">hvdvm.new</span>()
+<span class="co"># Starting from here we access to all the class functions and variables using the</span>
+<span class="co"># instance object</span>
+my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv'</span>)</code></pre>
+<p>Of course, we can create many instances, for the processing of the same or different image samples.</p>
+<p>We will create and save an instance of the <code>hvdvm</code> class assuming our image samples have the RGGB pattern for the layout of the photosites color filters. we can get detailed information about the <code>hvdvm$new()</code> function parameters, with the command:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">help</span>(<span class="st">'hvdvm$new'</span>)</code></pre>
+<p>We will save our instance object in the <code>my.hvdvm</code> variable.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.hvdvm &lt;-<span class="st"> </span>hvdvm$<span class="kw">new</span>(<span class="dt">has.RGGB.pattern =</span> <span class="ot">TRUE</span>)</code></pre>
+<p>If we print this variable, we will get –in a nice style– a list of its members. Those are the class members you can use, with exception to those whose name start with a period <code>.</code> which are meant for internal use only.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.hvdvm
+## &lt;hvdvm&gt;
+##   Public:
+##     .pack: function
+##     .unpack: function
+##     channel.labels: active binding
+##     cov.df: active binding
+##     digest: function
+##     exists.model: function
+##     fit.model: function
+##     get.model: function
+##     get.model.predictions: function
+##     green.channels: active binding
+##     initialize: function
+##     model.list: active binding
+##     photo.conditions.df: active binding
+##     plot: function
+##     print.model.summary: function
+##     remove.model: function
+##     var.df: active binding</code></pre>
+<p>Notice in the above list, there are some elements with the “active binding” tag. We will call them object variables or just variables. We will explain their use along this document.</p>
+</div>
+<div id="digest" class="section level1">
+<h1><span class="header-section-number">4</span> Digesting the Image Samples</h1>
+<p>The function that reads and process the image samples using the <em>hvdm</em> technique is called <code>digest()</code>. We must feed that function with a <code>.csv</code> file, prepared as described in the section <a href="#hvdvm-input"><em>“Input data for the <em>hvdvm</em> Procedure”</em></a>.</p>
+<p>For this example, the file is named <code>iso100White.csv</code> and looks like this:</p>
+<table>
+<caption><strong>iso100White.csv input file example</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">crop.file.name</th>
+<th align="center">photo.file.name</th>
+<th align="center">lighting</th>
+<th align="center">ISO</th>
+<th align="right">shutter.speed</th>
+<th align="center">aperture</th>
+<th align="right">focal.length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">crop_1.fit</td>
+<td align="center">_ODL9405.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_2.fit</td>
+<td align="center">_ODL9406.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_3.fit</td>
+<td align="center">_ODL9407.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_4.fit</td>
+<td align="center">_ODL9408.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_5.fit</td>
+<td align="center">_ODL9409.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_6.fit</td>
+<td align="center">_ODL9410.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+</tbody>
+</table>
+<p>In this example, the <code>.csv</code> file and the image samples, whose names are in the <code>crop.file.name</code> column in the <code>.csv</code> file, are both in the current working directory.</p>
+<p>The <code>.csv</code> file must include the following columns:</p>
+<ul>
+<li><code>crop.file.name</code></li>
+<li><code>lighting</code></li>
+<li><code>ISO</code></li>
+<li><code>shutter.speed</code></li>
+<li><code>aperture</code></li>
+<li><code>focal.length</code></li>
+</ul>
+<p>The columns must be named exactly as in the above list. This means, if any of them is named differently, you must rename it, or change the <code>conds.col.map</code> option value (with the <code>imgnoiser.option()</code> function) to make it map your <code>.csv</code> actual column names with the expected ones. The <code>.csv</code> file can contain other columns, they will be just ignored.</p>
+<p>When the <code>show.progress</code> option is <code>TRUE</code>, as it is by default, a progress bar will appear showing you how much of the process was already done. If that option is <code>FALSE</code>, as in this example, at the end of the processing, the <code>digest()</code> function will print a message about how many sample combinations were processed.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">imgnoiser.option</span>(<span class="st">'show.progress'</span>, <span class="ot">FALSE</span>)
+<span class="co"># The image files are in the './img/' folder</span>
+my.hvdvm$<span class="kw">digest</span>(<span class="st">'iso100White.csv'</span>, <span class="st">'./img/'</span>)
+<span class="co"># 610 different sample combinations were processed.</span></code></pre>
+</div>
+<div id="result" class="section level1">
+<h1><span class="header-section-number">5</span> Getting the Computed Values</h1>
+<p>The <code>hvdvm$digest()</code> function computes and saves <em>variance</em> and <em>covariance</em> information from the photosites values in your image samples, which you can read after its processing.</p>
+<div id="var" class="section level2">
+<h2><span class="header-section-number">5.1</span> Variance Result</h2>
+<p>we can get the resulting <em>variance</em>, reading the <code>hvdvm$var.df</code> variable.</p>
+<p>For the <code>hvdvm</code> technique used by this class, this variance is half of the variance in the delta image, computed for each channel in the image samples.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the computed variance</span>
+<span class="kw">head</span>(my.hvdvm$var.df)</code></pre>
+<table>
+<caption><strong>Variance and Mean results</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">cond</th>
+<th align="left">pict1</th>
+<th align="left">pict2</th>
+<th align="right">channel</th>
+<th align="right">mean</th>
+<th align="right">var</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="left">crop_31.fit</td>
+<td align="left">crop_32.fit</td>
+<td align="right">Red</td>
+<td align="right">2247</td>
+<td align="right">1016</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="left">crop_31.fit</td>
+<td align="left">crop_32.fit</td>
+<td align="right">Green R</td>
+<td align="right">5050</td>
+<td align="right">1923</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="left">crop_31.fit</td>
+<td align="left">crop_32.fit</td>
+<td align="right">Green B</td>
+<td align="right">5068</td>
+<td align="right">1995</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="left">crop_31.fit</td>
+<td align="left">crop_32.fit</td>
+<td align="right">Blue</td>
+<td align="right">4055</td>
+<td align="right">1950</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="left">crop_31.fit</td>
+<td align="left">crop_33.fit</td>
+<td align="right">Red</td>
+<td align="right">2243</td>
+<td align="right">1042</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="left">crop_31.fit</td>
+<td align="left">crop_33.fit</td>
+<td align="right">Green R</td>
+<td align="right">5042</td>
+<td align="right">1980</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>pict1</code> and <code>pict2</code> fields in each row, show the sample image file names to which the <code>hvdvm</code> procedure was applied. According with the data in the input <code>.csv</code> file, they come from photographs taken under identical conditions. The first <code>cond</code> column, refers –with a sequential number– to the photographic conditions used to shot those samples. Different <code>cond</code> values represent different photographic conditions and vice versa.</p>
+<p>We can get the different photographic conditions reading the <code>hvdvm$photo.conditions.df</code> variable.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the different photographic conditions</span>
+<span class="kw">head</span>(my.hvdvm$photo.conditions.df)</code></pre>
+<table>
+<caption><strong>Photographic Conditions</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">cond</th>
+<th align="center">lighting</th>
+<th align="center">ISO</th>
+<th align="right">shutter.speed</th>
+<th align="center">aperture</th>
+<th align="right">focal.length</th>
+<th align="center">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/100</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">6</td>
+</tr>
+<tr class="even">
+<td align="center">2</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/1000</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">6</td>
+</tr>
+<tr class="odd">
+<td align="center">3</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/1000</td>
+<td align="center">7.1</td>
+<td align="right">90.0 mm</td>
+<td align="center">6</td>
+</tr>
+<tr class="even">
+<td align="center">4</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/125</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">6</td>
+</tr>
+<tr class="odd">
+<td align="center">5</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/1250</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">6</td>
+</tr>
+<tr class="even">
+<td align="center">6</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/1250</td>
+<td align="center">7.1</td>
+<td align="right">90.0 mm</td>
+<td align="center">6</td>
+</tr>
+</tbody>
+</table>
+<p>Now we can see the photographic conditions referred by the column <code>cond</code> in the “<em>Variance</em> and <em>Mean</em> result” shown above.</p>
+<p>Coming back to the <em>Variance and Mean</em> results, we can see the samples <code>crop_31.fit</code>, <code>crop_32.fit</code> and <code>crop_33.fit</code> were taken under the same photographic conditions, because they appear in rows with the same condition code <code>1</code>, which in particular, as we can see above, corresponds to <code>1/100</code> of shutter speed (or exposition time).</p>
+<p>Notice by the <code>channel</code> factor how the procedure was applied independently to each of the four channels in each pair of samples. So, there are four rows with the same <code>cond</code>, <code>pict1</code> and <code>pict2</code> column values but with different computed values of <code>mean</code> and <code>var</code> (<em>variance</em>) for each channel.</p>
+<p>The column <code>var</code>, as product of the <code>hvdvm</code> technique, contains the half of the photosite values variance of the difference image, computed subtracting the pixel values of <code>pict1</code> from the corresponding ones in the <code>pict2</code> sample (the <em>variance</em> is independent of the subtraction order). The column <code>mean</code> is the mean of the photosites values of the average image, averaging each pixel value of <code>pict1</code> with the corresponding one in the <code>pict2</code> sample.</p>
+<p>Now we can plot the data showing the relationship between the <code>var</code> and the <code>mean</code> variables for each <code>channel</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Plot the data in the standard model</span>
+my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span class="ot">TRUE</span>)</code></pre>
+<p><img src="data:image/png;base64,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" title alt style="display: block; margin: auto;" /></p>
+<p>We will see later the use of the plot function in more detail.</p>
+</div>
+<div id="cov" class="section level2">
+<h2><span class="header-section-number">5.2</span> Covariance Result</h2>
+<p>The <code>hvdvm$digest()</code> function also computes the <em>covariance</em> between each pair of channels in the delta image. We get that <em>covariance</em> data reading the <code>hvdvm$cov.df</code> variable.</p>
+<p>In the following data frame, the columns <code>chan.a</code> and <code>chan.b</code> show the channels whose <em>covariance</em> is shown in the <code>cov</code> column. All the other columns have the same meaning as in the <em>variance</em> data in the <code>hvdvm$var.df</code> variable we saw above.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the computed covariance</span>
+<span class="kw">head</span>(my.hvdvm$cov.df)</code></pre>
+<table>
+<caption><strong>Covariance result</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">cond</th>
+<th align="right">pict1</th>
+<th align="right">pict2</th>
+<th align="right">chan.a</th>
+<th align="right">chan.b</th>
+<th align="right">cov</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="right">crop_31.fit</td>
+<td align="right">crop_32.fit</td>
+<td align="right">Red</td>
+<td align="right">Green R</td>
+<td align="right">-27.44</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="right">crop_31.fit</td>
+<td align="right">crop_32.fit</td>
+<td align="right">Red</td>
+<td align="right">Green B</td>
+<td align="right">30.54</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="right">crop_31.fit</td>
+<td align="right">crop_32.fit</td>
+<td align="right">Red</td>
+<td align="right">Blue</td>
+<td align="right">-35.03</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="right">crop_31.fit</td>
+<td align="right">crop_32.fit</td>
+<td align="right">Green R</td>
+<td align="right">Green B</td>
+<td align="right">-48.59</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="right">crop_31.fit</td>
+<td align="right">crop_32.fit</td>
+<td align="right">Green R</td>
+<td align="right">Blue</td>
+<td align="right">49.29</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="right">crop_31.fit</td>
+<td align="right">crop_32.fit</td>
+<td align="right">Green B</td>
+<td align="right">Blue</td>
+<td align="right">5.30</td>
+</tr>
+</tbody>
+</table>
+<p>For the <code>hvdvm</code> technique, this data contains the half of the <em>covariance</em> in the delta image, for each pair of channels combination.</p>
+</div>
+</div>
+<div id="other" class="section level1">
+<h1><span class="header-section-number">6</span> Other <em>hvdvm</em> functions</h1>
+<p>There are more <code>hvdvm</code> class functions you can call from your class object, they are introduced in the <a href="hvdvm-and-vvm-usage.html"><em>“hvdvm and vvm Class Usage”</em> vignette</a>.</p>
+<p>↵</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

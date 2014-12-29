@@ -1,7 +1,7 @@
 imgnoiser/.Rproj.user
 imgnoiser/.Rhistory
 imgnoiser/.RData
-imgnoiser/inst/doc
+imgnoiser/inst/doc/*.R
 imgnoiser/local/*
 imgnoiser/packrat/*
 *.lnk

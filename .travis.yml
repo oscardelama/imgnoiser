@@ -23,6 +23,7 @@ install:
   - ./travis-tool.sh install_github wch/R6
   - ./travis-tool.sh install_github hadley/lazyeval
   - ./travis-tool.sh install_github Rdatatable/data.table
+  - ./travis-tool.sh install_github yihui/printr
   - ./travis-tool.sh install_deps
 
 script: ./travis-tool.sh run_tests
