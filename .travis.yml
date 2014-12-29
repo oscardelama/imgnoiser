@@ -1,8 +1,18 @@
-# Sample .travis.yml for R projects from https://github.com/craigcitro/r-travis
+# Based on .travis.yml for R projects from https://github.com/craigcitro/r-travis
 
 language: c
 
 before_install:
+  # Decompress test data
+  - sudo apt-get install p7zip
+  - cd test-data
+  # Save folder with test data i an environment variable
+  - export IMNR_TEST_DATA=`pwd`
+  - 7z e test-data.7z
+  - cd ..
+  # Goto the the package folder
+  - cd imgnoiser
+  # Continue as normal
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
@@ -17,7 +27,7 @@ install:
 
 script: ./travis-tool.sh run_tests
 
-on_failure:
+after_failure:
   - ./travis-tool.sh dump_logs
 
 notifications:
@@ -26,5 +36,4 @@ notifications:
     on_failure: change
 
 env:
-  - BOOTSTRAP_LATEX=1
-  - _R_CHECK_FORCE_SUGGESTS_=0
+  - BOOTSTRAP_LATEX=1 _R_CHECK_FORCE_SUGGESTS_=0 R_CHECK_ARGS="--no-build-vignettes --as-cran"
