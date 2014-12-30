@@ -1,4 +1,4 @@
 library(testthat)
-suppressMessages(library(imgnoiser))
+suppressPackageStartupMessages(library(imgnoiser))
 
 test_check("imgnoiser", reporter="minimal")

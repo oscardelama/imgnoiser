@@ -35,6 +35,9 @@ test_that("All channel labels are given, process all rows", {
   expect_true(rng[1] >= 40)
   expect_true(rng[2] <= 60)
   expect_true(rng[2] >= 40)
+
+  expect_true(nrow(hvdvm.obj$var.df) == 2440)
+  expect_true(nrow(hvdvm.obj$cov.df) == 3660)
 })
 
 test_that("All channel labels inferred by RGGB pattern", {
@@ -51,6 +54,9 @@ test_that("All channel labels inferred by RGGB pattern", {
   expect_true(rng[1] >= 40)
   expect_true(rng[2] <= 60)
   expect_true(rng[2] >= 40)
+
+  expect_true(nrow(hvdvm.obj$cov.df) == 450)
+  expect_true(nrow(hvdvm.obj$var.df) == 300)
 })
 
 test_that("Channel labels inferred by RGGB pattern, but Avg green not desired", {
@@ -65,6 +71,9 @@ test_that("Channel labels inferred by RGGB pattern, but Avg green not desired", 
   expect_true(rng[1] >= 40)
   expect_true(rng[2] <= 60)
   expect_true(rng[2] >= 40)
+
+  expect_true(nrow(hvdvm.obj$cov.df) == 450)
+  expect_true(nrow(hvdvm.obj$var.df) == 300)
 })
 
 test_that("The hvdvm$digest can receive as argument a data frame with the photo conditions", {
@@ -80,4 +89,7 @@ test_that("The hvdvm$digest can receive as argument a data frame with the photo 
   expect_true(rng[1] >= 40)
   expect_true(rng[2] <= 60)
   expect_true(rng[2] >= 40)
+
+  expect_true(nrow(hvdvm.obj$cov.df) == 450)
+  expect_true(nrow(hvdvm.obj$var.df) == 300)
 })

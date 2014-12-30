@@ -6,11 +6,28 @@ imgnoiser.options.force.reset()
 test_that("A hvdvm object can be constructed without parameters", {
   # The channels are named "channel 1" "channel 2"...
   # With no green channels identification
-  expect_is(hvdvm$new(), 'hvdvm')
+  hvdvm.obj <- hvdvm$new()
+  expect_is(hvdvm.obj, 'hvdvm')
+  # There are four channel labels plus green average label
+  expect_true(length(hvdvm.obj$channel.labels) == 5)
+  # The green channels are not known
+  expect_true(is.null(hvdvm.obj$green.channels))
 })
 
 test_that("A hvdvm object can be constructed specifying channel labels", {
-  expect_is(hvdvm$new(channel.labels = c("greenB","blue","red","greenR")), 'hvdvm')
+
+  # Create object with given channel labels
+  my.channel.labels <- c("greenB","blue","red","greenR")
+  hvdvm.obj <- hvdvm$new(channel.labels = my.channel.labels)
+  expect_is(hvdvm.obj, 'hvdvm')
+  # There are four channel labels
+  expect_true(length(hvdvm.obj$channel.labels) == 5)
+  # The channel labels are those given during instantiation plus the
+  # default green channel label
+  expect_equal(hvdvm.obj$channel.labels[1:4], my.channel.labels)
+  # The green channels are not known
+  expect_true(is.null(hvdvm.obj$green.channels))
+
 })
 
 test_that("A hvdvm object can be constructed with a vector of named elements", {
