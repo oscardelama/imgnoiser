@@ -276,7 +276,7 @@ noise.var <- R6::R6Class('noise.var',
                     ,'call'        = model.call.txt
                 )
 
-      message('The model ', dQuote(model.name),' was succesfully fitted using:')
+      message('The model ', dQuote(model.name),' was successfully fitted using:')
       message(model.call.txt)
       invisible(self);
     }
@@ -827,7 +827,7 @@ noise.var.doc$fit.model <-
   NULL
 
 #----------------------------------------------
-#' Get predicted values
+#' Get the values predicted by a fitted model
 #'
 #' Get the values predicted from a given fitted model.
 #'
@@ -996,11 +996,13 @@ noise.var.doc$print.model.summary <- function(
 #' @aliases vvm$exists.model hvdvm$exists.model
 #' @name hvdvm$exists.model
 ##------------------------------
-noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.name'))
+noise.var.doc$exists.model <- function(
+    model.name = imgnoiser.option('fit.model.name')
+  )
   NULL
 
 #----------------------------------------------
-#' Get a model objects
+#' Get a fitted model object
 #'
 #' Returns a list with the objects fitted in a model with a
 #' given name.
@@ -1021,6 +1023,10 @@ noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.
 #'      model.name = imgnoiser.option('fit.model.name')
 #'      )
 #'  }
+#' @param model.name The model name whose object is desired.
+#'
+#' @param select A vector with the indices or labels of the channels whose
+#'   model is desired.
 #'
 #' @return A list whose names are the channel labels and the values are the
 #'   objects fitted for each channel.
@@ -1039,13 +1045,16 @@ noise.var.doc$exists.model <- function(model.name = imgnoiser.option('fit.model.
 #' @aliases vvm$get.model hvdvm$get.model
 #' @name hvdvm$get.model
 #----------------------------------------------
-noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.name'))
+noise.var.doc$get.model <- function(
+  model.name = imgnoiser.option('fit.model.name')
+  ,select = NULL
+)
   NULL
 
 #----------------------------------------------
 #' Remove a fitted model
 #'
-#' Remove a model fitted with a given name.
+#' Remove, permanently delete, a model fitted with a given name.
 #'
 #' @section Usage:
 #'  \preformatted{
@@ -1070,11 +1079,13 @@ noise.var.doc$get.model <- function(model.name = imgnoiser.option('fit.model.nam
 #' @aliases vvm$remove.model hvdvm$remove.model
 #' @name hvdvm$remove.model
 #----------------------------------------------
-noise.var.doc$remove.model = function(model.name = stop('A model name argument is required.'))
+noise.var.doc$remove.model = function(
+  model.name = stop('A model name argument is required.')
+  )
   NULL
 
 #----------------------------------------------
-#' Plot a fitted model or its source data
+#' Plot a fitted model and its source data
 #'
 #' @section Usage:
 #'  \preformatted{
@@ -1177,19 +1188,19 @@ noise.var.doc$remove.model = function(model.name = stop('A model name argument i
 #' @name hvdvm$plot
 #----------------------------------------------
 noise.var.doc$plot <- function(
-                 obs = TRUE
-                ,print = TRUE
-                ,model.name = FALSE
-                ,fit = TRUE
-                ,confid = FALSE
-                ,main = NA
-                ,subt = NA
-                ,xlab = NA
-                ,ylab = NA
-                ,xlim = NULL
-                ,ylim = NULL
-                ,warnings = FALSE
-      )
+  model.name = FALSE
+  ,obs = TRUE
+  ,print = TRUE
+  ,fit = TRUE
+  ,confid = FALSE
+  ,main = NA
+  ,subt = NA
+  ,xlab = NA
+  ,ylab = NA
+  ,xlim = NULL
+  ,ylim = NULL
+  ,warnings = FALSE
+)
   NULL
 
 rm(noise.var.doc)

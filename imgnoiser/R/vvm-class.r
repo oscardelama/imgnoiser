@@ -254,7 +254,7 @@ vvm.doc <- list()
 #' @name vvm$digest
 #----------------------------------------------
 vvm.doc$digest <- function(
-  img.file.name = stop("The 'img.file.name' argument is required")
+   img.file.name = stop("The 'img.file.name' argument is required")
   ,img.file.count = NULL
   ,file.path = './'
   ,img.file.name.ext = '.fit'
@@ -262,7 +262,7 @@ vvm.doc$digest <- function(
   NULL
 
 #----------------------------------------------
-#' Get the resulting variance data.
+#' Get the resulting noise variance data.
 #'
 #' Returns the variance data computed by the \code{\link{vvm$digest}} function
 #' from each pair of images samples taken under identical photographic
@@ -324,7 +324,7 @@ vvm.doc$var.df <- function() NULL
 
 
 #----------------------------------------------
-#' Get the resulting covariance data.
+#' Get the resulting noise covariance data
 #'
 #' Returns the covariance data computed by the \code{\link{vvm$digest}} function
 #' from each images sample.
