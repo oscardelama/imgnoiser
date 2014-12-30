@@ -29,6 +29,7 @@ Suggests:
     pander,
     printr
 Collate:
+    'doc-vvm.r'
     'fit-model.r'
     'noise-class.r'
     'hvdvm-class.r'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/vvm-class.r
 \name{vvm$var.df}
 \alias{vvm$var.df}
-\title{Get the resulting variance data.}
+\title{Get the resulting noise variance data.}
 \value{
 A data.frame with the variance data from the channels in the image
   samples processed by the \code{\link{vvm$digest}} function. It contains the

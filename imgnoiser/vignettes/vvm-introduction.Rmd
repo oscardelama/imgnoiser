@@ -18,20 +18,20 @@ options(digits=4)
 test.data.folder <- imgnoiser:::.get.test.data.folder()
 
 knitr::opts_chunk$set(
-   comment = "##"
+   comment = "#>"
   ,prompt = FALSE
   ,collapse = TRUE
   ,dev = 'png'
   ,tidy = FALSE
 )
-#render("./vignettes/vvm-introduction.Rmd", output_format='md_document')
+#rmarkdown::render("./vignettes/vvm-introduction.Rmd", output_format='md_document')
 ```
 
 The *vvm* acronym stands for "Variance versus Mean" and refers to a technique to study and profile the noise in digital camera raw images.
 
 The *variance* and the *mean* of the pixel values from raw image samples at different exposition levels have a known relationship, which is useful to profile a camera sensor noise response and to compute some sensor noise performance characteristic values.
 
-In the code examples, the function output is presented prefixed by `##`, while a single `#` represents real (user) comments.
+In the code examples, the function output is presented prefixed by `#>`, while a single `#` represents real (user) comments.
 
 <div id="TOC">
 <div class="toctitle">Table of Contents </div>
@@ -42,7 +42,8 @@ In the code examples, the function output is presented prefixed by `##`, while a
 - [Getting the Computed Values](#result)
     * [Variance Result](#var)
     * [Covariance Result](#cov)
-- [Other *vvm* functions](#other)
+- [Usage of other *vvm* Functions](#other)
+- [Summary of *vvm* Members](#methods)
 </div>
 
 # The *vvm* Technique # {#vvm-proc}
@@ -128,7 +129,7 @@ my.vvm$digest('crop_', 240, test.data.folder)
 imgnoiser.option('show.progress', FALSE)
 # The image files are in the './samples/' folder
 my.vvm$digest('crop_', 240, './samples/')
-## 240 image samples were successfully processed.
+#> 240 image samples were successfully processed.
 ```
 
 # Getting the Computed Values {#result}
@@ -178,9 +179,169 @@ head(my.vvm$cov.df)
 knitr::kable(head(my.vvm$cov.df), caption='**Covariance result**', align=c('l','c','c','r'), digits=2)
 ```
 
-# Other *vvm* functions # {#other}
+# Usage of Other *vvm* Functions # {#other}
 
 There are more `vvm` class functions you can call from your class object, they are introduced in the [*"hvdvm and vvm Class Usage"* vignette](hvdvm-and-vvm-usage.html).
+
+
+# Summary of `vvm` Members # {#methods}
+
+You can get this summary issuing the R command `help('vvm')`. However, the format in that help is not as easy to read like this.
+
+## new() ##
+
+Create a new instance of the vvm class.
+
+```R
+new(
+  channel.labels = imgnoiser.option("channel.labels"),
+  green.channels = imgnoiser.option("green.channels"),
+  has.RGGB.pattern = imgnoiser.option("has.RGGB.pattern"),
+  avg.green.label = imgnoiser.option("avg.green.channel.label")
+)
+```
+
+## digest() ##
+
+Compute and collect statistics from the raw images files.
+
+```R
+digest(
+  img.file.name = stop("The 'img.file.name' argument is required"),
+  img.file.count = NULL,
+  file.path = "./",
+  img.file.name.ext = ".fit"
+)
+```
+
+## var.df ##
+
+Get the resulting noise variance data.
+
+```R
+var.df
+```
+
+## cov.df ##
+
+Get the resulting noise covariance data.
+
+```R
+cov.df
+```
+
+## channel.labels ##
+
+Get the channel labels.
+
+```R
+channel.labels
+```
+
+## green.channels ##
+
+Get the green channels indices.
+
+```R
+green.channels
+```
+
+## fit.model() ##
+
+Fit a model to the noise data.
+
+```R
+fit.model(
+  model.name = imgnoiser.option("fit.model.name"),
+  model.family = imgnoiser.option("fit.model.family"),
+  degree = 2L,
+  formula = NULL,
+  model.data.name = imgnoiser.option("fit.model.data"),
+  ...
+)
+```
+
+## print.model.summary() ##
+
+Print a fitted model summary.
+
+```R
+print.model.summary(
+  model.name = imgnoiser.option("fit.model.name"),
+  select = NULL,
+  ...
+)
+```
+
+## get.model.predictions() ##
+
+Get the values predicted by a fitted model.
+
+```R
+get.model.predictions(
+  model.name = imgnoiser.option("fit.model.name")
+)
+```
+
+## get.model() ##
+
+Get a fitted model object.
+
+```R
+get.model(
+  model.name = imgnoiser.option("fit.model.name"),
+  select = NULL
+)
+```
+
+## exists.model() ##
+
+Find if a model with a given name has already been fitted.
+
+```R
+exists.model(
+  model.name = imgnoiser.option("fit.model.name")
+)
+```
+
+## model.list ##
+
+Get a list with the fitted models.
+
+```R
+model.list
+```
+
+## remove.model() ##
+
+Remove a fitted model.
+
+```R
+remove.model(
+  model.name = stop("A model name argument is required.")
+)
+```
+
+## plot() ##
+
+Plot a fitted model and its source data.
+
+```R
+plot(
+  model.name = FALSE,
+  obs = TRUE,
+  print = TRUE,
+  fit = TRUE,
+  confid = FALSE,
+  main = NA,
+  subt = NA,
+  xlab = NA,
+  ylab = NA,
+  xlim = NULL,
+  ylim = NULL,
+  warnings = FALSE
+)
+```
 
 
 &crarr;

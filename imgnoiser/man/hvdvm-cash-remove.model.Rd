@@ -8,7 +8,7 @@
 \item{model.name}{The name of the model that will be removed (deleted).}
 }
 \description{
-Remove a model fitted with a given name.
+Remove, permanently delete, a model fitted with a given name.
 }
 \section{Usage}{
 

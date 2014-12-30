@@ -18,13 +18,13 @@ options(digits=4)
 test.data.folder <- imgnoiser:::.get.test.data.folder()
 
 knitr::opts_chunk$set(
-     comment = "##"
+     comment = "#>"
     ,prompt = FALSE
     ,collapse = TRUE
     ,dev = 'png'
     ,tidy = FALSE
   )
-#render("./vignettes/hvdvm-introduction.Rmd", output_format='md_document')
+#rmarkdown::render("./vignettes/hvdvm-introduction.Rmd", output_format='md_document')
 ```
 
 The acronym *hvdvm* stands for "Half-Var-Delta versus Mean" and refers to a technique to remove the PRNU noise from digital camera raw images, by the use of two *"identical"* digital photographs, i.e. photos of the same scene, with identical setup, camera settings and target scene; as two consecutive images of a still target in a shooting burst. This technique is employed to characterize a digital camera sensor noise response.
@@ -40,7 +40,7 @@ The procedure is applied to the raw data from each of the four photosite channel
 
 The theoretical basis of this approach is explained in the article [*"A Simple DSLR Camera Sensor Noise Model"*](http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#theo-hvdvm), while the [*"Use of Linear Regressions to Model Camera Sensor Noise"*](http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#hvdvm-def) describes the practical application of that model. The article [*"Handling Heteroscedastic Data from Camera Sensor Noise"*](http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero) explains how to handle the heteroscedasticity that appear in the data computed by the `hvdvm` and `vvm` class.
 
-In the code examples, the function output is presented prefixed with `##`, while a single prefix `#` represents real (user) comments.
+In the code examples, the function output is presented prefixed with `#>`, while a single prefix `#` represents real (user) comments.
 
 
 <div id="TOC">
@@ -52,11 +52,12 @@ In the code examples, the function output is presented prefixed with `##`, while
 - [Getting the Computed Values](#result)
     * [Variance Result](#var)
     * [Covariance Result](#cov)
-- [Other *hvdvm* functions](#other)
+- [Usage of other *hvdvm* Functions](#other)
+- [Summary of *hvdvm* Members](#methods)
 </div>
 
 
-# The *hvdvm* procedure # {#hvdvm-proc}
+# The *hvdvm* procedure {#hvdvm-proc}
 
 The procedure needs as input two image samples from two *identical* raw photo files. To remove the PRNU noise, the procedure *"synthesizes"* an image by subtracting each pixel value from one image sample to the corresponding pixel in the other. The half of the pixel values variance of that *synthesized* image is expected to have the same variance of those original samples but with the PRNU quadratic variance component removed. 
 
@@ -263,8 +264,174 @@ knitr::kable(head(my.hvdvm$cov.df), caption='**Covariance result**', align=c('c'
 
 For the `hvdvm` technique, this data contains the half of the *covariance* in the delta image, for each pair of channels combination.
 
-# Other *hvdvm* functions # {#other}
+# Usage of Other *hvdvm* Functions # {#other}
 
 There are more `hvdvm` class functions you can call from your class object, they are introduced in the [*"hvdvm and vvm Class Usage"* vignette](hvdvm-and-vvm-usage.html).
+
+# Summary of `hvdvm` Members # {#methods}
+
+You can get this summary issuing the R command `help('hvdvm')`. However, the format in that help is not as easy to read like this.
+
+## new() ##
+
+Create a new instance of the hvdvm class.
+
+```R
+new(
+channel.labels = imgnoiser.option("channel.labels"),
+green.channels = imgnoiser.option("green.channels"),
+has.RGGB.pattern = imgnoiser.option("has.RGGB.pattern"),
+avg.green.label = imgnoiser.option("avg.green.channel.label")
+)
+```
+
+## digest() ##
+
+Compute and collect statistics from the raw images files.
+
+```R
+digest(
+  photo.conds.file = stop("The 'photo.conds.file' argument is required."),
+  crop.files.path = './'
+)
+```
+
+## var.df ##
+
+Get the resulting noise variance data.
+
+```R
+var.df
+```
+
+## cov.df ##
+
+Get the resulting noise covariance data.
+
+```R
+cov.df
+```
+
+## photo.conditions.df ##
+
+Get the distinct photographic conditions.
+
+```R
+photo.conditions.df
+```
+
+## channel.labels ##
+
+Get the channel labels.
+
+```R
+channel.labels
+```
+
+## green.channels ##
+
+Get the green channels indices.
+
+```R
+green.channels
+```
+
+## fit.model() ##
+
+Fit a model to the noise data.
+
+```R
+fit.model(
+  model.name = imgnoiser.option("fit.model.name"),
+  model.family = imgnoiser.option("fit.model.family"),
+  degree = 1L,
+  formula = NULL,
+  model.data.name = imgnoiser.option("fit.model.data"),
+  ...
+)
+```
+
+## print.model.summary() ##
+
+Print a fitted model summary.
+
+```R
+  print.model.summary(
+  model.name = imgnoiser.option("fit.model.name"),
+  select = NULL,
+  ...
+)
+```
+
+## get.model.predictions() ##
+
+Get the values predicted by a fitted model.
+
+```R
+get.model.predictions(
+  model.name = imgnoiser.option("fit.model.name")
+)
+```
+
+## get.model() ##
+
+Get a fitted model object.
+
+```R
+get.model(
+  model.name = imgnoiser.option("fit.model.name"),
+  select = NULL
+)
+```
+
+## exists.model() ##
+
+Find if a model with a given name has already been fitted.
+
+```R
+exists.model(
+  model.name = imgnoiser.option("fit.model.name")
+)
+```
+
+## model.list ##
+
+Get a list with the fitted models.
+
+```R
+model.list
+```
+
+## remove.model() ##
+
+Remove a fitted model.
+
+```R
+remove.model(
+  model.name = stop("A model name argument is required.")
+)
+```
+
+## plot() ##
+
+Plot a fitted model and its source data.
+
+```R
+plot(
+  model.name = FALSE,
+  obs = TRUE,
+  print = TRUE,
+  fit = TRUE,
+  confid = FALSE,
+  main = NA,
+  subt = NA,
+  xlab = NA,
+  ylab = NA,
+  xlim = NULL,
+  ylim = NULL,
+  warnings = FALSE
+)
+```
+
 
 &crarr;

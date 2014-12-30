@@ -2,7 +2,7 @@
 % Please edit documentation in R/vvm-class.r
 \name{vvm$cov.df}
 \alias{vvm$cov.df}
-\title{Get the resulting covariance data.}
+\title{Get the resulting noise covariance data}
 \value{
 A data.frame with the covariance data from the channels in the image
   samples computed by the \code{\link{vvm$digest}} function. It contains the

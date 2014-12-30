@@ -3,7 +3,13 @@
 \name{hvdvm$get.model}
 \alias{hvdvm$get.model}
 \alias{vvm$get.model}
-\title{Get a model objects}
+\title{Get a fitted model object}
+\arguments{
+\item{model.name}{The model name whose object is desired.}
+
+\item{select}{A vector with the indices or labels of the channels whose
+  model is desired.}
+}
 \value{
 A list whose names are the channel labels and the values are the
   objects fitted for each channel.

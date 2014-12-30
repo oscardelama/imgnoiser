@@ -18,7 +18,7 @@ options(digits=4)
 test.data.folder <- imgnoiser:::.get.test.data.folder()
 
 knitr::opts_chunk$set(
-   comment = "##"
+   comment = "#>"
   ,prompt = FALSE
   ,collapse = TRUE
   ,dev = 'png'
@@ -27,13 +27,13 @@ knitr::opts_chunk$set(
 #render("./vignettes/hvdvm-and-vvm-usage.Rmd", output_format='md_document')
 ```
 
-The `hvdvm` and the `vvm` classes process the raw image samples in different way, and correspondingly their output must be interpreted in different way. From the point of view of these classes implementation, this mean they have very different `digest()` function and the data in their `var.df` and `cov.df` variables have different meanings. However, from an operational point of view, everything else in these classes works in the same way and with the same semantics. Of course, everything derived from their data, as plot or a fitted models must be interpreted considering the nature of their data.
+The `hvdvm` and the `vvm` classes process the raw image samples in different way, and correspondingly their output must be interpreted in different way. From the point of view of these classes implementation, this means they have very different `digest()` function and the data in their `var.df` and `cov.df` variables have different meanings. However, from an operational point of view, everything else in these classes works in the same way and with the same semantics. Of course, everything derived from their data, as plot or a fitted models must be interpreted considering the nature of their data.
 
 This vignette describes the functionality in the *hvdvm* and the *vvm* classes with the same behaviour. Before to read this vignette we encourage you to read first the  [*"hvdvm class usage"*](hvdvm-introduction.html) or the [*"vvm class usage"*](vvm-introduction.html) vignette, because this one is the follow up of both of them.
 
 In the examples, instead of the `my.hvdvm` or the `my.vvm` object ---when possible--- we will use `my.obj` to represent an object that can be instance of `hvdvm` or the `vvm` class.
 
-In the code examples, the function output is presented prefixed by `##`, while a single `#` represents real (user) comments.
+In the code examples, the function output is presented prefixed by `#>`, while a single `#` represents real (user) comments.
 
 <div id="TOC">
 <div class="toctitle">Table of Contents </div>
@@ -165,7 +165,7 @@ Other of the default arguments in the call to the `my.obj$fit.model()` function 
 
 We can call the `my.obj$fit.model()` function again but with an argument for the `model.name` parameter different to `standard` to do not overwrite the fitting we just did, or we can omit again this argument to overwrite that model.
 
-Lets fit a robust linear model using as weight the reciprocal squared values of the mean:
+Lets fit a weighted linear model using as weight the reciprocal squared values of the mean:
 
 ```{r eval=FALSE}
 library(robustbase)
@@ -176,12 +176,11 @@ my.object$fit.model(model.name = 'weighted', weights=1/mean^2)
 ```{r echo=FALSE}
 my.vvm$fit.model(model.name = 'weighted', weights=1/mean^2)
 ```
-```{r echo=FALSE}
-# , message=FALSE, results='hide'
+```{r echo=FALSE, message=FALSE, results='hide'}
 my.hvdvm$fit.model(model.name = 'weighted', weights=1/mean^2)
 ```
 
-Notice how we specify the `weights` argument for the `lmrob` function using the variable names in our model. All the parameters that don't correspond to the `my.obj$fit.model()` function are passed directly to the fitting function. This allows the use any and every parameter available for them.
+Notice how we specify the `weights` argument, for the `lm` function, using the variable name in our model. All the parameters that don't correspond to the `my.obj$fit.model()` function are passed directly to the fitting function. This allows the use any and every parameter available for them.
 
 ## Model Predictions ## {#model-pred}
 
@@ -389,7 +388,7 @@ shared.legend <- function(g1, g2, main, ylab) {
   legend <- g_legend(g1)
   lwidth <- sum(legend$width)
 
-  ## could also manually push viewports
+  # could also manually push viewports
   gridExtra::grid.arrange(gridExtra::arrangeGrob(g1 + ggplot2::theme(legend.position="none"),
                            g2 + ggplot2::theme(legend.position="none"),
                            main = main,

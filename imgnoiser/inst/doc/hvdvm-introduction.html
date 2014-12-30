@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2014-12-28" />
+<meta name="date" content="2014-12-30" />
 
 <title>hvdvm Class Introduction</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <div id="header">
 <h1 class="title"><em>hvdvm</em> Class Introduction</h1>
-<h4 class="date"><em>2014-12-28</em></h4>
+<h4 class="date"><em>2014-12-30</em></h4>
 </div>
 
 
@@ -65,7 +65,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 </ul>
 <p>The procedure is applied to the raw data from each of the four photosite channels (colors) in the sensor 2x2 RGB <a href="http://en.wikipedia.org/wiki/Bayer_filter">Bayer filter</a>, bringing four independent linear fittings.</p>
 <p>The theoretical basis of this approach is explained in the article <a href="http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#theo-hvdvm"><em>“A Simple DSLR Camera Sensor Noise Model”</em></a>, while the <a href="http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#hvdvm-def"><em>“Use of Linear Regressions to Model Camera Sensor Noise”</em></a> describes the practical application of that model. The article <a href="http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero"><em>“Handling Heteroscedastic Data from Camera Sensor Noise”</em></a> explains how to handle the heteroscedasticity that appear in the data computed by the <code>hvdvm</code> and <code>vvm</code> class.</p>
-<p>In the code examples, the function output is presented prefixed with <code>##</code>, while a single prefix <code>#</code> represents real (user) comments.</p>
+<p>In the code examples, the function output is presented prefixed with <code>#&gt;</code>, while a single prefix <code>#</code> represents real (user) comments.</p>
 <div id="TOC">
 <div class="toctitle">
 Table of Contents
@@ -80,7 +80,8 @@ Table of Contents
 <li><a href="#var">Variance Result</a></li>
 <li><a href="#cov">Covariance Result</a></li>
 </ul></li>
-<li><a href="#other">Other <em>hvdvm</em> functions</a></li>
+<li><a href="#other">Usage of other <em>hvdvm</em> Functions</a></li>
+<li><a href="#methods">Summary of <em>hvdvm</em> Members</a></li>
 </ul>
 </div>
 <div id="hvdvm-proc" class="section level1">
@@ -95,7 +96,7 @@ Table of Contents
 <p>As we have already seen, we will need pairs of photographs taken under identical conditions. The functions in the <code>hvdvm</code> class will process every pair of samples from photographs taken under the same conditions (regardless of their order).</p>
 <p>Using the <code>choose()</code> function we can compute the number of pair combinations for a given number of <em>identical</em> shots. For example from 6 shots taken in the same conditions, 15 combinations will be processed by the class (bringing 15 observations for the model fitting).</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">choose</span>(<span class="dv">6</span>, <span class="dv">2</span>)
-## [1] 15</code></pre>
+<span class="co">#&gt; [1] 15</span></code></pre>
 <p>The <code>hvdvm</code> class needs information to identify the shots taken under identical conditions in the form of a .csv file, which we will call the <em>photo conditions file</em>. We can build that file using <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/">ExifTool</a> (free software), for example using the following command (windows example).</p>
 <pre><code>exiftool.exe -common -sort -ext nef -csv ./ &gt; ISO100Conds.csv</code></pre>
 <p>This command will extract <em>common</em> (<code>-common</code>) exif metadata from the Nikon ‘.nef’ image files (<code>-ext nef</code>) in the current directory (<code>./</code>) using the .csv format (<code>-csv</code>) and the output will be sorted by photo file name (<code>-sort</code>). The output redirection (<code>&gt; ISO100Conds.csv</code>) will save the command output into the <code>&quot;ISO100Conds.csv&quot;</code> file in the current directory. We must edit this file to get at the end one containing this column names:</p>
@@ -204,25 +205,25 @@ my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv
 <pre class="sourceCode r"><code class="sourceCode r">my.hvdvm &lt;-<span class="st"> </span>hvdvm$<span class="kw">new</span>(<span class="dt">has.RGGB.pattern =</span> <span class="ot">TRUE</span>)</code></pre>
 <p>If we print this variable, we will get –in a nice style– a list of its members. Those are the class members you can use, with exception to those whose name start with a period <code>.</code> which are meant for internal use only.</p>
 <pre class="sourceCode r"><code class="sourceCode r">my.hvdvm
-## &lt;hvdvm&gt;
-##   Public:
-##     .pack: function
-##     .unpack: function
-##     channel.labels: active binding
-##     cov.df: active binding
-##     digest: function
-##     exists.model: function
-##     fit.model: function
-##     get.model: function
-##     get.model.predictions: function
-##     green.channels: active binding
-##     initialize: function
-##     model.list: active binding
-##     photo.conditions.df: active binding
-##     plot: function
-##     print.model.summary: function
-##     remove.model: function
-##     var.df: active binding</code></pre>
+<span class="co">#&gt; &lt;hvdvm&gt;</span>
+<span class="co">#&gt;   Public:</span>
+<span class="co">#&gt;     .pack: function</span>
+<span class="co">#&gt;     .unpack: function</span>
+<span class="co">#&gt;     channel.labels: active binding</span>
+<span class="co">#&gt;     cov.df: active binding</span>
+<span class="co">#&gt;     digest: function</span>
+<span class="co">#&gt;     exists.model: function</span>
+<span class="co">#&gt;     fit.model: function</span>
+<span class="co">#&gt;     get.model: function</span>
+<span class="co">#&gt;     get.model.predictions: function</span>
+<span class="co">#&gt;     green.channels: active binding</span>
+<span class="co">#&gt;     initialize: function</span>
+<span class="co">#&gt;     model.list: active binding</span>
+<span class="co">#&gt;     photo.conditions.df: active binding</span>
+<span class="co">#&gt;     plot: function</span>
+<span class="co">#&gt;     print.model.summary: function</span>
+<span class="co">#&gt;     remove.model: function</span>
+<span class="co">#&gt;     var.df: active binding</span></code></pre>
 <p>Notice in the above list, there are some elements with the “active binding” tag. We will call them object variables or just variables. We will explain their use along this document.</p>
 </div>
 <div id="digest" class="section level1">
@@ -545,9 +546,129 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 </div>
 </div>
 <div id="other" class="section level1">
-<h1><span class="header-section-number">6</span> Other <em>hvdvm</em> functions</h1>
+<h1><span class="header-section-number">6</span> Usage of Other <em>hvdvm</em> Functions</h1>
 <p>There are more <code>hvdvm</code> class functions you can call from your class object, they are introduced in the <a href="hvdvm-and-vvm-usage.html"><em>“hvdvm and vvm Class Usage”</em> vignette</a>.</p>
+</div>
+<div id="methods" class="section level1">
+<h1><span class="header-section-number">7</span> Summary of <code>hvdvm</code> Members</h1>
+<p>You can get this summary issuing the R command <code>help('hvdvm')</code>. However, the format in that help is not as easy to read like this.</p>
+<div id="new" class="section level2">
+<h2><span class="header-section-number">7.1</span> new()</h2>
+<p>Create a new instance of the hvdvm class.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">new</span>(
+<span class="dt">channel.labels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;channel.labels&quot;</span>),
+<span class="dt">green.channels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;green.channels&quot;</span>),
+<span class="dt">has.RGGB.pattern =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;has.RGGB.pattern&quot;</span>),
+<span class="dt">avg.green.label =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;avg.green.channel.label&quot;</span>)
+)</code></pre>
+</div>
+<div id="digest" class="section level2">
+<h2><span class="header-section-number">7.2</span> digest()</h2>
+<p>Compute and collect statistics from the raw images files.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">digest</span>(
+  <span class="dt">photo.conds.file =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'photo.conds.file' argument is required.&quot;</span>),
+  <span class="dt">crop.files.path =</span> <span class="st">'./'</span>
+)</code></pre>
+</div>
+<div id="var.df" class="section level2">
+<h2><span class="header-section-number">7.3</span> var.df</h2>
+<p>Get the resulting noise variance data.</p>
+<pre class="sourceCode r"><code class="sourceCode r">var.df</code></pre>
+</div>
+<div id="cov.df" class="section level2">
+<h2><span class="header-section-number">7.4</span> cov.df</h2>
+<p>Get the resulting noise covariance data.</p>
+<pre class="sourceCode r"><code class="sourceCode r">cov.df</code></pre>
+</div>
+<div id="photo.conditions.df" class="section level2">
+<h2><span class="header-section-number">7.5</span> photo.conditions.df</h2>
+<p>Get the distinct photographic conditions.</p>
+<pre class="sourceCode r"><code class="sourceCode r">photo.conditions.df</code></pre>
+</div>
+<div id="channel.labels" class="section level2">
+<h2><span class="header-section-number">7.6</span> channel.labels</h2>
+<p>Get the channel labels.</p>
+<pre class="sourceCode r"><code class="sourceCode r">channel.labels</code></pre>
+</div>
+<div id="green.channels" class="section level2">
+<h2><span class="header-section-number">7.7</span> green.channels</h2>
+<p>Get the green channels indices.</p>
+<pre class="sourceCode r"><code class="sourceCode r">green.channels</code></pre>
+</div>
+<div id="fit.model" class="section level2">
+<h2><span class="header-section-number">7.8</span> fit.model()</h2>
+<p>Fit a model to the noise data.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fit.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">model.family =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.family&quot;</span>),
+  <span class="dt">degree =</span> 1L,
+  <span class="dt">formula =</span> <span class="ot">NULL</span>,
+  <span class="dt">model.data.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.data&quot;</span>),
+  ...
+)</code></pre>
+</div>
+<div id="print.model.summary" class="section level2">
+<h2><span class="header-section-number">7.9</span> print.model.summary()</h2>
+<p>Print a fitted model summary.</p>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">print.model.summary</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">select =</span> <span class="ot">NULL</span>,
+  ...
+)</code></pre>
+</div>
+<div id="get.model.predictions" class="section level2">
+<h2><span class="header-section-number">7.10</span> get.model.predictions()</h2>
+<p>Get the values predicted by a fitted model.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model.predictions</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
+)</code></pre>
+</div>
+<div id="get.model" class="section level2">
+<h2><span class="header-section-number">7.11</span> get.model()</h2>
+<p>Get a fitted model object.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">select =</span> <span class="ot">NULL</span>
+)</code></pre>
+</div>
+<div id="exists.model" class="section level2">
+<h2><span class="header-section-number">7.12</span> exists.model()</h2>
+<p>Find if a model with a given name has already been fitted.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exists.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
+)</code></pre>
+</div>
+<div id="model.list" class="section level2">
+<h2><span class="header-section-number">7.13</span> model.list</h2>
+<p>Get a list with the fitted models.</p>
+<pre class="sourceCode r"><code class="sourceCode r">model.list</code></pre>
+</div>
+<div id="remove.model" class="section level2">
+<h2><span class="header-section-number">7.14</span> remove.model()</h2>
+<p>Remove a fitted model.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">remove.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">stop</span>(<span class="st">&quot;A model name argument is required.&quot;</span>)
+)</code></pre>
+</div>
+<div id="plot" class="section level2">
+<h2><span class="header-section-number">7.15</span> plot()</h2>
+<p>Plot a fitted model and its source data.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(
+  <span class="dt">model.name =</span> <span class="ot">FALSE</span>,
+  <span class="dt">obs =</span> <span class="ot">TRUE</span>,
+  <span class="dt">print =</span> <span class="ot">TRUE</span>,
+  <span class="dt">fit =</span> <span class="ot">TRUE</span>,
+  <span class="dt">confid =</span> <span class="ot">FALSE</span>,
+  <span class="dt">main =</span> <span class="ot">NA</span>,
+  <span class="dt">subt =</span> <span class="ot">NA</span>,
+  <span class="dt">xlab =</span> <span class="ot">NA</span>,
+  <span class="dt">ylab =</span> <span class="ot">NA</span>,
+  <span class="dt">xlim =</span> <span class="ot">NULL</span>,
+  <span class="dt">ylim =</span> <span class="ot">NULL</span>,
+  <span class="dt">warnings =</span> <span class="ot">FALSE</span>
+)</code></pre>
 <p>↵</p>
+</div>
 </div>
 
 

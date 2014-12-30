@@ -3,7 +3,7 @@
 \name{hvdvm$plot}
 \alias{hvdvm$plot}
 \alias{vvm$plot}
-\title{Plot a fitted model or its source data}
+\title{Plot a fitted model and its source data}
 \arguments{
 \item{model.name}{Name of the model whose prediction (see the \code{fit}
   argument) or confidence area (see the \code{confid} argument) are desired
@@ -57,7 +57,7 @@ Invisibly returns a ggplot2 object which can be used to customize the
   plot.
 }
 \description{
-Plot a fitted model or its source data
+Plot a fitted model and its source data
 }
 \section{Usage}{
 

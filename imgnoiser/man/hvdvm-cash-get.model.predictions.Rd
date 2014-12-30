@@ -3,7 +3,7 @@
 \name{hvdvm$get.model.predictions}
 \alias{hvdvm$get.model.predictions}
 \alias{vvm$get.model.predictions}
-\title{Get predicted values}
+\title{Get the values predicted by a fitted model}
 \arguments{
 \item{model.name}{The name of the model whose predicitions are desired.}
 }
