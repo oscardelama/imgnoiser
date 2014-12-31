@@ -14,8 +14,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-imgnoiser R Package :camera:
-============================
+The :camera: `imgnoiser` R Package
+===================================
 
 [![Build Status](https://travis-ci.org/oscardelama/imgnoiser.png?branch=master)](https://travis-ci.org/oscardelama/imgnoiser)
 
@@ -32,7 +32,7 @@ devtools::install_github('oscardelama/imgnoiser')
 
 Usage
 -----
-In [the wiki pages](https://github.com/oscardelama/imgnoiser/wiki) You can find detailed documentation and examples of the general workflow using `imgnoiser`.
+In [the wiki pages](https://github.com/oscardelama/imgnoiser/wiki) you will find detailed documentation and examples of the general workflow using `imgnoiser`.
 
 License
 -------
