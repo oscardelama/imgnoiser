@@ -3,16 +3,16 @@
 language: c
 
 before_install:
-  # Decompress test data
-  - sudo apt-get install p7zip-full
-  - cd test-data
-  # Save folder with test data i an environment variable
-  - export IMNR_TEST_DATA=`pwd`
-  - 7z x test-data.7z
-  - cd ..
-  # Goto the the package folder
-  - cd imgnoiser
-  # Continue as normal
+#  # Decompress test data
+#  - sudo apt-get install p7zip-full
+#  - cd test-data
+#  # Save folder with test data i an environment variable
+#  - export IMNR_TEST_DATA=`pwd`
+#  - 7z x test-data.7z
+#  - cd ..
+#  # Goto the the package folder
+#  - cd imgnoiser
+#  # Continue as normal
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
@@ -23,7 +23,7 @@ install:
   - ./travis-tool.sh install_github wch/R6
   - ./travis-tool.sh install_github hadley/lazyeval
   - ./travis-tool.sh install_github Rdatatable/data.table
-  - ./travis-tool.sh install_github yihui/printr
+#  - ./travis-tool.sh install_github yihui/printr
   - ./travis-tool.sh install_deps
 
 script: ./travis-tool.sh run_tests

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="date" content="2014-12-30" />
+
+<title>hvdvm Class Introduction</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E5%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%2016px%200%2012px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dtop%3A%200%2E3em%3B%0A%20%20%20%20margin%2Dleft%3A%201%2E5em%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20decimal%20outside%3B%0A%20%20%20%20line%2Dheight%3A%201%2E5em%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%202em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%20%20font%2Dsize%3A%2090%25%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%3A%201px%20solid%20%23E8E8E8%3B%0A%20%20border%2Dright%3A%201px%20solid%20%23E8E8E8%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%205px%2010px%3B%0A%7D%0A%0Apre%5Bclass%5E%3D%22source%22%5D%20%7B%0A%20%20border%3A%201px%20solid%20%23ECECEC%3B%0A%20%20border%2Dleft%3A%203px%20solid%20%23E4E4E4%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%3A%201px%20solid%20%23ECECEC%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2090%25%3B%0A%7D%0A%0Apre%20%3E%20code%20%7B%0A%20%20line%2Dheight%3A%201%2E2%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%200px%204px%3B%0A%20%20border%3A%201px%20solid%20%23D8D8E2%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%200%2E75em%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20margin%3A%204px%20auto%3B%0A%20%20box%2Dshadow%3A%200px%200px%204px%20%23EDECE5%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%201em%3B%0A%20%20font%2Dsize%3A%2028px%3B%0A%20%20line%2Dheight%3A%201%2E4%3B%0A%20%20color%3A%20hsl%28230%2C%2079%25%2C%2013%25%29%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title"><em>hvdvm</em> Class Introduction</h1>
+<h4 class="date"><em>2014-12-30</em></h4>
+</div>
+
+
+<p>The acronym <em>hvdvm</em> stands for “Half-Var-Delta versus Mean” and refers to a technique to remove the PRNU noise from digital camera raw images, by the use of two <em>“identical”</em> digital photographs, i.e. photos of the same scene, with identical setup, camera settings and target scene; as two consecutive images of a still target in a shooting burst. This technique is employed to characterize a digital camera sensor noise response.</p>
+<p>Without the PRNU noise component, the <code>variance</code> and the <code>mean</code> of the pixel values in a raw image file are expected to have a linear relationship. To measure sensor noise and not the light and shadows from the target scene, we are talking about a raw image file from the photograph of a uniformly lit plain surface (e.g a white cardboard).</p>
+<p>This technique is useful to measure some particular camera sensor characteristics. With the PRNU noise removed, the coefficients of the linear fit between the variance and the <code>mean</code> of the pixel values are:</p>
+<ul>
+<li><strong>Slope</strong>: the camera sensor conversion ratio from electrons to ADUs.</li>
+<li><strong>Intercept</strong>: the Read Noise variance.</li>
+</ul>
+<p>The procedure is applied to the raw data from each of the four photosite channels (colors) in the sensor 2x2 RGB <a href="http://en.wikipedia.org/wiki/Bayer_filter">Bayer filter</a>, bringing four independent linear fittings.</p>
+<p>The theoretical basis of this approach is explained in the article <a href="http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#theo-hvdvm"><em>“A Simple DSLR Camera Sensor Noise Model”</em></a>, while the <a href="http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#hvdvm-def"><em>“Use of Linear Regressions to Model Camera Sensor Noise”</em></a> describes the practical application of that model. The article <a href="http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero"><em>“Handling Heteroscedastic Data from Camera Sensor Noise”</em></a> explains how to handle the heteroscedasticity that appear in the data computed by the <code>hvdvm</code> and <code>vvm</code> class.</p>
+<p>In the code examples, the function output is presented prefixed with <code>#&gt;</code>, while a single prefix <code>#</code> represents real (user) comments.</p>
+<div id="TOC">
+<div class="toctitle">
+Table of Contents
+</div>
+<ul>
+<li><a href="#hvdvm-proc">The <em>hvdvm</em> procedure</a></li>
+<li><a href="#hvdvm-input">Input Data for the <em>hvdvm</em> Class</a></li>
+<li><a href="#create">Creating a <em>hvdvm</em> Instance</a></li>
+<li><a href="#digest">Digesting the Image Samples</a></li>
+<li><a href="#result">Getting the Computed Values</a>
+<ul>
+<li><a href="#var">Variance Result</a></li>
+<li><a href="#cov">Covariance Result</a></li>
+</ul></li>
+<li><a href="#other">Usage of other <em>hvdvm</em> Functions</a></li>
+<li><a href="#methods">Summary of <em>hvdvm</em> Members</a></li>
+</ul>
+</div>
+<div id="hvdvm-proc" class="section level1">
+<h1><span class="header-section-number">1</span> The <em>hvdvm</em> procedure</h1>
+<p>The procedure needs as input two image samples from two <em>identical</em> raw photo files. To remove the PRNU noise, the procedure <em>“synthesizes”</em> an image by subtracting each pixel value from one image sample to the corresponding pixel in the other. The half of the pixel values variance of that <em>synthesized</em> image is expected to have the same variance of those original samples but with the PRNU quadratic variance component removed.</p>
+<p>In the <code>imgnoiser::hvdvm</code> class, the half of the pixel values variance from the <em>synthesized</em> image is called <code>Half-Var-Delta</code> for short. The <code>Half-Var-Delta</code> and the <code>Mean</code> photosites values are expected to have a linear relationship. The <code>Mean</code> photosites values is computed from the average pixel values from both <em>identical</em> images. This is like <em>synthetizing</em> another image built by averaging each corresponding pixel on each sample. This computation is made using floating point arithmetic. At the end, the pixels in this last <em>synthetic</em> image are averaged to get the <code>mean</code> value that will be fitted against the <code>Half-Var-Delta</code> variable or <code>hvdvm</code> for short.</p>
+<p>Without the proper tools, the application of this technique is labor intensive, slow and error prone. The <code>hvdvm</code> class contains well suited tools to automatize the process and make it easy to apply over a large set of samples.</p>
+</div>
+<div id="hvdvm-input" class="section level1">
+<h1><span class="header-section-number">2</span> Input Data for the <em>hvdvm</em> Class</h1>
+<p>We need a set of image file samples, with the <a href="http://fits.gsfc.nasa.gov/"><code>FITS</code></a> or the <a href="http://netpbm.sourceforge.net/doc/pgm.html"><code>PGM</code></a> format, from shots taken to a uniformly lit flat plain surface. The vignette <a href="collecting-samples.html">*Collecting Image Samples“*</a> contains a thorough explanation about how to get those image samples.</p>
+<p>As we have already seen, we will need pairs of photographs taken under identical conditions. The functions in the <code>hvdvm</code> class will process every pair of samples from photographs taken under the same conditions (regardless of their order).</p>
+<p>Using the <code>choose()</code> function we can compute the number of pair combinations for a given number of <em>identical</em> shots. For example from 6 shots taken in the same conditions, 15 combinations will be processed by the class (bringing 15 observations for the model fitting).</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">choose</span>(<span class="dv">6</span>, <span class="dv">2</span>)
+<span class="co">#&gt; [1] 15</span></code></pre>
+<p>The <code>hvdvm</code> class needs information to identify the shots taken under identical conditions in the form of a .csv file, which we will call the <em>photo conditions file</em>. We can build that file using <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/">ExifTool</a> (free software), for example using the following command (windows example).</p>
+<pre><code>exiftool.exe -common -sort -ext nef -csv ./ &gt; ISO100Conds.csv</code></pre>
+<p>This command will extract <em>common</em> (<code>-common</code>) exif metadata from the Nikon ‘.nef’ image files (<code>-ext nef</code>) in the current directory (<code>./</code>) using the .csv format (<code>-csv</code>) and the output will be sorted by photo file name (<code>-sort</code>). The output redirection (<code>&gt; ISO100Conds.csv</code>) will save the command output into the <code>&quot;ISO100Conds.csv&quot;</code> file in the current directory. We must edit this file to get at the end one containing this column names:</p>
+<table>
+<caption><strong>iso100White.csv input file example</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">crop.file.name</th>
+<th align="center">photo.file.name</th>
+<th align="center">lighting</th>
+<th align="center">ISO</th>
+<th align="right">shutter.speed</th>
+<th align="center">aperture</th>
+<th align="right">focal.length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">crop_1.fit</td>
+<td align="center">_ODL9405.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_2.fit</td>
+<td align="center">_ODL9408.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_3.fit</td>
+<td align="center">_ODL9409.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_5.fit</td>
+<td align="center">_ODL9411.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/40</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_6.fit</td>
+<td align="center">_ODL9412.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/40</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_4.fit</td>
+<td align="center">_ODL9413.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/40</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+</tbody>
+</table>
+<p>The exact column names you will get from the <code>ExifToool.exe</code> command depend on your camera brand. However they will be easy to identify.</p>
+<p>The <code>hvdvm</code> class expects the <em>photo conditions file</em> contains the following columns.</p>
+<ul>
+<li><code>crop.file.name</code></li>
+<li><code>lighting</code></li>
+<li><code>ISO</code></li>
+<li><code>shutter.speed</code> (exposition time)</li>
+<li><code>aperture</code></li>
+<li><code>focal.length</code></li>
+</ul>
+<p>The sequence of the columns is not significant and there can be also other columns. Except for <code>crop.file.name</code> the exact values in these columns are not important, the procedure will just distinguish the differente values in them. For example, <code>shutter.speed</code> can contain <code>'1/50'</code> or <code>0.02</code> or just <code>'50'</code>.</p>
+<p>The names of these columns is required exactly as shown in the list above. However, there is an option in the <code>hvdvm</code> to make a mapping from other column names to this ones.</p>
+<p>Notice the <code>crop.file.name</code> and <code>lighting</code> columns do not come in the <code>ExifTool</code> .csv file. We must add those columns to the .csv file “by hand”. The <code>crop.file.name</code> is the name of the sample image file cropped from the photo file indicated in the column <code>FileName</code> in the output of ExifTool.</p>
+<p>As the rows in the <code>ExifTool</code> .csv file are sorted by photo file name, and the the crop files has a name with with an increasing numeric suffix (e.g. <code>crop_1.fit</code>, <code>crop_2.fit</code>, etc.) with the same sequence of the .csv sorted photo file names (that is the way <code>Iris</code> software will produce those crops), we can easily add the <code>crop.file.name</code> column and set the value <code>crop_1.fit</code> for the first row, <code>crop_2.fit</code> for the second one and so on.</p>
+<p>It is very important the crop file names and the photo file names are correctly matched, otherwise images taken with differente conditions will be paired, producing unexpected and invalid results. Furthermore, the crop file names should also be correct, so the class can open and read those image files, they must not include the file path, but just the file name and extension (e.g. <code>crop_12.fit</code>).</p>
+<p>Finally we need to add the <code>lighting</code> column with information based on our notes about the changes in the intensity of the light over the target scene. The exact values for this column are not important. The class will just distinguish between the different values of this variable.</p>
+<p>To begin with, you can fill the column with the value <code>Normal</code> and for those photos with higher lighting we can set the label <code>high</code>. If you increased the lighting twice during the shooting session, you can correspondingly tag those photos with the values <code>high A</code> and <code>high B</code> in the <code>lighting</code> column. Proceed with the same labeling schema for the shoots with lower lighting.</p>
+</div>
+<div id="create" class="section level1">
+<h1><span class="header-section-number">3</span> Creating a <em>hvdvm</em> Instance</h1>
+<p>To make use of the <code>hvdvm</code> class, and in general any other classes in the package. we need first to create an instance of the class, which is done calling the class <code>new</code> function. This function name for instance creation is standardized, so every class contains this function. For example there are <code>hvdvm$new()</code> and <code>vvm$new()</code> functions.</p>
+<p>The output of this instance constructor function is what is called a class instance object. This way the output of the <code>hvdvm$new()</code> function is a <code>hvdvm</code> instance object.</p>
+<p>Once we have an object of the class, we can access to the class functions and variables through that particular object. For example:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Create an 'hvdvm' instance object and save it in the 'my.hvdvm.object' variable</span>
+my.hvdvm.object &lt;-<span class="st"> </span><span class="kw">hvdvm.new</span>()
+<span class="co"># Starting from here we access to all the class functions and variables using the</span>
+<span class="co"># instance object</span>
+my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv'</span>)</code></pre>
+<p>Of course, we can create many instances, for the processing of the same or different image samples.</p>
+<p>We will create and save an instance of the <code>hvdvm</code> class assuming our image samples have the RGGB pattern for the layout of the photosites color filters. we can get detailed information about the <code>hvdvm$new()</code> function parameters, with the command:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">help</span>(<span class="st">'hvdvm$new'</span>)</code></pre>
+<p>We will save our instance object in the <code>my.hvdvm</code> variable.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.hvdvm &lt;-<span class="st"> </span>hvdvm$<span class="kw">new</span>(<span class="dt">has.RGGB.pattern =</span> <span class="ot">TRUE</span>)</code></pre>
+<p>If we print this variable, we will get –in a nice style– a list of its members. Those are the class members you can use, with exception to those whose name start with a period <code>.</code> which are meant for internal use only.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.hvdvm
+<span class="co">#&gt; &lt;hvdvm&gt;</span>
+<span class="co">#&gt;   Public:</span>
+<span class="co">#&gt;     .pack: function</span>
+<span class="co">#&gt;     .unpack: function</span>
+<span class="co">#&gt;     channel.labels: active binding</span>
+<span class="co">#&gt;     cov.df: active binding</span>
+<span class="co">#&gt;     digest: function</span>
+<span class="co">#&gt;     exists.model: function</span>
+<span class="co">#&gt;     fit.model: function</span>
+<span class="co">#&gt;     get.model: function</span>
+<span class="co">#&gt;     get.model.predictions: function</span>
+<span class="co">#&gt;     green.channels: active binding</span>
+<span class="co">#&gt;     initialize: function</span>
+<span class="co">#&gt;     model.list: active binding</span>
+<span class="co">#&gt;     photo.conditions.df: active binding</span>
+<span class="co">#&gt;     plot: function</span>
+<span class="co">#&gt;     print.model.summary: function</span>
+<span class="co">#&gt;     remove.model: function</span>
+<span class="co">#&gt;     var.df: active binding</span></code></pre>
+<p>Notice in the above list, there are some elements with the “active binding” tag. We will call them object variables or just variables. We will explain their use along this document.</p>
+</div>
+<div id="digest" class="section level1">
+<h1><span class="header-section-number">4</span> Digesting the Image Samples</h1>
+<p>The function that reads and process the image samples using the <em>hvdm</em> technique is called <code>digest()</code>. We must feed that function with a <code>.csv</code> file, prepared as described in the section <a href="#hvdvm-input"><em>“Input data for the <em>hvdvm</em> Procedure”</em></a>.</p>
+<p>For this example, the file is named <code>iso100White.csv</code> and looks like this:</p>
+<table>
+<caption><strong>iso100White.csv input file example</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">crop.file.name</th>
+<th align="center">photo.file.name</th>
+<th align="center">lighting</th>
+<th align="center">ISO</th>
+<th align="right">shutter.speed</th>
+<th align="center">aperture</th>
+<th align="right">focal.length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">crop_1.fit</td>
+<td align="center">_ODL9405.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_2.fit</td>
+<td align="center">_ODL9408.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_3.fit</td>
+<td align="center">_ODL9409.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/30</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_5.fit</td>
+<td align="center">_ODL9411.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/40</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="odd">
+<td align="center">crop_6.fit</td>
+<td align="center">_ODL9412.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/40</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+<tr class="even">
+<td align="center">crop_4.fit</td>
+<td align="center">_ODL9413.NEF</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/40</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+</tr>
+</tbody>
+</table>
+<p>In this example, the <code>.csv</code> file and the image samples, whose names are in the <code>crop.file.name</code> column in the <code>.csv</code> file, are both in the current working directory.</p>
+<p>The <code>.csv</code> file must include the following columns:</p>
+<ul>
+<li><code>crop.file.name</code></li>
+<li><code>lighting</code></li>
+<li><code>ISO</code></li>
+<li><code>shutter.speed</code></li>
+<li><code>aperture</code></li>
+<li><code>focal.length</code></li>
+</ul>
+<p>The columns must be named exactly as in the above list. This means, if any of them is named differently, you must rename it, or change the <code>conds.col.map</code> option value (with the <code>imgnoiser.option()</code> function) to make it map your <code>.csv</code> actual column names with the expected ones. The <code>.csv</code> file can contain other columns, they will be just ignored.</p>
+<p>When the <code>show.progress</code> option is <code>TRUE</code>, as it is by default, a progress bar will appear showing you how much of the process was already done. If that option is <code>FALSE</code>, as in this example, at the end of the processing, the <code>digest()</code> function will print a message about how many sample combinations were processed.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">imgnoiser.option</span>(<span class="st">'show.progress'</span>, <span class="ot">FALSE</span>)
+<span class="co"># The image files are in the './img/' folder</span>
+my.hvdvm$<span class="kw">digest</span>(<span class="st">'iso100White.csv'</span>, <span class="st">'./img/'</span>)
+<span class="co"># 80 different sample combinations were processed.</span></code></pre>
+</div>
+<div id="result" class="section level1">
+<h1><span class="header-section-number">5</span> Getting the Computed Values</h1>
+<p>The <code>hvdvm$digest()</code> function computes and saves <em>variance</em> and <em>covariance</em> information from the photosites values in your image samples, which you can read after its processing.</p>
+<div id="var" class="section level2">
+<h2><span class="header-section-number">5.1</span> Variance Result</h2>
+<p>we can get the resulting <em>variance</em>, reading the <code>hvdvm$var.df</code> variable.</p>
+<p>For the <code>hvdvm</code> technique used by this class, this variance is half of the variance in the delta image, computed for each channel in the image samples.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the computed variance</span>
+<span class="kw">head</span>(my.hvdvm$var.df)</code></pre>
+<table>
+<caption><strong>Variance and Mean results</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">cond</th>
+<th align="left">pict1</th>
+<th align="left">pict2</th>
+<th align="right">channel</th>
+<th align="right">mean</th>
+<th align="right">var</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="left">crop_16.fit</td>
+<td align="left">crop_17.fit</td>
+<td align="right">Red</td>
+<td align="right">2275</td>
+<td align="right">1057.0</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="left">crop_16.fit</td>
+<td align="left">crop_17.fit</td>
+<td align="right">Green R</td>
+<td align="right">5110</td>
+<td align="right">2000.6</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="left">crop_16.fit</td>
+<td align="left">crop_17.fit</td>
+<td align="right">Green B</td>
+<td align="right">5126</td>
+<td align="right">1976.2</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="left">crop_16.fit</td>
+<td align="left">crop_17.fit</td>
+<td align="right">Blue</td>
+<td align="right">4101</td>
+<td align="right">1846.4</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="left">crop_16.fit</td>
+<td align="left">crop_18.fit</td>
+<td align="right">Red</td>
+<td align="right">2274</td>
+<td align="right">970.7</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="left">crop_16.fit</td>
+<td align="left">crop_18.fit</td>
+<td align="right">Green R</td>
+<td align="right">5108</td>
+<td align="right">1929.1</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>pict1</code> and <code>pict2</code> fields in each row, show the sample image file names to which the <code>hvdvm</code> procedure was applied. According with the data in the input <code>.csv</code> file, they come from photographs taken under identical conditions. The first <code>cond</code> column, refers –with a sequential number– to the photographic conditions used to shot those samples. Different <code>cond</code> values represent different photographic conditions and vice versa.</p>
+<p>We can get the different photographic conditions reading the <code>hvdvm$photo.conditions.df</code> variable.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the different photographic conditions</span>
+<span class="kw">head</span>(my.hvdvm$photo.conditions.df)</code></pre>
+<table>
+<caption><strong>Photographic Conditions</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">cond</th>
+<th align="center">lighting</th>
+<th align="center">ISO</th>
+<th align="right">shutter.speed</th>
+<th align="center">aperture</th>
+<th align="right">focal.length</th>
+<th align="center">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/100</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">2</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/1000</td>
+<td align="center">7.1</td>
+<td align="right">90.0 mm</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">3</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/125</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">4</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/1250</td>
+<td align="center">7.1</td>
+<td align="right">90.0 mm</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">5</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/160</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">6</td>
+<td align="center">Normal</td>
+<td align="center">100</td>
+<td align="right">1/200</td>
+<td align="center">5.6</td>
+<td align="right">90.0 mm</td>
+<td align="center">3</td>
+</tr>
+</tbody>
+</table>
+<p>Now we can see the photographic conditions referred by the column <code>cond</code> in the “<em>Variance</em> and <em>Mean</em> result” shown above.</p>
+<p>Coming back to the <em>Variance and Mean</em> results, we can see the samples <code>crop_31.fit</code>, <code>crop_32.fit</code> and <code>crop_33.fit</code> were taken under the same photographic conditions, because they appear in rows with the same condition code <code>1</code>, which in particular, as we can see above, corresponds to <code>1/100</code> of shutter speed (or exposition time).</p>
+<p>Notice by the <code>channel</code> factor how the procedure was applied independently to each of the four channels in each pair of samples. So, there are four rows with the same <code>cond</code>, <code>pict1</code> and <code>pict2</code> column values but with different computed values of <code>mean</code> and <code>var</code> (<em>variance</em>) for each channel.</p>
+<p>The column <code>var</code>, as product of the <code>hvdvm</code> technique, contains the half of the photosite values variance of the difference image, computed subtracting the pixel values of <code>pict1</code> from the corresponding ones in the <code>pict2</code> sample (the <em>variance</em> is independent of the subtraction order). The column <code>mean</code> is the mean of the photosites values of the average image, averaging each pixel value of <code>pict1</code> with the corresponding one in the <code>pict2</code> sample.</p>
+<p>Now we can plot the data showing the relationship between the <code>var</code> and the <code>mean</code> variables for each <code>channel</code>.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Plot the data in the standard model</span>
+my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span class="ot">TRUE</span>)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAnAAAAJACAMAAAA6t6s8AAACbVBMVEUAAAAAACsAAFUAKysAK4AAVVUAVaorAAArACsrAFUrKwArK1UrgIArgNQslTUtkE8tkUktkUotlTYtlTctljAtlzAukEoukE8ukUkukUovlzcwe7EwgJ0wgJ4wgZgwkEgwkVEwk0sxfLIygZ8yg5gzfbIzjk00lTc1eLU1jE01jU41j1A2fZw2fZ03fZs3f543i0g4ebg4ikc4ikg4jUo4llM4nDo6mFU7dK47gbs7hqE8h6JBiUZHhEtHhUxLbrFLcbRMgkRMjlBPbKpPb61PeLdVAABVACtVAFVVKwBVVQBVVStVVVVVgIBVqqpVqv9XZphaey1aq1xbY5NcYpFdYpFdlcNerl9hmMdhsWJkm8p+Xo5/f39/f5R/f6p/lJR/lL9/qtSAKwCAKyuAK1WAVQCAXYyAgCuAgFWA1KqA1P+CXYyFVqaHWoaJU56TUp2Uf3+Uf5SUf6qUlH+UlL+UqqqUv+qXUKKZTaGZTqKZUaScS5ucTJ2dS5qdS5udTp6dWKeeWKifWamgSISoR4uqQYGqVQCqVVWqf3+qf5Sqf6qqlL+q1ICq1P+q/6qq/9Sq//+rQYKrQoKrRISrRIWrTo6rdLSvd7eyerq2OCi2OSK2OSO3NDu4Nym/lH+/lJS/lKq/6v/BPizLKzjUgCvUqn/U1IDU6r/U/6rU/9TU///WMULZICTaICXaICbbHyPeHiXfHiXgICbhHB3hHB7hHB/iGx7jGh3jGx7jHB/kGhzkHR/kJynkTU7lHiDlKCrl5eXoUFLqv5Tq1NTq///rU1Xy8vL/qlX/1ID/1Kr/6r///6r//9T//+r////k4tQJAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2dj58cZ13HNyHcJcpBY601KWBqqigggcKl5ECRQK9V0cgJl0KOSk8BuYpCVSzRpoc/1laphEKvgIoGN4pXKGr6y96dJLF0r7nr/k0+zzM/dmZnZuf5zvN95nlm5/N+td3cZHc/9+z33WeeZ2bnmc4AgBrpuP4FQLuAcKBWIByoFQgHagXCgVqBcKBWIByoFQgHagXCgVqBcKBWIByoFQgHagXCgVqBcKBWIByoFQgHagXCgVqBcKBWIByoFQgHagXCgVqBcKBWIByoFQgHaqW5wvX2rKjH7empxNbd5X3rg8HOfKdzSv7YDR4yT0vQ7wSM/nXwTgS6nb3nw1d2ZkivbBOTKVy30wn+th97NFRvhEi48BXpd+qFDunQDSUXvxGEK2QihdtdjjzZmQ//tDNf1F/1Q03iDir5Tl2KcHt+JPhNeq+YhnBFTKhwsV29UKd+YacTCSeMSz2FLtzeT6ln7y6/ah7CFTEpwqkd40ygST8xJIt07KpnD5811Yt2obFwO/PyqWIApp4i3+k/loM3il42UJtDq6SOYvPQyO7eL+2Xb7m9/9PzM8l3Sv12/zbdafUOd0KE6wXDsJmMcKEfgUyJZ71iuhP2grFwyiEx/gpfPRQuflmQq56/Lfaa3fTQr7v3y8vyOb1935HCDd8pmZt6qzbSYOGiwb6oaTBUk+O00V1q6JOyJPmsYc1j4eT+M/wLOcOId6nDl6lnBe6KHjP4w3BfLZ7bU+FTO/Mzg8Q7pXLV/x0FE+Y2MBnCSWTvkSOcEmW4IXrWcE+YEi7cAwtp0mO44GXx09S77sx3UhMRsb0vurvt6VNSuMQ7jeYWT2BaQIOFS+5Sw/1XjnBq9LYdTBvTzwpJ7VLDZ8TPUcLFLxu+QL2olz5+J54rTesFD4l3Gs0lH+GbJCZDOHmgdyZ/l6r2ecFzR54V/30onHyjWBO5d413qdHLgufJXWk3HBkmRZTbuvvWu/LXmUm+02guhGskSeECafKFEz98R422Rp8VkjgscirqCsPXBcINXxYl7/37+bhf25mPZg3quXs+PX8qFG5klAjhFJMi3JTqb/KEE0/8vcCpkWeFDA/8qleqn+QzA+FEyPBl4Su2pz8gnxWM0naXk8LtzH9A/Xcm+U6juRCukYzuUhM7wnRFxc4tGPqPPCskfWor3BOKPwentsQYbfiy8BXCJfXybvokrNrNdgO5ZpLvNJoL4RpJatKganpK9Ec5wg1PIaSfFRIJFx/YDYdl6jmqX4pfFkeHT1azhvgUrRIuPP4yk3yn0VwIB0BdQDhQKxAO1AqEA7XCI9zlLHnbKLxo9nLH8a7zcyviBRDOSrzrfAhHBsJxx7NU2hgIZyXedT6EIwPhuONZKm0MhLMS7zofwpGBcNzxLJU2BsJZiXedD+HIQDjueJZKGwPhrMS7zodwZCAcdzxLpY2BcFbiXedDODIQjjuepdLGQDgr8a7zIRwZCMcdz1JpYyCclXjX+RCODITjjmeptDEQzkq863wIRwbCccezVNoYCGcl3nU+hCMD4SqzMDv70ZzNLJU2BsJZiXeZL3ybvW0xu52l0sZAOCvxEK4ICGclHsIVAeGsxGMMVwSEsxLvOh+zVDIQjjuepdLGQDgr8a7zIRwZCFeVxcVFCEcHwlVkUQLhyEC4ikC4akC4ikC4akC4qmAMVwkIxx3PUmljIJyVeNf5EI4MhOOOZ6m0MRDOSrzrfAhHBsJxx7NU2hgIZyXedT6EIwPhuONZKm0MhLMS7zofwpFppXBra2s8+RCOTBuFW1uLjYNwY9FsMgUIVxV5ausjCwvZX8kLIJyVeIfCyXP3c0K4jHEslTYGwlmJdziGg3DVaKVwHPkQrhoQrioYw1UCwnHHs1TaGAhnJd51PoQjA+G441kqbQyEsxLvOh/CkYFw3PEslTYGwlmJd50P4chAuMosLCxAODIQrirCt4WP5GxnqbQxEM5KPIQrAsJZiYdwRUA4K/EYwxUB4azEu86HcGQgHHc8S6WNgXBW4l3nQzgyEI47nqXSxkA4K/Gu8yEcGQjHHc9SaWMgnJV41/kQjgyE445nqbQxEM5KvOt8CEcGwnHHs1TaGAhnJd51PoQjA+G441kqbQyEsxLvOh/CkYFw3PEslTYGwlmJd50/6cK9mCVvW404jnedn1sRL0APZyXedf6k93CaTaYA4bjjWSptDISzEu86H8KRgXDc8SyVNgbCWYl3nQ/hyEA47niWShsD4azEu86HcGQgHHc8S6WNgXBW4l3nQzgyEI47nqXSxkA4K/GV86M7NUC4sWg2mUI7hYvvRQPhxqLZZAoQjjuepdLGQDgr8RCuCAhnJR5juCIgnJV41/kQjkwrhcMdoTXRbDKFNgqHO0LrotlkChCOO56l0sZAOCvxEK4ICGclHmO4IiCclXjX+RCODITjjmeptDEQzkq863wIRwbCccezVNoYCGclnpy/uLjImQ/hyLRLuMXF2dlZxnwIR6ZlwgnfZhf48iEcGQjHHc9SaWMgHGf88MAtNV/6BuG00WwyhSYKlzg1Rc5fSPkG4caj2WQKbROOI38IhCMD4UyAcGSaKJzBGI4nPwbCkWmkcN7kQzgybRMOkwYKmk2m0DLhFhYWcFhEH80mU4Bw3PEslTYGwlmJh3BFQDgr8RjDFQHhrMS7zodwZCAcdzxLpY2BcFbiqfkjO1QIV4Jmkym0SrjRKQOEK0GzyRQgHHc8S6WNgXBW4iFcERDOSjzGcEVAOCvxrvMhHBkIxx3PUmljIJyVeNf5EI4MhOOOZ6m0MRDOSrzrfAhHBsJxx7NU2hgIZyXedT6EIwPhuONZKm0MhLMS7zofwpGBcNzxLJU2BsJZicf6cEVAONb4qlfeLy6OGAfhxqLZZAqNFG641gOEKwDCccZDuFIgHGd8ZeEwhqOh2WQKjRSu8hiOKz8CwpFppnC+5EM4MhCOO56l0sZAOCvxrvMhHBkIxx3PUmljIBxrfMVJw+gcFcKVoNlkCo0UruJhkcxROAhXgmaTKUA4EyAcGQhnAoQj00jhMIYrBcJZiXed32zhrt23Phi8/K2luzMPEZpNpgDhuOOtOURCR7iL0q2L98h/Rh4iNJtMAcJxx1tziISGcC/9tujhdh++IHu69EP8FM0mU4Bw3PEWLSJQLtzL//LvQq1rgXTpB/G3Swr7vyeYEMqFu/r5a2OEC9D8f4wCejjueJsa6VMq3O7fvQDhGpffYOEuPjKAcI3Lb65wuw+pQdojmDToMFzI0sPm2xVJF+3jcDgsUk5iqV4Pm2/NIRLawomu7u7MQ4RmkylAOBOaJVy/E3BK+100m0wBwpnQIOF25jtTwZ92lzt7z+u9i2aTKTRROIzhyhkVbufO84U/FaPZZAoQzoTmCFcNzSZTaKJw2KWWA+EY4xfm5uYg3HiywvWi6UJPdwQH4ULmJA7zhzRIuN6eFTFxkPMGCEdlUfi26DB/SHOE212eUf/dtw7hyCSuTfCw+bziVCUzS50Pjr51961DODKzs7NO82OaI1zQwwm6UxCOCmap5WTHcKFmO/Pah30hXAiEKydvlhrsVHeXIRwRCFcOjsNxxuNMQykQzkq86/ymCdebob2LZpMpQDjueAZbGMgTrtsh+gbhfMtvknDd6OtJBDSbTAHCccdz6GJORrjuvvW8541Hs8kUIBx3PIcu5qCHsxLvOr9JwmEMxxDvOr9ZwmGWCuGsgeNwY+PjBQYd5VelOcLtzIeXbHUokwfNJlPwQrjhEqpu8ivTHOFiKKdSIZyl/Mo0UDhhnP5sVbPJFCCcCU0UbtDT36lqNpmCF8JhDMfOOOHw9aTG5kM4MhCOO55DF3OwSx0bj10qN5g0jIvHpIGdYuG6OCzSFuF25vV2ZqRDZQXgwO+4eAiXwoZw1dBsMgUvhGvJGA7CXfZFuKbm6wq3Pd3pTAnhXjGtFpSRP6qlPvZ9Qv4cPar9nnDSknDBXpX0PUzNJlPwQzhaD5e4KaCHzc+pm1xEpt+Z2ZnfsyJ7Oflj8Bj9HD0G/9oRrhuunUT5Upxmkyl4IRxtDLd44sSJyDgPm59Tt35Q66FMu8udzt7z0c/RY1+60NuzYkW4vuhSFdvTWOOXJtwJCWt+ZTSF66WFE/s20dtlheuFaz7bEC5x9K2L43CTLtxID9cPxm3ruT3cwNZhkXhPilNbxDFc83ap0ig1hovEmhKdXraHix7tCBfvSPsQjkjjJg3xLDUcw3XFCO5TwUQhKZqaR4oHCFcMDotkt3kBhLMS7zofwpGBcNzxbM4YUXwutYMFCZub3xzhqqHZZAoQjjuepdLGjBFu93fRwzU1X1e4F3Oha6RPoXA97FIbnN804eQNLKNTXDpoNpkChOOOzyucF8IF8wbS6iKaTaYA4bjj8wrngXDdTnDsGcI1Ob85woXH4SCc4es9bH5e4dwLp4Zv6OEgnC3yFyTEGK7twsmz+qPHKXbuIMwji8ifpcp5A2apDc4nC3flypW0cAeka+kFny0KN1C7VhyHa2w+VbgrV5LGDSLhgv9G2BVO8DcQrqn5jMKFd/kTHdArbQunj2aTKUA47vi8wpUI150a7C6fkqvMyKMXPcooq4jMYZE7zxf+VIxmkylAOO74vMIVj+Gmw5mj6uTuWOmL0ZydXaroQcOLZ3aXtUdxmk2mAOG44/MKVzxLFZ6p6/aUeXtWetaEGwSH4tRlYdrvotlkChCOOz6vcGOFU5eMhvMGez1cJTSbTAHCccfnFW68cPKwiBzDiR+sjeGqodlkChCOOz6vcCXCBWs/qEOyYtf6KvRwxbDFD2/y7Ca/Gs06tUVHs8kUPBEucRt7J/kVgXBkIJwJEI4MhDOhWcJFlwriXOpljOG4yf160r713hSW62pyfqMuE5RfvpTH+Sb8Pg3jF0YK4xcW5oYL1PDmj6dNPZw8xqfObByY5F1qvPTb1tZWYbzwba6acR42P69wXgi3uzyjzmIQhMv7pfPbUhel8Y9LXlRnrX/wgysFTzp9+l3vetddd9nIt0tuRfQKV/BMLvLGcHIlwu7MhO9Sox5ua2tzczPbyaGHs0TuYZHuVPS1O000m0yhrjHcWOEwhmMHx+G2pG9FwtWQn0+bhIu+hdKa9eHypg1h/GK1/s3L5ucVzivhsKi09K2icR42P69wY4RTh//LLhbNu5pwPLlLPYToX5qq2WQKEM4EsnB3JefigUqnNBZgyLuacDxjejgCmk2mAOFMoAp3111J4wbBsbHB6HWCWfKuJhwPJg1j49syhssIN3Ro+0d/Rd2jRu43g4ftA5+Kdn8QzpN41/nGwvXjvaTct4bXCoYP29Mz0YwyvppQGywqXRLfkm+LjI7hlHBdeb3W9v6V6FrB6GF/fBoqvpqwsnDV0GwyBU+Ea+v34UKhQsvCawWjh+GJ9vhqQm0g3Pj4tgoXThoi4Q4kdqCD0S19ytVcucKJ/eq+9e5k3y+15LZtbRduIAdqQrugPwuvFQwfMgoaHhaRxqrVJCb5OFzZjSnbNobLCKfu1SsXYVBOhdcKBg8Z4eTVhAbCyd5UflNkos80aAtnKb8M98JZouALmFK4iT6XOhRu3Bcw7eWX0Sbhoh6OsGfWbDKFusZwW1u5xkE4SxSP4XrtWMwGwrkXLjj6O9lr/MYjuBLhWnIu1bFwZDSbTMGucIk5w9gxXOWz9x42n6XSxkC4sfGTLpwXPVxwOpVwLA/CkfNLaZFw3WCy0KOcktVsMoW6xnAl8RjDMZO99VE0WcBSDw3Ob45wu8vxWQrCt5w0m0wBwnHH5xXOvXCJM6gTfWrLcrzr/CYJF+9IJ/rUluV41/kQjgyE447PK9wY4QiXCZp8Hw7CscS7zicLd/r06bRwlMsECaZAODvxrvOpwp0+nTRuQLxMkHJhKS6isRLvOt9YONJlgn2Dq7aqodlkCraFK/kmb9uF071McJq4RkNrhSu7VqFlwmXGcLqXCQYXQu+vvkttj3DHjx+3F+9j88cKNzpLJVwmmBr4l9Ja4YRvx8d0cW0XjnKZoNGkoRqaTaZgewwnfYNwhcKRLhMkLM5bdE3D5AtXMohrvXCalwmarw9H2yM3V7jF2VlMGjw4tSWhHDgO0GwyBcvClX2zEsJZovAbvxN+4HfxxIkTEM4P4Sqg2WQKloU7IbEX72Pz8woH4WLQw3HH5xXOD+HacPtKjOEc0drbV5ZcHdMS4bzo4Vpy+0qr8a7zGyZcG25fiW+LSLwQrsLtKzWbTAHfFuGOzyucF8K14vaVEE7hh3BtuH0lhFN4IhwZzSZTwBiOOz6vcO6Fq3DmftBI4ezGu843/wJmdP0f5bZGOuRdREO4JCJEs8kUjD/x8cvVlC1S0zbhHn/88bRw0fV/toULvgdFubJVotlkCqaf+PgFuUqX4WqZcI8/njRukPgqr33hBkE3R/oSpmaTKUA47vi8wpUI159KfsOXNpEsoGjS0Cd9j1OzyRRMP/HV1VUIl96WQ7Fw0fV/Q+HCiwQrSJZkzCy10Vfef3317NnVMX+PMZyiZAy3vX9lKFx4kSDVsBHG9HAEmTWbTMHwE/8L0cOtuot33XymywR35k8lhJsmrluTy6SO4SBcdlsOZcLdMdLDmTOps9SvyzGcu3jXzWcSTq7rcOC8uhfW3ugiwQqSJZnY43DhHDX/LgzW4503P29bDsXCRdf/ScV6nc6r7jwfXStoxoSfaSi4z4z1eE+an96WQ6Fw1pjwc6lbm5ubEC7clgOEi+H5xDc2NjY3HcR70vz0thwgXAzLJ761KYxDDxduywHCxTAJh13qcFsO7oUTk4YKR5M1m0yBRzhpnIt4P5o/ss0Lcm4MMkHCVT4qAuFskdml9rCoNEO86/wGCUdbzzBEs8kUIBx3PIcu5kz2pMFZvOt8CEcGwnHHs1TamMm9MUjJZVl24903P2ebF0xsD1d24andeOfNz9vmBeXCXfvs0tIjg8HL31q6e330IUKzyRQgHHe8RYsIlK4Pt/vQI4OXPnZhcPEe+c/IQ4RmkykYCzc7ftVou/HOm5+3zQtK14d76eMviP7skd2HLwyu3beefohfodlkCqaf+KIQbvxlCzbjnTc/b5sXaK0PJ3o5qZfQLP0g/mpJUedvnMMPf/jDzLaPfvS2225z8LuA8WitD3f14y8UCReg+f8YBcL/4nnfslQ9nME+FT2cJXTWh7sq5geNE+6y9A3CJbd5gcb6cFfFlKGBwplNUyGcJcrXh7uqjn94PWnI+U7I4PLi3BxmqaltXlB6HO7a54KOrGmHRUoXc7Aa77z5edu8oFS4i2oa+oiYqapDvemHCM0mUzAXTgzinMU7b37eNi9o+rnUoiWSBotHjx7FLDW1zQsKlnogXpyq2WQKep94sChX3hhOCmcwiINwlpgE4fKPw83NmcwaIJwlmi7c2bNnC4STxtmOLwbCFdBw4VaFcKt5l9cPSleA44gvBsIV0HThJPnC1RFfDIQrYCKEyz3TUEd8MRCugIYLJ40rOLVVS3whEK6ApgunyD21VV98HhCugKYf+C0CwmW3eUHzL6LJ/04IhMtu84LGC7eQf3wXwmW3eUHjhZuTp7DcxRcB4QpovHBHX//61x91F18EhCsAwpnFFwHhCmi8cLOve93rcr73BuGy27yg+cIdOXIEwunEs1TamMYLt3j48OGcs/QQLrvNCxovnLz8FD2cTjxLpY1pvHAFa4hAuOw2L2i+cPmXn0K47DYvaJJw+Zcv4NSWZjxLpY1pkHDy8oUndG/WBuGy27ygccJp3ukDwmW3eUGThFtdXX1C915GEC67zQsaJtza5sYGhKsWz1JpY5oknET2cDr7VAiX3eYFTRNO9467EC67zQsaJFx0WERrmgrhstu8oEnCKXBYpGo8S6WNaZxwmkC47DYvaJRwRWtz1RRPAcIV0CThgrW59IBw2W1e0CzhTp48qflyCJfd5gWNEu7kG97wBs0l3yBcdpsXNEm4y8K348f1Xg7hstu8oFHCHZfovRzCZbd5QaOEWxC+YZdaNZ6l0sY0TTjdVXshXHabF/gs3OhBEMrNjCBcdpsXeCxc5rAbhDOKZ6m0MRCuKN4MCFdAk4QruF4mFwiX3eYFHguXc+pUfyl8CJfd5gU+C5eBcIdACJfd5gUQTj+eAoQrAMLpx1OAcAV4Llz6+72LJ05gDFc5nqXSxvgt3FbqumfKTZ4hXHabF3guXOq6ZwhnFM9SaWN8Fm5t7YmN5HXPi2KXekLz5RAuu80LPBZOLiXyP6kL7YVvmDRUjmeptDGeC/dE6jp7zFJN4lkqbYzvwqWmqRDOJJ6l0sZ4LJy8aObb305d9oxJg0E8S6WN8Vq4kycJp+vZ442AcAV4LJy6KhDCscWzVNoYv4U7dizvToE6QLjsNi/wWrjbhXC6gzb2eDMgXAEeC3d57fbb9WcJ/PFGQLgCfBaOdC7LQrwJEK4Av4XT/3aIjXgTIFwBPgtn0MG5LrjrfAhHRgo3e/hwzn3btIBw2W1e4J9w4cks8YkL3w4fxmERrniWShvjnXDRqtHiE184dOiQ9toOTPEREM4SPgs3d7MAwnHFs1TaGN+EW3vsq8F3fOUYThiHMRxbPEuljfFMuDUh3Fdj4TBL5YxnqbQx/gn32GPRLpXwbSSm+CEQzhI8wr2YJW9bOV/84oNf+9oPrlR6LUM8H47zcyviBX71cGtrqw+ei8dwJqCHy27zAt+EW5N7VAgH4caj2eRSIBxTPoTTRN6gMj7TYAKEy27zAs+EG05MIRx3PEuljfFMuNvf9rbwG0kQjjuepdLG+CXc2ttuuummYDUHCMcdz1JpYzwT7qaDBw/+tPojhOOOZ6m0MT4IN1zLd+06Idx16o8QjjuepdLGeCCcXKz8sXBFhx+/7rrrblB/gnDc8SyVNsYL4VYffDA8GHL8hhtuCG7fBuG441kqbYwPwp09+4UHoy4uvl0ghOOOZ6m0MZ4Id+6rm1vprRCOO56l0sb4INzq6oMQjjcfwo0h8RWRBBCOO56l0sZ4INzltZPv/WBqpUsJhOOOZ6m0MT4ItzD7jrd/ED0cZz6EG8fsoUOH3rEF4RjzIdw4DklGfINw7PEslTbGB+GOCN+OjG6EcNzxLJU2xgfhZo8cOZK5/hTCccezVNoYl8LFJ+1vvvnmzF9COO54lkob41C4tdXVVWXcwuzsbGZFBwjHHc9SaWMcCid8O3dOHn2blYz+LYTjjmeptDFOhTsnhNuEcBbyIVwOa2fvv//RjU258ODsbGZNBwjHHc9SaWNcCvfL73nPoxsbl/PXEIFw3PEslTbGoXC33/7+971vY/SAbwSE445nqbQxLoV70xvf+P7RM1oxEI47nqXSxjgUbvZNb3rjO4p8g3Ds8SyVNsaRcPIShoUjR44UL6gK4bjjWSptjBvh1EK+8ksixSuqQjjueJZKG+NQuKNCuKOFT4Fw3PEslTbGiXDBytFHX/va10I4O/kQLom8huHRja1bhHC3FD4JwnHHs1TaGBfCnT17vzyntXDLLbdg0mAnH8IlWBPC3S+FWxh3R3sIxx3PUmljXAi3evDgQXkd6jjfIBx7PEuljalZOLlszWPCt4OZaxhGgXDc8SyVNqZe4dbUNfZSuINlHxmE445nqbQx9QqnvgK3AeGs50O4gEC4W4VvpTdtg3Dc8SyVNqbmXeov/eIvPrqxmfMF3wwQjjuepdLG1CvcyV9485vfO7qoQz4QjjuepdLG1CvcsWPH3vIWLd8gHHs8S6WNqU84eRXqMTF6O6b3kUE47niWShtTm3By6ei1Q/IInN5HBuG441kqbUyNwokZKoSrKR/CqYsCz/2EXCdJ7yODcNzxLJU2plbhHvgD4ZvmXcUhHHc8S6WNqUu4J/7qzx944IG//pD2XewhHHc8S6WNqUm4J577ylf+7IEHLn1T+yODcNzxLJU2pibhnntOGPeX3/hG6SnUGAjHHc9SaWPqE+65Z8QU9UbtjwzCccezVNqYWoRbW/uvS5cu/eeNN96oO4KDcPzxLJU2pg7h1s6e/dPvffe7C3lr1hQC4bjjWSptTB3CnX3yySfPvOY1c6SPDMJxx7NU2pg6hHvyqaee+t7Bg68hfWQQjjuepdLG1CDc2jPPXLr0lMaXfFNAOO54lkobY1+4/37y+x8Wxh08eD3pI4Nw3PEslTbGunCbTz/9zPc/fOmb118/5prAHCAcdzxLpY2xLtxzcof6m9/8sXHXoOYB4bjjWSptjG3hHrv11lufufST1xMOiARAOO54lkobY1u4n3+7MO6fsouUlwLhuONZKm2MZeHe++53v/Wtb6XuTiUQjjuepdLG2BXuD++999Xv/tmfquAbhGOPZ6m0MVaF+8K9Z86cefXbK31kEI47nqXSxtgUbut+4dsZ2vHeGAjHHc9SaWNsCvcPSjjaGa0YCMcdz1JpYywK9/Tzz/++8I0+QVVAOO54lkobY0+4p5999vnnP/yhn6n4kUE47niWShtjTbhzzzwrIHynfAQIxx3PUmljKgr38reW7l4f/pjTvJ975zuFcP9Y+SODcNzxPMKYUlG4i/fIf2KyrfutT37yzDuf/dfqHxmE447nEcaUasLtPnxhcO2+YReXadzGJwVn7jX4yCAcdzyXMmZUE07KJqWLyDQuEM7kI4Nw3PFcyphhKtySIvOE//2MEO5ew98NTCCWerjLG5/5jMkOFT0cfzyXMmbYEs7HT7zGeNf5kyZc6aTBy0+8xnjX+ZMmXPlhER8/8RrjXedPnHC7D5Ud+PXwE68x3nX+xAk3gmaTKUA47niWShsD4azEu86HcGQgHHc8S6WNgXBW4l3nQzgyEI47nqXSxkA4K/Gu8yEcGQjHHc9SaWMgnJV41/kQjgyE445nqbQxEM5KvOt8CEcGwnHHs1TaGAhnJd51PoQjA+G441kqbQyEsxLvOqeGoqoAAAOGSURBVB/CkYFw3PEslTaGR7gcshfW1IrjeNf5rptfDISbyHzXzS8Gwk1kvuvmFwPhJjLfdfOLgXATme+6+cVAuInMd938YqwJB0AeEA7UCoQDtQLhQK1AOFArdoQbWQK4Hq59dmnp4y9E2emHGtLvy4TW+SuoeLefgB52hBtZ66YeXronmZ1+sM7uQ7Kqudl1/ApBvNNPQBMrwo2u5lUPFz+fyE4/WM++uvQn4ZJ5mew6foUg3uknoIsV4UbXK6yFl//5QiI7/WA9/P9ekEm52XX8CkG8009Al8kRbvfhP1r62AVnH7dT4aKP3OknoMfkCHftcxcGu3+73mLhHH8CekyOcBJH1ZZ4IJzE4SegxwRNGoJgV0PmqLBOJg0p4Vo4aXAyFX/pbtHF/PELrg4KqKI6Oyyi4h1/AnrYEW5kCeB6uLqkQsPs9IN9lHC52bX8Cire7SegB05tgVqBcKBWIByoFQgHagXCgVqBcKBWWiXc7nJnRv2h39lXeqRgd/mUfOiGL+l2FKfU30wFm/at79yxYuuXnVDaJlwgWldDuJ6yanv/r+09r16iXrE9PZUSbtAvfyOQpGXCvVL1SDt3/mqpJzvzqoPr7f3SdNDTBa/o71lJCRf2g0CXlgk31ZU7yP6+T0h9emIXqfaX3WBfuTP/G/PBTlM+R3Vs4hWhXqFw8qekcIMeujgSbRNO7QK7M9KVnuistqeFcV3hj/xhZ178R/5B0lVS9eMtoXDyMSVcfw9GcRTaJtz2gfMDMdKX4/151dntPa8G/ttix6m2bAd70OBvlVPBHyPhenvPp4QLnw80aZtwcswlejnhStA1hb705a5UDdvCsVvwoDrAQVfuXYuEC80EmrRNODn5FOM4KVwnOtAhxnJqapAULhCxFz+ncJcK4Wi0TrjtA1/+nZVB3MMNQre2p3N6uNCsnfmp1KQhHN8FDxCORuuE213+dTGMU2O45Hy0n9mlzgwnBHLakDgsIner0VMwhiPSOuEG3U7YX6nZZ3fPStC5dWZSwqnuK9qNyqFcdOBXSqa6vGBoh1kqkfYJ149HZHKEJqURj3tWhHkp4US/N+y8hFuJU1vqlEUnPFmB43A0WiUchXiPy/I0EAHhigjOpZaBc6lEIFwRWmdJ8W0RKhAO1AqEA7UC4UCtQDhQKxAO1AqEA7UC4UCtQDhQKxAO1AqEA7UC4UCt/D/Z63VwuO7OEwAAAABJRU5ErkJggg==" title alt style="display: block; margin: auto;" /></p>
+<p>We will see later the use of the plot function in more detail.</p>
+</div>
+<div id="cov" class="section level2">
+<h2><span class="header-section-number">5.2</span> Covariance Result</h2>
+<p>The <code>hvdvm$digest()</code> function also computes the <em>covariance</em> between each pair of channels in the delta image. We get that <em>covariance</em> data reading the <code>hvdvm$cov.df</code> variable.</p>
+<p>In the following data frame, the columns <code>chan.a</code> and <code>chan.b</code> show the channels whose <em>covariance</em> is shown in the <code>cov</code> column. All the other columns have the same meaning as in the <em>variance</em> data in the <code>hvdvm$var.df</code> variable we saw above.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the computed covariance</span>
+<span class="kw">head</span>(my.hvdvm$cov.df)</code></pre>
+<table>
+<caption><strong>Covariance result</strong></caption>
+<thead>
+<tr class="header">
+<th align="center">cond</th>
+<th align="right">pict1</th>
+<th align="right">pict2</th>
+<th align="right">chan.a</th>
+<th align="right">chan.b</th>
+<th align="right">cov</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1</td>
+<td align="right">crop_16.fit</td>
+<td align="right">crop_17.fit</td>
+<td align="right">Red</td>
+<td align="right">Green R</td>
+<td align="right">-46.23</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="right">crop_16.fit</td>
+<td align="right">crop_17.fit</td>
+<td align="right">Red</td>
+<td align="right">Green B</td>
+<td align="right">10.54</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="right">crop_16.fit</td>
+<td align="right">crop_17.fit</td>
+<td align="right">Red</td>
+<td align="right">Blue</td>
+<td align="right">-26.96</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="right">crop_16.fit</td>
+<td align="right">crop_17.fit</td>
+<td align="right">Green R</td>
+<td align="right">Green B</td>
+<td align="right">-63.65</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="right">crop_16.fit</td>
+<td align="right">crop_17.fit</td>
+<td align="right">Green R</td>
+<td align="right">Blue</td>
+<td align="right">-32.24</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="right">crop_16.fit</td>
+<td align="right">crop_17.fit</td>
+<td align="right">Green B</td>
+<td align="right">Blue</td>
+<td align="right">19.88</td>
+</tr>
+</tbody>
+</table>
+<p>For the <code>hvdvm</code> technique, this data contains the half of the <em>covariance</em> in the delta image, for each pair of channels combination.</p>
+</div>
+</div>
+<div id="other" class="section level1">
+<h1><span class="header-section-number">6</span> Usage of Other <em>hvdvm</em> Functions</h1>
+<p>There are more <code>hvdvm</code> class functions you can call from your class object, they are introduced in the <a href="hvdvm-and-vvm-usage.html"><em>“hvdvm and vvm Class Usage”</em> vignette</a>.</p>
+</div>
+<div id="methods" class="section level1">
+<h1><span class="header-section-number">7</span> Summary of <code>hvdvm</code> Members</h1>
+<p>You can get this summary issuing the R command <code>help('hvdvm')</code>. However, the format in that help is not as easy to read like this.</p>
+<div id="new" class="section level2">
+<h2><span class="header-section-number">7.1</span> new()</h2>
+<p>Create a new instance of the hvdvm class.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">new</span>(
+<span class="dt">channel.labels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;channel.labels&quot;</span>),
+<span class="dt">green.channels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;green.channels&quot;</span>),
+<span class="dt">has.RGGB.pattern =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;has.RGGB.pattern&quot;</span>),
+<span class="dt">avg.green.label =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;avg.green.channel.label&quot;</span>)
+)</code></pre>
+</div>
+<div id="digest" class="section level2">
+<h2><span class="header-section-number">7.2</span> digest()</h2>
+<p>Compute and collect statistics from the raw images files.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">digest</span>(
+  <span class="dt">photo.conds.file =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'photo.conds.file' argument is required.&quot;</span>),
+  <span class="dt">crop.files.path =</span> <span class="st">'./'</span>
+)</code></pre>
+</div>
+<div id="var.df" class="section level2">
+<h2><span class="header-section-number">7.3</span> var.df</h2>
+<p>Get the resulting noise variance data.</p>
+<pre class="sourceCode r"><code class="sourceCode r">var.df</code></pre>
+</div>
+<div id="cov.df" class="section level2">
+<h2><span class="header-section-number">7.4</span> cov.df</h2>
+<p>Get the resulting noise covariance data.</p>
+<pre class="sourceCode r"><code class="sourceCode r">cov.df</code></pre>
+</div>
+<div id="photo.conditions.df" class="section level2">
+<h2><span class="header-section-number">7.5</span> photo.conditions.df</h2>
+<p>Get the distinct photographic conditions.</p>
+<pre class="sourceCode r"><code class="sourceCode r">photo.conditions.df</code></pre>
+</div>
+<div id="channel.labels" class="section level2">
+<h2><span class="header-section-number">7.6</span> channel.labels</h2>
+<p>Get the channel labels.</p>
+<pre class="sourceCode r"><code class="sourceCode r">channel.labels</code></pre>
+</div>
+<div id="green.channels" class="section level2">
+<h2><span class="header-section-number">7.7</span> green.channels</h2>
+<p>Get the green channels indices.</p>
+<pre class="sourceCode r"><code class="sourceCode r">green.channels</code></pre>
+</div>
+<div id="fit.model" class="section level2">
+<h2><span class="header-section-number">7.8</span> fit.model()</h2>
+<p>Fit a model to the noise data.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fit.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">model.family =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.family&quot;</span>),
+  <span class="dt">degree =</span> 1L,
+  <span class="dt">formula =</span> <span class="ot">NULL</span>,
+  <span class="dt">model.data.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.data&quot;</span>),
+  ...
+)</code></pre>
+</div>
+<div id="print.model.summary" class="section level2">
+<h2><span class="header-section-number">7.9</span> print.model.summary()</h2>
+<p>Print a fitted model summary.</p>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">print.model.summary</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">select =</span> <span class="ot">NULL</span>,
+  ...
+)</code></pre>
+</div>
+<div id="get.model.predictions" class="section level2">
+<h2><span class="header-section-number">7.10</span> get.model.predictions()</h2>
+<p>Get the values predicted by a fitted model.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model.predictions</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
+)</code></pre>
+</div>
+<div id="get.model" class="section level2">
+<h2><span class="header-section-number">7.11</span> get.model()</h2>
+<p>Get a fitted model object.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">select =</span> <span class="ot">NULL</span>
+)</code></pre>
+</div>
+<div id="exists.model" class="section level2">
+<h2><span class="header-section-number">7.12</span> exists.model()</h2>
+<p>Find if a model with a given name has already been fitted.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exists.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
+)</code></pre>
+</div>
+<div id="model.list" class="section level2">
+<h2><span class="header-section-number">7.13</span> model.list</h2>
+<p>Get a list with the fitted models.</p>
+<pre class="sourceCode r"><code class="sourceCode r">model.list</code></pre>
+</div>
+<div id="remove.model" class="section level2">
+<h2><span class="header-section-number">7.14</span> remove.model()</h2>
+<p>Remove a fitted model.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">remove.model</span>(
+  <span class="dt">model.name =</span> <span class="kw">stop</span>(<span class="st">&quot;A model name argument is required.&quot;</span>)
+)</code></pre>
+</div>
+<div id="plot" class="section level2">
+<h2><span class="header-section-number">7.15</span> plot()</h2>
+<p>Plot a fitted model and its source data.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(
+  <span class="dt">model.name =</span> <span class="ot">FALSE</span>,
+  <span class="dt">obs =</span> <span class="ot">TRUE</span>,
+  <span class="dt">print =</span> <span class="ot">TRUE</span>,
+  <span class="dt">fit =</span> <span class="ot">TRUE</span>,
+  <span class="dt">confid =</span> <span class="ot">FALSE</span>,
+  <span class="dt">main =</span> <span class="ot">NA</span>,
+  <span class="dt">subt =</span> <span class="ot">NA</span>,
+  <span class="dt">xlab =</span> <span class="ot">NA</span>,
+  <span class="dt">ylab =</span> <span class="ot">NA</span>,
+  <span class="dt">xlim =</span> <span class="ot">NULL</span>,
+  <span class="dt">ylim =</span> <span class="ot">NULL</span>,
+  <span class="dt">warnings =</span> <span class="ot">FALSE</span>
+)</code></pre>
+<p>↵</p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,9 +1,9 @@
-imgnoiser/.Rproj.user
-imgnoiser/.Rhistory
-imgnoiser/.RData
-imgnoiser/inst/doc/*.R
-imgnoiser/local/*
-imgnoiser/packrat/*
+.Rproj.user
+.Rhistory
+.RData
+inst/doc/*.R
+inst/samples/*.fit
+inst/samples/*.csv
+local/*
+packrat/*
 *.lnk
-test-data/*.fit
-test-data/*.csv

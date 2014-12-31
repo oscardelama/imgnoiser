@@ -1,4 +1,19 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
 imgnoiser R Package :camera:
 ============================
 
@@ -11,13 +26,12 @@ Installation
 
 This package is not in CRAN yet. However, you can use the `devtools` package to install the development version from Github:
 
-``` r
+```r
 devtools::install_github('oscardelama/imgnoiser')
 ```
 
 Usage
 -----
-
 In [the wiki pages](https://github.com/oscardelama/imgnoiser/wiki) You can find detailed documentation and examples of the general workflow using `imgnoiser`.
 
 License
