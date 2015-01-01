@@ -39,7 +39,7 @@ noise.var <- R6::R6Class('noise.var',
     ##------------------------------
     ,check.model.name = function(name) {
       if (name %nin% names(private$.model))
-        stop("The model name ", sQuote(name), " is unknown.")
+        stop("A model named ", sQuote(name), " has not been fitted yet.")
     }
 
     ##------------------------------
@@ -270,10 +270,11 @@ noise.var <- R6::R6Class('noise.var',
       if (model.name %in% private$.model) private$.model[model.name] <- NULL
       model.src.data[['split.values']] <- split.values
       private$.model[[model.name]] <- list(
-                     'source'      = model.src.data
-                    ,'predictions' = predict.df
-                    ,'fit'         = model.obj
-                    ,'call'        = model.call.txt
+                     'source'       = model.src.data
+                    ,'predictions'  = predict.df
+                    ,'fit'          = model.obj
+                    ,'model.family' = model.family
+                    ,'call'         = model.call.txt
                 )
 
       message('The model ', dQuote(model.name),' was successfully fitted using:')
@@ -285,11 +286,56 @@ noise.var <- R6::R6Class('noise.var',
     ## get.model.predictions (documented here)
     ##------------------------------
     ,get.model.predictions = function(
+        x = NULL,
+        select = NULL,
+        ...,
         model.name = imgnoiser.option('fit.model.name')
       ) {
 
+      browser()
+      # Validate the model name
       private$check.model.name(model.name)
-      private$.model[[model.name]][['predictions']]
+      if (is.null(x))
+        private$.model[[model.name]][['predictions']]
+      else {
+        # Validate x is a numeric vector
+        x <- vector.alike(x, 1, Inf, type='n')
+
+        # Get the model structure
+        model.str <- private$.model[[model.name]]
+        # Get the model data source
+        model.src.data <- model.str[['source']]
+        # Get the model objects
+        model.objs <-  model.str[['fit']]
+        # Get the model family
+        model.family <-  model.str[['model.family']]
+        # pick the selected models
+        if (!is.null(select))
+          model.objs <- private$select.model(model.objs, select)
+
+        # Get the model value predictor function
+        model.predictor.func <- imgnoiser.option('get.model.predictions')
+        # Prepare the grid
+        grid <- dplyr::tbl_df(data.frame('x' = x, row.names = NULL))
+        # placeholder for the result
+        predictions <- data.frame();
+
+        for (split.value in names(model.objs)) {
+          preds <- model.predictor.func(model.src.data,
+                                 model.objs[[split.value]],
+                                 model.family,
+                                 split.value,
+                                 grid
+                                )
+          # Collect the predictions
+          predictions <- data.table::rbindlist(list(
+                              predictions,
+                              preds
+                          ))
+        }
+        predictions;
+      }
+
     }
 
     ##------------------------------
