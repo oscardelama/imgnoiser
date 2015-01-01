@@ -110,6 +110,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         cov.ch34 <- channelCov(cfa$ch3, cfa$ch4)
         cov.ch3A <- cov.green.avg(cfa$ch3, cfa$chA)
 
+        cov.ch4A <- cov.green.avg(cfa$ch4, cfa$chA)
+
         var.df <- data.table::rbindlist(list(
           var.df,
           data.frame(
@@ -125,10 +127,10 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
           cov.df,
           data.frame(
              "pict" = file.name
-            ,"chan.a" = factor(c(1,1,1,1,2,2,2,3,3), levels=c(1,2,3,4,5), labels=self$channel.labels)
-            ,"chan.b" = factor(c(2,3,4,5,3,4,5,4,5), levels=c(1,2,3,4,5), labels=self$channel.labels)
-            ,"cov" = c(cov.ch12, cov.ch13, cov.ch14, cov.ch1A,
-                       cov.ch23, cov.ch24, cov.ch2A, cov.ch34, cov.ch3A)
+            ,"chan.a" = factor(c(1,1,1,1,2,2,2,3,3,4), levels=c(1,2,3,4,5), labels=self$channel.labels)
+            ,"chan.b" = factor(c(2,3,4,5,3,4,5,4,5,5), levels=c(1,2,3,4,5), labels=self$channel.labels)
+            ,"cov" = c(cov.ch12, cov.ch13, cov.ch14, cov.ch1A, cov.ch23,
+                       cov.ch24, cov.ch2A, cov.ch34, cov.ch3A, cov.ch4A)
             ,row.names = NULL
           )
         ))

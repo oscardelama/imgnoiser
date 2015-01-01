@@ -30,7 +30,7 @@ test_that("All channel labels are given", {
   # There must be 5 channel values per sample:
   # four channels plus green average.
   expect_true(var.len.after.digest(n, vvm.obj) == n*5)
-  expect_true(nrow(vvm.obj$cov.df) == n*9)
+  expect_true(nrow(vvm.obj$cov.df) == n*10)
 })
 
 test_that("All channel labels inferred by RGGB pattern", {
@@ -44,7 +44,8 @@ test_that("All channel labels inferred by RGGB pattern", {
   # There must be 5 channel values per sample:
   # four channels plus green average.
   expect_true(var.len.after.digest(n, vvm.obj) == n*5)
-  expect_true(nrow(vvm.obj$cov.df) == n*9)
+  # There must be `choose(5,2) == 10` channel combinations per sample
+  expect_true(nrow(vvm.obj$cov.df) == n*10)
 })
 
 # Reset the package options from previous tests
@@ -59,6 +60,7 @@ test_that("Channel labels inferred by RGGB pattern, but Avg green not desired", 
   # There must be 4 channel values per sample
   # No green average.
   expect_true(var.len.after.digest(n, vvm.obj) == n*4)
+  # There must be `choose(4,2) == 6` channel combinations per sample
   expect_true(nrow(vvm.obj$cov.df) == n*6)
 })
 
@@ -72,6 +74,7 @@ test_that("Channel labels given but not Green average label", {
   # There must be 4 channel values per sample
   # No green average.
   expect_true(var.len.after.digest(n, vvm.obj) == n*4)
+  # There must be `choose(4,2) == 6` channel combinations per sample
   expect_true(nrow(vvm.obj$cov.df) == n*6)
 })
 
@@ -87,6 +90,9 @@ test_that("The vvm$digest function can receive as argument an explicit list of s
   suppressMessages(
     vvm.obj$digest(sample.file.names, file.path = test.data.folder)
   )
+  # There must be 5 channel values per sample:
+  # four channels plus green average.
   expect_true(nrow(vvm.obj$var.df) == n*5)
-  expect_true(nrow(vvm.obj$cov.df) == n*9)
+  # There must be `choose(5,2) == 10` channel combinations per sample
+  expect_true(nrow(vvm.obj$cov.df) == n*10)
 })

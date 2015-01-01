@@ -286,13 +286,13 @@ noise.var <- R6::R6Class('noise.var',
     ## get.model.predictions (documented here)
     ##------------------------------
     ,get.model.predictions = function(
-        x = NULL,
-        select = NULL,
-        ...,
         model.name = imgnoiser.option('fit.model.name')
+        ,x = NULL
+        ,select = NULL
+        ,...
       ) {
 
-      browser()
+      # browser()
       # Validate the model name
       private$check.model.name(model.name)
       if (is.null(x))
