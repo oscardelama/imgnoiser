@@ -125,7 +125,7 @@ unzip.sample.files <- function(file.path) {
 # function test.data.folder()
 #   Returns the folder with the raw test data
 #-----------------------------
-.get.test.data.folder <- function() {
+get.test.data.folder <- function() {
 
   file.path <- system.file('samples', package = "imgnoiser")
   unzip.sample.files(file.path)
