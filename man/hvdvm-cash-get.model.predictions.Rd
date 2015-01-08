@@ -66,8 +66,8 @@ Get the values predicted from a given fitted model.
 # Get the 'standard' model predictions
 preds.df <- my.hvdvm$get.model.predictions()
 # Set the lcl and ucl confidence limits using 2.5 as confidence factor
-preds.df$lcl <- preds.df[,2] - 2.5*preds.df$sderr
-preds.df$ucl <- preds.df[,2] + 2.5*preds.df$sderr
+preds.df$lcl <- preds.df[,2L] - 2.5*preds.df$sderr
+preds.df$ucl <- preds.df[,2L] + 2.5*preds.df$sderr
 }
 }
 \seealso{

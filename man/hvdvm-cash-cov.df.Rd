@@ -20,7 +20,7 @@ A data.frame with the covariance data from the channels in each delta
  \item \code{chan.a, chan.b}: The label of the channels whose covariance is shown
  in the \code{cov} column.
 
- \item \code{cov}: The half of the photosite values covariance in the
+ \item \code{cov.a.b}: The half of the photosite values covariance in the
  \code{chan.a} and \code{chan.b} channels in the difference image, computed
  pixel by pixel, of the \code{pict1} image minus the \code{pict2} one.
 }

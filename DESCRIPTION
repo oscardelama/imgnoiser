@@ -30,8 +30,11 @@ Suggests:
     gridExtra,
     pander
 Collate:
+    'color-mapping.r'
+    'color-utils.r'
     'doc-vvm.r'
     'fit-model.r'
+    'gamma-curves.r'
     'noise-class.r'
     'hvdvm-class.r'
     'imgnoiser.r'
@@ -42,9 +45,6 @@ Collate:
     'pgm-file-format.r'
     'split-cfa.r'
     'utils.r'
-    'color-utils.r'
     'vvm-class.r'
-    'gamma-curves.r'
-    'color-mapping.r'
     'zzz.r'
 VignetteBuilder: knitr
