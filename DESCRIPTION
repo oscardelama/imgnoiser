@@ -30,6 +30,7 @@ Suggests:
     gridExtra,
     pander
 Collate:
+    'imnr-utils.r'
     'color-mapping.r'
     'color-utils.r'
     'doc-vvm.r'
@@ -38,7 +39,6 @@ Collate:
     'noise-class.r'
     'hvdvm-class.r'
     'imgnoiser.r'
-    'imnr-utils.r'
     'imnr-validate.r'
     'options.r'
     'persistence.r'

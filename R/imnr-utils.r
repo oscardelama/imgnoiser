@@ -139,8 +139,6 @@ get.test.data.folder <- function() {
   file.path;
 }
 
-matrix.3x3 <- function(x) matrix(x, nrow=3L, ncol=3L, byrow=TRUE)
-
 #' @export
 select.sample.files <- function(path, from, to, extension) {
   vector.alike(extension, 1)

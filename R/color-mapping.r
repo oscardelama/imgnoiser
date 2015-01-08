@@ -17,6 +17,9 @@
 #     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------------
 
+matrix_3x3 <- function(x) matrix(x, nrow=3L, ncol=3L, byrow=TRUE);
+
+#' @include imnr-utils.r
 colmap <- R6::R6Class('colmap',
 
   private = list(
@@ -69,32 +72,32 @@ colmap <- R6::R6Class('colmap',
 
     # Specified by Bruce Lindbloom (2015-jan)
     # http://www.brucelindbloom.com/Eqn_ChromAdapt.html
-    .XYZ.D65.from.XYZ.D50 = matrix.3x3(c( 0.9555766, -0.0230393,  0.0631636,
+    .XYZ.D65.from.XYZ.D50 = matrix_3x3(c( 0.9555766, -0.0230393,  0.0631636,
                                          -0.0282895,  1.0099416,  0.0210077,
                                           0.0122982, -0.0204830,  1.3299098)),
 
     # As specified in IEC 61966-2-1:1999
     # http://www.w3.org/Graphics/Color/srgb:
     # "with slight modifications to produce 1,1,1 for the D50 white defined in the specification"
-    .sRGB_D65.from.XYZ.D50 = matrix.3x3(c( 3.1339, -1.6170,	-0.4906,
+    .sRGB_D65.from.XYZ.D50 = matrix_3x3(c( 3.1339, -1.6170,	-0.4906,
                                           -0.9785,  1.9160,	 0.0333,
                                            0.0720, -0.2290,	 1.4057)),
 
     # As specified Bruce Lindbloom (2015-jan)
     # http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-    .adobe_RGB_D65.from.XYZ.D50 = matrix.3x3(c( 1.9624274, -0.6105343, -0.3413404,
+    .adobe_RGB_D65.from.XYZ.D50 = matrix_3x3(c( 1.9624274, -0.6105343, -0.3413404,
                                                -0.9787684,  1.9161415,  0.0334540,
                                                 0.0286869, -0.1406752,  1.3487655)),
 
     # As specified Bruce Lindbloom (2015-jan)
     # http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-    .prophoto_RGB_D50.from.XYZ.D50 = matrix.3x3(c( 1.3459433, -0.2556075, -0.0511118,
+    .prophoto_RGB_D50.from.XYZ.D50 = matrix_3x3(c( 1.3459433, -0.2556075, -0.0511118,
                                                   -0.5445989,  1.5081673,  0.0205351,
                                                    0.0000000,  0.0000000,  1.2118128)),
 
     # As specified Bruce Lindbloom (2015-jan)
     # http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-    .cie_RGB_E.from.XYZ.D50 = matrix.3x3(c( 2.3638081, -0.8676030, -0.4988161,
+    .cie_RGB_E.from.XYZ.D50 = matrix_3x3(c( 2.3638081, -0.8676030, -0.4988161,
                                            -0.5005940,  1.3962369,  0.1047562,
                                             0.0141712, -0.0306400,  1.2323842)),
 
