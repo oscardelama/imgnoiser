@@ -37,8 +37,8 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
     photo.conditions.df = function(value) {
       if (!missing(value)) stop('The ".photo.conds.df" variable is read-only.')
 
-#       if (nrow(private$.photo.conds.df) == 0)
-#         warning('There is no ".photo.conds.df" information. You should probably run the digest() function before.')
+      if (nrow(private$.photo.conds.df) == 0)
+        warning('There is no ".photo.conds.df" information. You should probably run the digest() function before.')
 
       return(private$.photo.conds.df)
     }
@@ -132,7 +132,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
 
       if (show.progress) {
         writeLines(paste("Processing", total.combin.count, "different combinations:"))
-        prog.bar <- txtProgressBar(min = 0, total.combin.count, style = 3)
+        prog.bar <- txtProgressBar(min = 1L, total.combin.count, style = 3L)
         combin.counter <- 0
       }
 

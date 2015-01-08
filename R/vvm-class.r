@@ -62,7 +62,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       # Show progress bar
       if (show.progress) {
         message(paste("Processing", length(file.names), "image files:"))
-        prog.bar <- txtProgressBar(min = 0, max = length(file.names), style = 3)
+        prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
       }
 
       for (file.ix in seq_along(file.names)) {
@@ -201,7 +201,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       # Show progress bar
       if (show.progress) {
         message(paste("Processing", length(file.names), "image files:"))
-        prog.bar <- txtProgressBar(min = 0, max = length(file.names), style = 3)
+        prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
       }
 
       for (file.ix in seq_along(file.names)) {
