@@ -58,8 +58,8 @@ imgnoiser.load <- function(
   ) {
 
   # Validate arguments
-  file.name <- vector.alike(file.name, 1)
-  load.options <- vector.alike(load.options, 1, type='l')
+  file.name <- vector.alike(file.name, 1L)
+  load.options <- vector.alike(load.options, 1L, type='l')
   # Add file name extension if required
   file.name <- with.file.name.extension(file.name)
 
@@ -173,9 +173,9 @@ imgnoiser.save <- function(
     stop("The 'obj' argument must be an imgnoiser class.")
 
   # Validate other arguments
-  file.name <- vector.alike(file.name, 1)
-  save.options <- vector.alike(save.options, 1, type='l')
-  stop.overwrite <- vector.alike(stop.overwrite, 1, type='l')
+  file.name <- vector.alike(file.name, 1L)
+  save.options <- vector.alike(save.options, 1L, type='l')
+  stop.overwrite <- vector.alike(stop.overwrite, 1L, type='l')
   #If required add the 'package'.imn' filename extension
   file.name <- with.file.name.extension(file.name)
 

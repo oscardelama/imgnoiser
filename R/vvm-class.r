@@ -76,10 +76,10 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
         # Build a sythetic channel with the average of both green channels
         if (known.greens) {
-          chA <- array(0, dim = c(dim(cfa$ch4),2))
-          chA[,,1] <- cfa[[private$.green.channels[1]]]
-          chA[,,2] <- cfa[[private$.green.channels[2]]]
-          cfa$chA <- apply(chA, c(1,2), mean)
+          chA <- array(0, dim = c(dim(cfa$ch4),2L))
+          chA[,,1L] <- cfa[[private$.green.channels[1L]]]
+          chA[,,2L] <- cfa[[private$.green.channels[2L]]]
+          cfa$chA <- apply(chA, c(1L,2L), mean)
         }
 
         cov.green.avg <- function(ch1, ch2) {
@@ -116,7 +116,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
           var.df,
           data.frame(
              "pict" = file.name
-            ,"channel" = factor(c(1,2,3,4,5), levels=c(1,2,3,4,5), labels=self$channel.labels)
+            ,"channel" = factor(c(1L,2L,3L,4L,5L), levels=c(1L,2L,3L,4L,5L), labels=self$channel.labels)
             ,"mean" = c(mean.ch1, mean.ch2, mean.ch3, mean.ch4, mean.chA)
             ,"var" = c(var.ch1, var.ch2, var.ch3, var.ch4, var.chA)
             ,row.names = NULL
@@ -127,8 +127,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
           cov.df,
           data.frame(
              "pict" = file.name
-            ,"chan.a" = factor(c(1,1,1,1,2,2,2,3,3,4), levels=c(1,2,3,4,5), labels=self$channel.labels)
-            ,"chan.b" = factor(c(2,3,4,5,3,4,5,4,5,5), levels=c(1,2,3,4,5), labels=self$channel.labels)
+            ,"chan.a" = factor(c(1L,1L,1L,1L,2L,2L,2L,3L,3L,4L), levels=c(1L,2L,3L,4L,5L), labels=self$channel.labels)
+            ,"chan.b" = factor(c(2L,3L,4L,5L,3L,4L,5L,4L,5L,5L), levels=c(1L,2L,3L,4L,5L), labels=self$channel.labels)
             ,"cov" = c(cov.ch12, cov.ch13, cov.ch14, cov.ch1A, cov.ch23,
                        cov.ch24, cov.ch2A, cov.ch34, cov.ch3A, cov.ch4A)
             ,row.names = NULL
@@ -152,7 +152,114 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
       if (!show.progress)
         message(paste(length(file.names), "image samples were successfully processed."))
+    }
 
+    ,digest.rgb = function(
+      img.file.name = stop("The 'img.file.name' argument is required")
+      ,img.file.count = NULL
+      ,file.path = './'
+      ,img.file.name.ext = '.fit'
+      ,map.to.rgb = NULL
+      ,rgb.scale = 255
+      ,rgb.labels = imgnoiser.option('rgb.labels')
+      # This argument can be equal to 'linear' to avoid toning
+      # otherwise will expect a tone curve in the camera metadata
+      ,tone.curve.id = imgnoiser.option('tone.curve.id')
+    )
+    {
+      # Validate RGGB.indices
+      if (is.null(self$RGGB.indices))
+        stop("The channels color are not known, set the 'RGGB.indices' argument at the object creation.")
+
+      # Validate green channels
+      if (is.null(private$.green.channels) | length(private$.green.channels) != 2)
+        stop("The green channels indices are not known, set the 'green.channels' argument at the object creation.")
+
+      # Get and validate the conversion matrix
+      linear.rgb.from.raw <- map.to.rgb$linear.rgb.from.raw
+      if (is.null(linear.rgb.from.raw))
+        stop("The conversion matrix in the 'map.to.rgb' object is null.")
+
+      # Validate rgb.scale
+      vector.alike(rgb.scale, 1L, type='n', valid.range=c(1, 2L^16L))
+
+      # Validate the RGB labels
+      vector.alike(rgb.labels, 3L)
+
+      # Validate and get file names of samples
+      file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext, file.path)
+
+      # Placeholders for the resulting data
+      cov.df <- data.frame()
+      var.df <- data.frame()
+
+      # Initialize the RGB conversion
+      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, tone.curve.id)
+
+      # Get show.progress option
+      show.progress <- package.option('show.progress')
+      # Show progress bar
+      if (show.progress) {
+        message(paste("Processing", length(file.names), "image files:"))
+        prog.bar <- txtProgressBar(min = 0, max = length(file.names), style = 3)
+      }
+
+      for (file.ix in seq_along(file.names)) {
+
+        file.name <- file.names[file.ix]
+
+        # Show progress bar
+        if (show.progress) setTxtProgressBar(prog.bar, file.ix)
+        # browser()
+        cfa <- split.cfa(file.name, file.path)
+        rgb <- map.to.rgb$convert.to.rgb(cfa)
+
+        mean.r <- channelMean(rgb$r)
+        mean.g <- channelMean(rgb$g)
+        mean.b <- channelMean(rgb$b)
+
+        var.r <- channelVar(rgb$r)
+        var.g <- channelVar(rgb$g)
+        var.b <- channelVar(rgb$b)
+
+        cov.rg <- channelCov(rgb$r, rgb$g)
+        cov.rb <- channelCov(rgb$r, rgb$b)
+        cov.gb <- channelCov(rgb$g, rgb$b)
+
+        var.df <- data.table::rbindlist(list(
+          var.df,
+          data.frame(
+            "pict" = file.name
+            ,"channel" = factor(c(1L,2L,3L), levels=c(1L,2L,3L), labels=rgb.labels)
+            ,"mean" = c(mean.r, mean.g, mean.b)
+            ,"var" = c(var.r, var.g, var.b)
+            ,row.names = NULL
+          )
+        ))
+
+        cov.df <- data.table::rbindlist(list(
+          cov.df,
+          data.frame(
+            "pict" = file.name
+            ,"chan.a" = factor(c(1L,1L,2L), levels=c(1L,2L,3L), labels=rgb.labels)
+            ,"chan.b" = factor(c(2L,3L,3L), levels=c(1L,2L,3L), labels=rgb.labels)
+            ,"cov" = c(cov.rg, cov.rb, cov.gb)
+            ,row.names = NULL
+          )
+        ))
+      }
+
+      # Save the results
+      private$.var.df <- var.df
+      private$.cov.df <- cov.df
+
+      # Get and save the standard model
+      get.model.src.data.func <- imgnoiser.option('get.model.src.data')
+      model.src.data <- get.model.src.data.func('std.var', self)
+      private$.std.src.data <- model.src.data
+
+      if (!show.progress)
+        message(paste(length(file.names), "image samples were successfully processed as RGBs."))
     }
 
     ##------------------------------

@@ -49,11 +49,11 @@ read.pnm.head <- function(con)
 {
   seek(con, 0)
   pm.getc <- function(con) {
-    ch <- readChar(con, nchars = 1)
+    ch <- readChar(con, nchars = 1L)
     if (ch == "#") {
-      ch <- readChar(con, nchars = 1)
+      ch <- readChar(con, nchars = 1L)
       while (ch != "\n" && ch != "\r") {
-        ch <- readChar(con, nchars = 1)
+        ch <- readChar(con, nchars = 1L)
       }
     }
     ch
@@ -67,10 +67,10 @@ read.pnm.head <- function(con)
     }
     if (ch < "0" || ch > "9")
       stop("junk in file where an unsigned integer should be")
-    i <- 0
+    i <- 0L
     while (ch >= "0" && ch <= "9") {
       digitVal <- as.integer(ch)
-      i <- i * 10 + digitVal
+      i <- i * 10L + digitVal
       ch <- pm.getc(con)
     }
     i
@@ -81,16 +81,16 @@ read.pnm.head <- function(con)
     if (ch != "P")
       stop("Not a PNM format file")
     ch <- as.integer(pm.getc(con))
-    if (ch < 1 || ch > 6)
+    if (ch < 1L || ch > 6L)
       stop("Unknown PNM format")
     ascii <- FALSE
-    if (ch < 4)
+    if (ch < 4L)
       ascii <- TRUE
-    if (ch == 1 || ch == 4)
+    if (ch == 1L || ch == 4L)
       type <- "pbm"
-    else if (ch == 2 || ch == 5)
+    else if (ch == 2L || ch == 5L)
       type <- "pgm"
-    else if (ch == 3 || ch == 6)
+    else if (ch == 3L || ch == 6L)
       type <- "ppm"
     res <- list(type = type, ascii = ascii)
     res
@@ -121,11 +121,11 @@ read.pnm.data <- function(con, pnmhead, ...)
   ds <- pnmhead$datastart
   seek(con, ds)
   type <- pnmhead$type
-  nl <- ifelse(type == "ppm", 3, 1)
+  nl <- ifelse(type == "ppm", 3L, 1L)
   nc <- pnmhead$nc
   nr <- pnmhead$nr
   ncells <- nl * nc * nr
-  int.size <- ifelse(pnmhead$maxval < 256, 1, 2)
+  int.size <- ifelse(pnmhead$maxval < 256, 1L, 2L)
 
   if (pnmhead$ascii) {
     xx <- scan(con, integer(0), n = ncells)

@@ -253,7 +253,7 @@ imgnoiser.fit.model <- function(model.family, model.formula, dom.data, model.cal
 
     # Fit a smooth spline
     ,smooth.spline = {
-      do.call(stats::smooth.spline, c(list(x=dom.data[,1], y=dom.data[,2]), model.call.params))
+      do.call(stats::smooth.spline, c(list(x=dom.data[,1L], y=dom.data[,2L]), model.call.params))
     }
 
     ,stop("The model family argument is unexpected/unknown.")
@@ -415,7 +415,7 @@ imgnoiser.model.predictions <- function(model.src.data, fit, model.family, split
 
   result <-
       data.frame(
-         'x'         = x.df[,1]
+         'x'         = x.df[,1L]
         ,'y'         = pred$fit
         ,'split.by'  = split.value
         ,'sderr'     = pred$se.fit
@@ -424,7 +424,7 @@ imgnoiser.model.predictions <- function(model.src.data, fit, model.family, split
         ,row.names   = NULL
       )
   #names(result)[1:3] <- model.src.data[['label']][['term']][1:3]
-  data.table::setnames(result, 1:3, model.src.data[['label']][['term']][1:3])
+  data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
 
   result
 }
@@ -553,17 +553,17 @@ build.model.grid <- function(x) {
   # from the fitted models
   obs.points <- function(.data) {
     range <- range(.data, na.rm = TRUE)
-    min <- range[1]
-    max <- range[2]
+    min <- range[1L]
+    max <- range[2L]
     if (min <= 0) {
       equally.spaced.linear.len <- 30
       log.points <- numeric()
     } else {
-      log.points <- seq(log(min), log(max), length = 12)
-      log.points <- log.points[c(-1,-12)]
-      equally.spaced.linear.len <- 20
+      log.points <- seq(log(min), log(max), length = 12L)
+      log.points <- log.points[c(-1L,-12L)]
+      equally.spaced.linear.len <- 20L
     }
-    points <- c(exp(log.points), seq(min, max, length = 20))
+    points <- c(exp(log.points), seq(min, max, length = equally.spaced.linear.len))
     return (sort(points))
   }
 

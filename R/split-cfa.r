@@ -62,7 +62,7 @@ split.cfa.fit <- function(file.name) {
   odd.row.idx  <- rev(seq(1L, nrows, by=2L))
   even.row.idx <- rev(seq(2L, nrows, by=2L))
   even.col.idx <- seq(col.start, ncols, by=2L)
-  odd.col.idx  <- seq(col.start+1, ncols, by=2L)
+  odd.col.idx  <- seq(col.start+1L, ncols, by=2L)
 
   ch1 <- img.matrix[even.row.idx, odd.col.idx]
   ch2 <- img.matrix[even.row.idx, even.col.idx]

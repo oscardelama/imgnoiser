@@ -119,12 +119,12 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       grb <- dplyr::group_by(tbl, lighting, ISO, shutter.speed, aperture, focal.length)
       sel <- dplyr::select(grb, lighting, ISO, shutter.speed, aperture, focal.length)
       sum <- dplyr::summarise(sel, count = n())
-      photo.conds.df <- dplyr::filter(sum, count > 1)
-      photo.conds.df <- cbind(cond = 1:nrow(photo.conds.df), photo.conds.df)
+      photo.conds.df <- dplyr::filter(sum, count > 1L)
+      photo.conds.df <- cbind(cond = 1L:nrow(photo.conds.df), photo.conds.df)
       # head(photo.conds.df)
 
       #Get the total number of combinations we will process
-      total.combin.count <- sum(choose(photo.conds.df$count, 2))
+      total.combin.count <- sum(choose(photo.conds.df$count, 2L))
 
       # Placeholders for the resulting data
       hvdvm.df <- data.frame()
@@ -137,7 +137,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       }
 
       # Loop the photo.conds.df data frame
-      for(ix.cond in 1:nrow(photo.conds.df)) {
+      for(ix.cond in 1L:nrow(photo.conds.df)) {
 
         # Read the condition
         cond <- photo.conds.df[ix.cond,]
@@ -153,7 +153,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
 
         # Find the combinations of two pictures for the
         # pictures taken with these common conditions
-        combin <- data.frame(t(combn(1:cond$count, 2)))
+        combin <- data.frame(t(combn(1L:cond$count, 2L)))
         colnames(combin) <- c("pic1", "pic2")
 
         # Placeholders for the pictures data
@@ -161,11 +161,11 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         pict2 <- list()
 
         # For each pair of pictures combination
-        for(ix.comb in 1:nrow(combin)) {
+        for(ix.comb in 1L:nrow(combin)) {
 
           # Show progress
           if (show.progress) {
-            combin.counter <- combin.counter + 1
+            combin.counter <- combin.counter + 1L
             setTxtProgressBar(prog.bar, combin.counter)
           }
 
@@ -207,7 +207,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
                                "cond" = ix.cond
                               ,"pict1" = picts[combin[ix.comb, "pic1"], "crop.file.name"]
                               ,"pict2" = picts[combin[ix.comb, "pic2"], "crop.file.name"]
-                              ,"channel" = factor(c(1,2,3,4), levels=c(1,2,3,4), labels=channel.labels)
+                              ,"channel" = factor(c(1L,2L,3L,4L), levels=c(1L,2L,3L,4L), labels=channel.labels)
                               ,"mean" = c(mean.ch1, mean.ch2, mean.ch3, mean.ch4)
                               ,"var" = c(halfVar.delta.ch1, halfVar.delta.ch2, halfVar.delta.ch3, halfVar.delta.ch4)
                               ,row.names = NULL
@@ -221,8 +221,8 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
                                  "cond" = ix.cond
                                 ,"pict1" = picts[combin[ix.comb, "pic1"], "crop.file.name"]
                                 ,"pict2" = picts[combin[ix.comb, "pic2"], "crop.file.name"]
-                                ,"chan.a" = factor(c(1,1,1,2,2,3), levels=c(1,2,3,4), labels=channel.labels)
-                                ,"chan.b" = factor(c(2,3,4,3,4,4), levels=c(1,2,3,4), labels=channel.labels)
+                                ,"chan.a" = factor(c(1L,1L,1L,2L,2L,3L), levels=c(1L,2L,3L,4L), labels=channel.labels)
+                                ,"chan.b" = factor(c(2L,3L,4L,3L,4L,4L), levels=c(1L,2L,3L,4L), labels=channel.labels)
                                 ,"cov" = c(halfCov.ch12, halfCov.ch13, halfCov.ch14,
                                            halfCov.ch23, halfCov.ch24, halfCov.ch34)
                               )

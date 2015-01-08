@@ -33,6 +33,7 @@ noise.var <- R6::R6Class('noise.var',
     ,'.cov.df'          = data.frame()
     ,'.std.src.data'    = list()
     ,'.model'           = list()
+    ,'.RGGB.indices'    = NULL # integer()
 
     ##------------------------------
     ## check.model.name
@@ -83,7 +84,7 @@ noise.var <- R6::R6Class('noise.var',
 
       # Validate the models list
       if (!is.null(select)) {
-        select <- vector.alike(select, 1, Inf, type='?')
+        select <- vector.alike(select, 1L, Inf, type='?')
         if (!is.numeric(select)) select <- as.character(select)
       }
 
@@ -124,7 +125,7 @@ noise.var <- R6::R6Class('noise.var',
     ## cov.df  (documented in sub-class)
     ##------------------------------
     ,cov.df = function(value) {
-      if (!missing(value)) stop('The "cov.df" variable is read-only.')
+       if (!missing(value)) stop('The "cov.df" variable is read-only.')
 
 #       if (nrow(private$.cov.df) == 0)
 #         warning('There is no "cov" information. You should probably run the digest() function before.')
@@ -164,6 +165,17 @@ noise.var <- R6::R6Class('noise.var',
       model.list
     }
 
+    ##------------------------------
+    ## model.list  (documented here)
+    ##------------------------------
+    ,RGGB.indices = function(value) {
+      # Setter role
+      if (!missing(value)) stop('This is a read-only variable.')
+      else
+        # Getter role
+        private$.RGGB.indices
+    }
+
   ), #active
 
   public = list(
@@ -176,18 +188,32 @@ noise.var <- R6::R6Class('noise.var',
         ,green.channels = imgnoiser.option('green.channels')
         ,has.RGGB.pattern = imgnoiser.option('has.RGGB.pattern')
         ,avg.green.label = imgnoiser.option('avg.green.channel.label')
-       ) {
+        ,RGGB.indices = if (has.RGGB.pattern == TRUE) c(1L,2L,3L,4L) else NULL
+    ){
+      # browser()
       if (has.RGGB.pattern == TRUE) {
-        channel.labels <- imgnoiser.option('RGGB.channel.labels')
-        if (is.null(green.channels))
-          green.channels <- c(2L,3L)
+        if (all(channel.labels == imgnoiser.default.options[['channel.labels']]))
+          channel.labels <- imgnoiser.option('RGGB.channel.labels')
+        # (green.channels == NA) indicates green averages are not desired
+        if (is.null(green.channels)) green.channels <- c(2L,3L)
+        private$.RGGB.indices <- c(1L,2L,3L,4L)
+
+      } else if (!is.null(RGGB.indices)) {
+        # This assignment validates the RGGB.indices
+        RGGB.indices <- vector.alike(RGGB.indices, 4L, type='i', valid.range=c(1L,4L))
+        private$.RGGB.indices <- RGGB.indices
+        if (all(channel.labels == imgnoiser.default.options[['channel.labels']]))
+          channel.labels <- imgnoiser.default.options[['RGGB.channel.labels']][RGGB.indices]
+        if (is.null(green.channels)) green.channels <- RGGB.indices[c(2,3)]
       }
 
-      if (is.given(green.channels))
+      if (is.given(green.channels) && is.null(RGGB.indices) && !has.RGGB.pattern)
         green.channels <- valid.green.channels(green.channels)
 
       private$.channel.labels <- valid.channel.labels(channel.labels, avg.green.label)
       private$.green.channels <- green.channels
+
+
     }
 
     ##------------------------------
@@ -244,7 +270,7 @@ noise.var <- R6::R6Class('noise.var',
       ix_model <- 0L
       for (split.value in names(splitted.y)) {
         # Ignore the split if it has not enough data to fit a model
-        # if (length(splitted.x[[split.value]]) <= 1) next
+        # if (length(splitted.x[[split.value]]) <= 1L) next
         # @TODO: Handle cases when the data make crash the fitting function
         model <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
         model.call.txt <- model[['call']]
@@ -299,7 +325,7 @@ noise.var <- R6::R6Class('noise.var',
         private$.model[[model.name]][['predictions']]
       else {
         # Validate x is a numeric vector
-        x <- vector.alike(x, 1, Inf, type='n')
+        x <- vector.alike(x, 1L, Inf, type='n')
 
         # Get the model structure
         model.str <- private$.model[[model.name]]
@@ -358,7 +384,7 @@ noise.var <- R6::R6Class('noise.var',
         model.summary <- capture.output(summary(fit, ...))
         len <- length(model.summary)
 
-        for(line.ix in len:1) {
+        for(line.ix in len:1L) {
          if (grepl('Residuals:', model.summary[line.ix], ignore.case = TRUE))
            break
         }
@@ -366,7 +392,7 @@ noise.var <- R6::R6Class('noise.var',
         # If the last line is not blank, add one
         last.line <- trim(model.summary[len])
         if (last.line != '') {
-         len <- len + 1
+         len <- len + 1L
          model.summary[len] <- ''
         }
 
@@ -478,10 +504,10 @@ noise.var <- R6::R6Class('noise.var',
         ,warnings = FALSE
     ) {
       # The model.name argument is a single element atomic vector
-      vector.alike(model.name, 1, type='?')
-      confid <- vector.alike(confid, 1, type='l')
-      print <- vector.alike(print, 1, type='l')
-      fit <- vector.alike(fit, 1, type='l')
+      vector.alike(model.name, 1L, type='?')
+      confid <- vector.alike(confid, 1L, type='l')
+      print <- vector.alike(print, 1L, type='l')
+      fit <- vector.alike(fit, 1L, type='l')
       # Get user defaults
       if (model.name == TRUE) model.name <- imgnoiser.option('fit.model.name')
       point.size <- imgnoiser.option('plot.point.size')
@@ -530,7 +556,7 @@ noise.var <- R6::R6Class('noise.var',
         model.predictions.df <- private$.model[[model.name]][['predictions']]
         # Use XY names
         # names(model.predictions.df)[1:3] <- names(label$term)[1:3]
-        data.table::setnames(model.predictions.df, 1:3, names(label$term)[1:3])
+        data.table::setnames(model.predictions.df, 1L:3L, names(label$term)[1:3])
 
         if (fit == TRUE) {
           # Use user line width
@@ -552,8 +578,8 @@ noise.var <- R6::R6Class('noise.var',
         p <- p + ggplot2::scale_colour_manual(values=color.pallette)
 
       # Fit new axis limits
-      if (!is.null(xlim) & length(xlim) >= 2) p <- p + ggplot2::xlim(xlim[1], xlim[2])
-      if (!is.null(ylim) & length(ylim) >= 2) p <- p + ggplot2::ylim(ylim[1], ylim[2])
+      if (!is.null(xlim) & length(xlim) >= 2L) p <- p + ggplot2::xlim(xlim[1L], xlim[2L])
+      if (!is.null(ylim) & length(ylim) >= 2L) p <- p + ggplot2::ylim(ylim[1L], ylim[2L])
 
       if (print == TRUE)
         if (warnings == FALSE)
@@ -933,8 +959,8 @@ noise.var.doc$fit.model <-
 #' # Get the 'standard' model predictions
 #' preds.df <- my.hvdvm$get.model.predictions()
 #' # Set the lcl and ucl confidence limits using 2.5 as confidence factor
-#' preds.df$lcl <- preds.df[,2] - 2.5*preds.df$sderr
-#' preds.df$ucl <- preds.df[,2] + 2.5*preds.df$sderr
+#' preds.df$lcl <- preds.df[,2L] - 2.5*preds.df$sderr
+#' preds.df$ucl <- preds.df[,2L] + 2.5*preds.df$sderr
 #' }
 #'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}

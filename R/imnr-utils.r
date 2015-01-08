@@ -138,3 +138,26 @@ unzip.sample.files <- function(file.path) {
 
   file.path;
 }
+
+matrix.3x3 <- function(x) matrix(x, nrow=3L, ncol=3L, byrow=TRUE)
+
+#' @export
+select.sample.files <- function(path, from, to, extension) {
+  vector.alike(extension, 1)
+
+  # Remove beginning period
+  if (grepl('^\\..*', extension)) {
+    if (nchar(extension) == 1)
+      stop("Invalid extension.")
+    else
+      extension <- substr(extension, 2, nchar(extension))
+  }
+
+  regexp <- paste0('.*\\.', extension)
+  files <- list.files(path, pattern=regexp)
+  from <- paste0(from, '.', extension)
+  to <- paste0(to, '.', extension)
+
+  files <- files[files >= from & files <= to]
+  files;
+}

@@ -16,7 +16,7 @@ LazyData: true
 Imports:
     ggplot2 (>= 1.0.0),
     dplyr  (>= 0.3.0),
-    R6     (>= 2.0.1),
+    R6     (>= 2.0.0),
     lazyeval (>= 0.1.9),
     data.table (>= 1.9.4)
 Suggests:
@@ -25,6 +25,7 @@ Suggests:
     knitr,
     rmarkdown,
     robustbase,
+    MASS,
     gridExtra,
     pander
 Collate:
@@ -40,6 +41,9 @@ Collate:
     'pgm-file-format.r'
     'split-cfa.r'
     'utils.r'
+    'color-utils.r'
     'vvm-class.r'
+    'gamma-curves.r'
+    'color-mapping.r'
     'zzz.r'
 VignetteBuilder: knitr

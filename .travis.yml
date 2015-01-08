@@ -19,6 +19,7 @@ before_install:
 
 install:
   - ./travis-tool.sh r_binary_install ggplot2
+  - ./travis-tool.sh r_binary_install knitr
   - ./travis-tool.sh install_github hadley/dplyr
   - ./travis-tool.sh install_github wch/R6
   - ./travis-tool.sh install_github hadley/lazyeval

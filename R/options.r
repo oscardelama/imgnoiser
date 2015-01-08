@@ -312,10 +312,10 @@ imgnoiser.options.save <- function(
     ) {
 
   # Validate arguments
-  file.name <- vector.alike(file.name, 1)
+  file.name <- vector.alike(file.name, 1L)
   #If required add the 'package'.imn' filename extension
   file.name <- with.file.name.extension(file.name)
-  stop.overwrite <- vector.alike(stop.overwrite, 1, type='l')
+  stop.overwrite <- vector.alike(stop.overwrite, 1L, type='l')
 
   if (file.exists(file.name) & stop.overwrite)
     stop('The file ', dQuote(file.name), ' already exists.')
@@ -356,7 +356,7 @@ imgnoiser.options.load <- function(
 ) {
 
   # Validate arguments
-  file.name <- vector.alike(file.name, 1)
+  file.name <- vector.alike(file.name, 1L)
   # Add file name extension if required
   file.name <- with.file.name.extension(file.name)
 
@@ -373,27 +373,29 @@ imgnoiser.options.load <- function(
   message('The options were succesully retrieved from the ', dQuote(file.name), ' file.')
 }
 
+imgnoiser.default.options <- list()
+
 #------------------------------------
 # imgnoiser.options.init
 #------------------------------------
 imgnoiser.options.init <- function() {
 
-  all.package.options <- get.imgnoiser.options()
+  imgnoiser.default.options <<- get.imgnoiser.default.options()
 
   current.package.options <- getOption('imgnoiser')
   if (is.null(current.package.options))
-    package.options <- all.package.options
+    package.options <- imgnoiser.default.options
   else {
-    missing.options <- !(names(all.package.options) %in% names(current.package.options))
+    missing.options <- !(names(imgnoiser.default.options) %in% names(current.package.options))
     if (any(missing.options)) {
       package.options <-
         if (any(!missing.options))
           c(
             current.package.options[!missing.options]
-            ,all.package.options[missing.options]
+            ,imgnoiser.default.options[missing.options]
           )
         else
-          all.package.options
+          imgnoiser.default.options
     }
     else
       return(invisible())
@@ -406,13 +408,13 @@ imgnoiser.options.init <- function() {
 #------------------------------------
 imgnoiser.options.force.reset <- function() {
   options('imgnoiser' =  NULL)
-  options('imgnoiser' =  get.imgnoiser.options())
+  options('imgnoiser' =  get.imgnoiser.default.options())
 }
 
 #------------------------------------
 # imgnoiser.options.init()
 #------------------------------------
-get.imgnoiser.options <- function() {
+get.imgnoiser.default.options <- function() {
 
   photo.conds.col.map <- list(
     'crop.file.name'  = 'crop.file.name'
@@ -446,5 +448,7 @@ get.imgnoiser.options <- function() {
     ,'obj.save.options'     = TRUE
     ,'obj.load.options'     = TRUE
     ,'stop.save.overwrite'  = TRUE
+    ,'rgb.labels'           = c('Red', 'Green', 'Blue')
+    ,'tone.curve.id'        = "camera.metadata"
   )
 }

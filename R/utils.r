@@ -28,7 +28,10 @@ vector.alike <- function( x
                          ,type='c'
                          ,allow.na = FALSE
                          ,allow.null = FALSE
-                         ,all.unique = TRUE) {
+                         ,all.unique = TRUE
+                         ,whole.numbers = ifelse(type == 'i', TRUE, FALSE)
+                         ,valid.range = NULL
+                         ) {
 
   if (!is.atomic(x) & !is.list(x))
     stop(paste("The", sQuote(name), "argument is not an atomic vector."))
@@ -39,7 +42,7 @@ vector.alike <- function( x
     if (length(x) %nin% min.length) {
 
       # Customize the error message
-      if (length(min.length) == 1)
+      if (length(min.length) == 1L)
         stop(paste("The", sQuote(name), "argument must contain ", min.length, " elements."))
       else
         stop(paste("The", sQuote(name), "argument must contain either of {", min.length, "} elements."))
@@ -59,7 +62,7 @@ vector.alike <- function( x
     stop(paste("The", sQuote(name), "argument must not contain NULL elements."))
 
   if (type != '?') {
-    x <-
+    nx <-
       switch(
         type
         ,'c' = as.character(x)
@@ -70,11 +73,37 @@ vector.alike <- function( x
       )
 
     # Check if the type coercion brought NA values
-    if (!allow.na & any(is.na(x)))
-      if (length(x) == 1)
+    if (!allow.na & any(is.na(nx)))
+      if (length(x) == 1L)
         stop(paste("The", sQuote(name), "argument has not the expected type."))
       else
         stop(paste("One or more elements of the", sQuote(name), "argument has not the expected type."))
+
+    # Check all of them are whole numbers
+    if (whole.numbers == TRUE) {
+      if (!all.whole.numbers(x)) {
+        if (length(x) == 1L)
+          stop(paste("The", sQuote(name), "argument is not an integer number as expected."))
+        else
+          stop(paste("The", sQuote(name), "argument must contain only integer values."))
+      } else
+        x <- round(x)
+    }
+
+    # Check the values are in the valid range
+    if (!is.null(valid.range))
+      if (any(x < valid.range[1L])) {
+        if (length(x) == 1L)
+          stop(paste("The", sQuote(name), "argument is bellow the minimum possible value:", sQuote(valid.range[1L]),"."))
+        else
+          stop(paste("The", sQuote(name), "argument contains one or more elements bellow the minimum possible value:", sQuote(valid.range[1L]),"."))
+      } else if (any(x > valid.range[2L])) {
+        if (length(x) == 1L)
+          stop(paste("The", sQuote(name), "argument is above the maximum possible value:", sQuote(valid.range[2L]),"."))
+        else
+          stop(paste("The", sQuote(name), "argument contains one or more elements above the maximum possible value:", sQuote(valid.range[2L]),"."))
+      }
+
   }
 
   # Check Uniqueness
@@ -152,7 +181,7 @@ check.all.whole.numbers <- function(x, name=deparse(substitute(x))) {
 is.given <- function(x) {
   if (is.null(x)) FALSE
   else {
-      if (is.na(x[1])) FALSE
+      if (is.na(x[1L])) FALSE
       else TRUE
   }
 }
@@ -194,7 +223,7 @@ more.than.one <- function(x) {
 
   if (length(x) >= 2) {
     first <- x[1L]
-    for (ix in 2:length(x))
+    for (ix in 2L:length(x))
       if (x[ix] != first) {
         result <- TRUE
         break;
@@ -203,3 +232,23 @@ more.than.one <- function(x) {
   result;
 }
 
+mtx.inverse <- function(mtx) {
+  tryCatch(
+    base::solve(mtx),
+    error = function(c) {
+      if (requireNamespace("MASS", quietly = TRUE))
+        MASS:ginv(mtx)
+      else
+        stop("The MASS package is required. Please install it.")
+    }
+  )
+}
+
+between <- function(x, lower.limit, upper.limit) {
+  if (any(x < lower.limit))
+    FALSE
+  else if (any(x > upper.limit))
+    FALSE
+  else
+    TRUE
+}

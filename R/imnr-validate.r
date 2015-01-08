@@ -23,8 +23,8 @@
 #-------------------------------------
 valid.channel.labels <- function(channel.labels, avg.green.label) {
 
-  channel.labels <- vector.alike(channel.labels, 4)
-  avg.green.label <- vector.alike(avg.green.label, 1)
+  channel.labels <- vector.alike(channel.labels, 4L)
+  avg.green.label <- vector.alike(avg.green.label, 1L)
 
   c(channel.labels, avg.green.label)
 }
@@ -34,15 +34,15 @@ valid.channel.labels <- function(channel.labels, avg.green.label) {
 #-------------------------------------
 valid.green.channels <- function(green.channels) {
 
-  green.channels <- vector.alike(green.channels, 2, type='i')
+  green.channels <- vector.alike(green.channels, 2L, type='i')
 
   check.all.whole.numbers(green.channels)
-  limit.fails <- sum(green.channels %nin% 1:4)
+  limit.fails <- sum(green.channels %nin% 1L:4L)
 
   if (limit.fails)
-    stop("The 'green.channels' argument must contain two integer values in 1:4.")
+    stop("The 'green.channels' argument must contain two integer values in [1,4].")
 
-  if (green.channels[1] == green.channels[2])
+  if (green.channels[1L] == green.channels[2L])
     stop("The 'green.channels' values must not be equal to each other.")
 
   return(green.channels)
@@ -67,7 +67,7 @@ valid.metadata.fname <- function(metadata.file.name) {
 is.single.value <- function(x, name=deparse(substitute(x))) {
 
   if (is.list(x)) x <- unname(unlist(x))
-  return (!is.atomic(x) | length(x) != 1)
+  return (!is.atomic(x) | length(x) != 1L)
 }
 
 #-------------------------------------
@@ -90,8 +90,8 @@ valid.single.value <- function(x, coerce='c') {
 
   if (is.list(x)) x <- unname(unlist(x))
   if (is.atomic(x)) {
-    if (length(x) >= 1) {
-      x <- x[1]
+    if (length(x) >= 1L) {
+      x <- x[1L]
       if (!missing(coerce))
         switch(
           coerce
@@ -159,7 +159,7 @@ get.img.file.names <- function(img.file.name, img.file.count, img.file.name.ext,
 #-------------------------------------
 valid.file.path <- function(file.path) {
 
-  file.path <- vector.alike(file.path, 1)
+  file.path <- vector.alike(file.path, 1L)
 
   if (!grepl('.*/$', file.path))
     file.path <- paste0(file.path, '/')
