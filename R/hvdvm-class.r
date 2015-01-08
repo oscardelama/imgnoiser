@@ -103,7 +103,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       splitted.channels <- list()
       split.channels <- function(.file.name, crop.files.path) {
         if (length(splitted.channels) == 0 || .file.name %nin% names(splitted.channels)) {
-          channels <- split.cfa(.file.name, crop.files.path)
+          channels <- split_channels(.file.name, crop.files.path)
           splitted.channels[[.file.name]] <<- channels
           return (channels)
         } else

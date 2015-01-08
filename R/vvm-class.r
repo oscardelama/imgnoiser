@@ -72,7 +72,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
 
-        cfa <- split.cfa(file.name, file.path)
+        cfa <- split_channels(file.name, file.path)
 
         # Build a sythetic channel with the average of both green channels
         if (known.greens) {
@@ -211,7 +211,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
         # browser()
-        cfa <- split.cfa(file.name, file.path)
+        cfa <- split_channels(file.name, file.path)
         rgb <- map.to.rgb$convert.to.rgb(cfa)
 
         mean.r <- channelMean(rgb$r)

@@ -17,8 +17,19 @@
 #     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+#' Split a raw image to get the four channels
+#'
+#' @param file.name The file name of the raw image. It must have the extension
+#' '.fit' or '.pg'.
+#'
+#' @param file.path The path to the file referred in \code{file.name}
+#'
+#' @return An list of four matrices with the image from each channel.
+#'
 #' @export
-split.cfa <- function(file.name, file.path) {
+#-----------------------------------------------------------------------------
+split_channels <- function(file.name, file.path) {
 
   if (grepl('\\.(fit|fits)$', file.name, ignore.case=TRUE))
     file.format <- 'FIT'
