@@ -223,7 +223,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
                                 ,"pict2" = picts[combin[ix.comb, "pic2"], "crop.file.name"]
                                 ,"chan.a" = factor(c(1L,1L,1L,2L,2L,3L), levels=c(1L,2L,3L,4L), labels=channel.labels)
                                 ,"chan.b" = factor(c(2L,3L,4L,3L,4L,4L), levels=c(1L,2L,3L,4L), labels=channel.labels)
-                                ,"cov" = c(halfCov.ch12, halfCov.ch13, halfCov.ch14,
+                                ,"cov.a.b" = c(halfCov.ch12, halfCov.ch13, halfCov.ch14,
                                            halfCov.ch23, halfCov.ch24, halfCov.ch34)
                               )
                           ))
@@ -431,7 +431,7 @@ hvdvm.doc$var.df <- function() NULL
 #'  \item \code{chan.a, chan.b}: The label of the channels whose covariance is shown
 #'  in the \code{cov} column.
 #'
-#'  \item \code{cov}: The half of the photosite values covariance in the
+#'  \item \code{cov.a.b}: The half of the photosite values covariance in the
 #'  \code{chan.a} and \code{chan.b} channels in the difference image, computed
 #'  pixel by pixel, of the \code{pict1} image minus the \code{pict2} one.
 #' }

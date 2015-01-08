@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-01-01" />
+<meta name="date" content="2015-01-08" />
 
 <title>hvdvm Class Introduction</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <div id="header">
 <h1 class="title"><em>hvdvm</em> Class Introduction</h1>
-<h4 class="date"><em>2015-01-01</em></h4>
+<h4 class="date"><em>2015-01-08</em></h4>
 </div>
 
 
@@ -223,6 +223,7 @@ my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv
 <span class="co">#&gt;     plot: function</span>
 <span class="co">#&gt;     print.model.summary: function</span>
 <span class="co">#&gt;     remove.model: function</span>
+<span class="co">#&gt;     RGGB.indices: active binding</span>
 <span class="co">#&gt;     var.df: active binding</span></code></pre>
 <p>Notice in the above list, there are some elements with the “active binding” tag. We will call them object variables or just variables. We will explain their use along this document.</p>
 </div>
@@ -476,7 +477,7 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 <div id="cov" class="section level2">
 <h2><span class="header-section-number">5.2</span> Covariance Result</h2>
 <p>The <code>hvdvm$digest()</code> function also computes the <em>covariance</em> between each pair of channels in the delta image. We get that <em>covariance</em> data reading the <code>hvdvm$cov.df</code> variable.</p>
-<p>In the following data frame, the columns <code>chan.a</code> and <code>chan.b</code> show the channels whose <em>covariance</em> is shown in the <code>cov</code> column. All the other columns have the same meaning as in the <em>variance</em> data in the <code>hvdvm$var.df</code> variable we saw above.</p>
+<p>In the following data frame, the columns <code>chan.a</code> and <code>chan.b</code> show the channels whose <em>covariance</em> is shown in the <code>cov.a.b</code> column. All the other columns have the same meaning as in the <em>variance</em> data in the <code>hvdvm$var.df</code> variable we saw above.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Get the computed covariance</span>
 <span class="kw">head</span>(my.hvdvm$cov.df)</code></pre>
 <table>

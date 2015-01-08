@@ -14,7 +14,7 @@ vignette: >
 ```{r echo = FALSE, message = FALSE}
 library(imgnoiser)
 options(digits=4)
-test.data.folder <- imgnoiser:::.get.test.data.folder()
+test.data.folder <- imgnoiser:::get.test.data.folder()
 
 knitr::opts_chunk$set(
      comment = "#>"
@@ -249,7 +249,7 @@ We will see later the use of the plot function in more detail.
 
 The `hvdvm$digest()` function also computes the *covariance* between each pair of channels in the delta image. We get that *covariance* data reading the `hvdvm$cov.df` variable.
 
-In the following data frame, the columns `chan.a` and `chan.b` show the channels whose *covariance* is shown in the `cov` column. All the other columns have the same meaning as in the *variance* data in the `hvdvm$var.df` variable we saw above.
+In the following data frame, the columns `chan.a` and `chan.b` show the channels whose *covariance* is shown in the `cov.a.b` column. All the other columns have the same meaning as in the *variance* data in the `hvdvm$var.df` variable we saw above.
 
 ```{r eval=FALSE}
 # Get the computed covariance

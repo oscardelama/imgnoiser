@@ -129,7 +129,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
              "pict" = file.name
             ,"chan.a" = factor(c(1L,1L,1L,1L,2L,2L,2L,3L,3L,4L), levels=c(1L,2L,3L,4L,5L), labels=self$channel.labels)
             ,"chan.b" = factor(c(2L,3L,4L,5L,3L,4L,5L,4L,5L,5L), levels=c(1L,2L,3L,4L,5L), labels=self$channel.labels)
-            ,"cov" = c(cov.ch12, cov.ch13, cov.ch14, cov.ch1A, cov.ch23,
+            ,"cov.a.b" = c(cov.ch12, cov.ch13, cov.ch14, cov.ch1A, cov.ch23,
                        cov.ch24, cov.ch2A, cov.ch34, cov.ch3A, cov.ch4A)
             ,row.names = NULL
           )
