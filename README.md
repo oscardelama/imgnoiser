@@ -2,8 +2,9 @@
 The :camera: `imgnoiser` R Package
 ==================================
 
+<!-- Non tested state
 [![Build Status](https://travis-ci.org/oscardelama/imgnoiser.png?branch=master)](https://travis-ci.org/oscardelama/imgnoiser)
-
+-->
 The `imgnoiser` (IMaGe NOISE) R package contains tools for the measurement, analysis and characterization of raw image noise from digital CMOS sensor cameras. The focus of the package is automatize as possible most of the involved procedures so you can focus on the interpretation and analysis of its results.
 
 Installation
