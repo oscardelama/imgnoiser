@@ -10,7 +10,7 @@ suppressPackageStartupMessages(require(imgnoiser))
 #-------------
 global.hvdvm.obj <- NULL
 
-test.data.folder <- imgnoiser:::.get.test.data.folder()
+test.data.folder <- imgnoiser:::get.test.data.folder()
 photo.conds.file <- paste0(test.data.folder,'iso100White.csv')
 
 # Digest the images silently

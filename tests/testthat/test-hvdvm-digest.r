@@ -6,7 +6,7 @@ context("hvdvm-digest")
 # testthat::skip_on_cran()
 
 #-------------
-test.data.folder <- imgnoiser:::.get.test.data.folder()
+test.data.folder <- imgnoiser:::get.test.data.folder()
 photo.conds.file <- paste0(test.data.folder,'iso100White.csv')
 
 # Retun the range of the number of rows with the same condition

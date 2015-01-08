@@ -14,7 +14,7 @@ vignette: >
 ```{r echo = FALSE, message = FALSE}
 library(imgnoiser)
 options(digits=4)
-test.data.folder <- imgnoiser:::.get.test.data.folder()
+test.data.folder <- imgnoiser:::get.test.data.folder()
 
 knitr::opts_chunk$set(
      comment = "#>"

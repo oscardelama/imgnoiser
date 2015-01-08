@@ -6,7 +6,7 @@ context("vvm-digest")
 # testthat::skip_on_cran()
 
 #-------------
-test.data.folder <- imgnoiser:::.get.test.data.folder()
+test.data.folder <- imgnoiser:::get.test.data.folder()
 
 var.len.after.digest <- function(n, vvm.obj) {
   #Turn off progress bar
