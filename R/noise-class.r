@@ -134,9 +134,11 @@ noise.var <- R6::R6Class('noise.var',
       return(private$.cov.df)
     }
 
-    ,merged.var.cov.df = function(value) {
+    ,merged.var.cov.df = function() {
+      #if (!missing(value)) stop('Sorry, this is a read-only variable.')
+
       if (is.null(private$.merged.var.cov.df))
-        message('This data is built in the first request and take few seconds, please wait.')
+        message('This data is built at the first request and may take a few seconds, please be patient.')
       else
         return(private$.merged.var.cov.df)
 
@@ -174,6 +176,22 @@ noise.var <- R6::R6Class('noise.var',
       private$.merged.var.cov.df <- cov.df
       var.df <- NULL
       cov.df <- NULL
+    }
+
+    ,wide.var.df = function() {
+      if (is.null(private$.merged.var.cov.df))
+        message('This data is built by request and may take a few seconds, please be patient.')
+
+      var.df <- private$.var.df
+      melted.df <- reshape2::melt(var.df, id=c('pict', 'channel'))
+      wide.df <- reshape2::dcast(m2, pict ~ channel + variable)
+
+      wide.df.names <- tolower(names(wide.df))
+      wide.df.names <- sub("_", ".", wide.df.names)
+      wide.df.names <- make.names(wide.df.names, unique=TRUE)
+      data.table::setnames(wide.df, wide.df.names)
+      # result
+      wide.df;
     }
 
     ##------------------------------
