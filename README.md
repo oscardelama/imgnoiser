@@ -13,7 +13,7 @@ Installation
 This package is not in CRAN yet. However, you can use the `devtools` package to install the development version from Github:
 
 ``` r
-devtools::install_github('oscardelama/imgnoiser', build_vignettes = FALSE))
+devtools::install_github('oscardelama/imgnoiser', build_vignettes = FALSE)
 ```
 
 Usage
