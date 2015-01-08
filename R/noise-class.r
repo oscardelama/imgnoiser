@@ -31,6 +31,7 @@ noise.var <- R6::R6Class('noise.var',
     ,'.green.channels'  = NULL # numeric()
     ,'.var.df'          = data.frame()
     ,'.cov.df'          = data.frame()
+    ,'.merged.var.cov.df' = NULL
     ,'.std.src.data'    = list()
     ,'.model'           = list()
     ,'.RGGB.indices'    = NULL # integer()
@@ -115,8 +116,8 @@ noise.var <- R6::R6Class('noise.var',
     var.df = function(value) {
       if (!missing(value)) stop('The "var.df" variable is read-only.')
 
-#       if (nrow(private$.var.df) == 0)
-#         warning('There is no "var" information. You should probably run the digest() function before.')
+      if (nrow(private$.var.df) == 0)
+        warning('There is no "var" information. You should probably run the digest() function before.')
 
       return(private$.var.df)
     }
@@ -127,10 +128,52 @@ noise.var <- R6::R6Class('noise.var',
     ,cov.df = function(value) {
        if (!missing(value)) stop('The "cov.df" variable is read-only.')
 
-#       if (nrow(private$.cov.df) == 0)
-#         warning('There is no "cov" information. You should probably run the digest() function before.')
+      if (nrow(private$.cov.df) == 0)
+        warning('There is no "cov" information. You should probably run the digest() function before.')
 
       return(private$.cov.df)
+    }
+
+    ,merged.var.cov.df = function(value) {
+      if (is.null(private$.merged.var.cov.df))
+        message('This data is built in the first request and take few seconds, please wait.')
+      else
+        return(private$.merged.var.cov.df)
+
+      var.df <- as.data.frame(private$.var.df)
+      cov.df <- as.data.frame(private$.cov.df)
+      cov.df$mean.a <- 0
+      cov.df$mean.b <- 0
+      cov.df$var.a <- 0
+      cov.df$var.b <- 0
+      cov.df$channel.combo <- 0
+
+      chan.comb <- dplyr::distinct(cov.df, chan.a, chan.b)[,c('chan.a', 'chan.b')]
+      chan.comb$id <- 1:nrow(chan.comb)
+
+       # Show progress bar
+      show.progress <- package.option('show.progress')
+      if (show.progress == TRUE) {
+        message(paste("Processing", nrow(cov.df), "rows:"))
+        prog.bar <- txtProgressBar(min = 1L, max = nrow(cov.df), style = 3L)
+      }
+
+      for (ix in 1:nrow(cov.df)) {
+        # Show progress bar
+        if (show.progress) setTxtProgressBar(prog.bar, ix)
+
+        picture <- cov.df[ix, 'pict']
+        cov.chan.a <- cov.df[ix, 'chan.a']
+        cov.chan.b <- cov.df[ix, 'chan.b']
+        cov.df[ix, 'mean.a'] <- subset(var.df, pict == picture & channel == cov.chan.a, mean)
+        cov.df[ix, 'mean.b'] <- subset(var.df, pict == picture & channel == cov.chan.b, mean)
+        cov.df[ix, 'var.a']  <- subset(var.df, pict == picture & channel == cov.chan.a, var)
+        cov.df[ix, 'var.b']  <- subset(var.df, pict == picture & channel == cov.chan.b, var)
+        cov.df[ix, 'channel.combo']  <- subset(chan.comb, chan.a == cov.chan.a & chan.b == cov.chan.b, id)
+      }
+      private$.merged.var.cov.df <- cov.df
+      var.df <- NULL
+      cov.df <- NULL
     }
 
     ##------------------------------
