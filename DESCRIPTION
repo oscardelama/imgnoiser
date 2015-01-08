@@ -16,6 +16,7 @@ LazyData: true
 Imports:
     ggplot2 (>= 1.0.0),
     dplyr  (>= 0.3.0),
+    reshape2 (>= 1.4.1),
     R6     (>= 2.0.0),
     lazyeval (>= 0.1.9),
     data.table (>= 1.9.4)
