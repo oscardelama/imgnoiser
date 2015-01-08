@@ -34,7 +34,7 @@ devtools::install_github('oscardelama/imgnoiser', build_vignettes = FALSE))
 
 Usage
 -----
-In [the wiki pages](https://github.com/oscardelama/imgnoiser/wiki) you will find detailed documentation and examples of the general workflow using `imgnoiser`. These wiki pages are based on the package vignettes. If you install the package, you will be able to access this documentation from your R session.
+In [the wiki pages](https://github.com/oscardelama/imgnoiser/wiki) you will find detailed documentation and examples of the general workflow using `imgnoiser`.
 
 - - -
 
@@ -45,6 +45,13 @@ In [the wiki pages](https://github.com/oscardelama/imgnoiser/wiki) you will find
 * [Collecting Image Samples](https://github.com/oscardelama/imgnoiser/wiki/Collecting-Image-Samples)
 
 - - -
+
+These wiki pages are based on the package vignettes. If you install the package, you will be able to access this documentation from your R session using:
+
+```r
+browseVignettes('imgnoiser')
+```
+
 
 License
 -------
