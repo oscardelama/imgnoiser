@@ -139,8 +139,32 @@ get.test.data.folder <- function() {
   file.path;
 }
 
+#-----------------------------
+#' Query the files in a given folder
+#'
+#' Return a vector with the names of the files in the folder \code{path}, whose
+#' names are alphabetically between \code{from} and \code{to} and have the name
+#' extension given in \code{extension}.
+#'
+#' @param from
+#' @param to The \code{from} and \code{to} are the alphabetical range of the
+#'   desired files in folder given in \code{path}. These names should not
+#'   include the name extension which is specified with \code{extension}.
+#'
+#' @param extension The file name extension common to the desired files.
+#'
+#' @return A character vector with the file names satisfying the selection.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Select the file in the folder './samples' whose name is between
+#' # _DSC5695.NEF and _DSC5716.NEF
+#' files <- select.files('_DSC5695', '_DSC5716', '.NEF', './samples')
+#' }
+#'
 #' @export
-select.sample.files <- function(path, from, to, extension) {
+select.files <- function(from, to, extension, path) {
   vector.alike(extension, 1)
 
   # Remove beginning period
