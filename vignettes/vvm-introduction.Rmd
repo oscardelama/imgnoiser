@@ -27,11 +27,16 @@ knitr::opts_chunk$set(
 #rmarkdown::render("./vignettes/vvm-introduction.Rmd", output_format='md_document')
 ```
 
-The *vvm* acronym stands for "Variance versus Mean" and refers to a technique to study and profile the noise in digital camera raw images.
+The *vvm* acronym stands for "Variance versus Mean" and refers to a
+technique to study and profile the noise in digital camera raw images.
 
-The *variance* and the *mean* of the pixel values from raw image samples at different exposition levels have a known relationship, which is useful to profile a camera sensor noise response and to compute some sensor noise performance characteristic values.
+The *variance* and the *mean* of the pixel values from raw image samples
+at different exposition levels have a known relationship, which is
+useful to profile a camera sensor noise response and to compute some
+sensor noise performance characteristic values.
 
-In the code examples, the function output is presented prefixed by `#>`, while a single `#` represents real (user) comments.
+In the code examples, the function output is presented prefixed by `#>`,
+while a single `#` represents real (user) comments.
 
 <div id="TOC">
 <div class="toctitle">Table of Contents </div>
@@ -48,15 +53,30 @@ In the code examples, the function output is presented prefixed by `#>`, while a
 
 # The *vvm* Technique # {#vvm-proc}
 
-The *variance* and the *mean* of the pixel values from raw image samples, coming from photographs of a uniformly lit plain surface, have a quadratic relationship when the *Variance* is expressed as a function of the *Mean*. 
+The *variance* and the *mean* of the pixel values from raw image
+samples, coming from photographs of a uniformly lit plain surface, have
+a quadratic relationship when the *Variance* is expressed as a function
+of the *Mean*.
 
-In this relationship, the quadratic term is caused by the PRNU (pixel response non uniformity). The PRNU term means that every sensor photosite, even when exposed to exactly the same ligh intensity, does not response exactly in the same way, producing different pixel values causing image noise.
+In this relationship, the quadratic term is caused by the PRNU (pixel
+response non uniformity). The PRNU term means that every sensor
+photosite, even when exposed to exactly the same light intensity, does
+not have exactly the same response, producing different pixel values
+causing image noise.
 
-The linear term in the *Variance Versus Mean* (`vvm`) relationship is mainly caused by the *Photon Shot Noise*, and the intercept or constant term is caused by the *Read Noise*. 
+The linear term in the *Variance Versus Mean* (`vvm`) relationship is
+mainly caused by the *Photon Shot Noise*, and the intercept or constant
+term is caused by the *Read Noise*.
 
-Knowing this *Variance Versus Mean* relationship, we can build a regression between them to have a profile of the camera noise, and compute some features that characterize the noise performance of a camera sensor.
+Knowing this *Variance Versus Mean* relationship, we can build a
+regression between them to have a profile of the camera noise, and
+compute some features that characterize the noise performance of a
+camera sensor.
 
-Without the proper tools, the application of this technique is labor intensive, slow and error prone. The `vvm` class contains well suited functions to automatize the process and make it easy to apply over a large set of samples.
+Without the proper tools, the application of this technique is labor
+intensive, slow and error prone. The `vvm` class contains well suited
+functions to automatize the process and make it easy to apply over a
+large set of samples.
 
 The theoretical basis of this approach is explained in the article [*"A Simple DSLR Camera Sensor Noise Model"*](http://www.odelama.com/photo/A-Simple-DSLR-Camera-Sensor-Noise-Model/#VVM-theo), while the [*"Use of Linear Regressions to Model Camera Sensor Noise"*](http://www.odelama.com/photo/Use-of-Linear-Regressions-to-Model-Camera-Sensor-Noise/#vvm-app) describes the practical application of that model. The article [*"Handling Heteroscedastic Data from Camera Sensor Noise"*](http://www.odelama.com/data-analysis/Handling-Heteroscedastic-Data-from-Camera-Sensor-Noise/#h-solve-hetero) explains how to handle the heteroscedasticity that appear in the *Variance Versus Mean* relationship.
 
@@ -68,11 +88,18 @@ The supported file name extensions are '.fit' or '.fits' for the \href{http://fi
 
 # Creating a *vvm* Instance {#create}
 
-To use of the `vvm` class, and in general any other classes in the package. We need first to create an instance of the class, which is done calling the `vvm$new()` function. This function name --for instance creation-- is standardized; so, every class contains this function. For example, there are the `vvm$new()` and `hvdvvm$new()` functions. 
+To use of the `vvm` class, and in general any other class in the
+package, we need first to create an instance of the class, which is done
+calling the `vvm$new()` function. This function name --for instance
+creation-- is standardized; by default, every class contains this function. For
+example, there are the `vvm$new()` and `hvdvvm$new()` functions.
 
-The return value of this `new()` function is what is called a class instance object. This way the output of the `vvm$new()` function is a `vvm` instance object. 
+The return value of this `new()` function is what is called a class
+instance object. This way the output of the `vvm$new()` function is a
+`vvm` instance object or just an *object* for short.
 
-Once we have an object of the class, we can access to the class functions and variables through that particular object. For example:
+Once we have an object of the class, we can access to the class
+functions and variables through that particular object. For example:
 
 ```{r eval=FALSE}
 # Create an 'vvm' instance object and save it in the 'my.vvm.object' variable
@@ -82,9 +109,13 @@ my.vvm.object <- vvm.new()
 my.vvm.object$digest('crop_', 40)
 ```
 
-Of course, we can create many instances, for the processing of the same or different image samples.
+Of course, we can create many instance objects, for the processing of the same
+or different image samples.
 
-We will create and save an instance of the `vvm` class assuming our image samples have the RGGB pattern for the layout of the photosites color filters. You can get detailed information about the `vvm$new()` function parameters with the command:
+We will create and save an instance of the `vvm` class assuming our
+image samples have the RGGB pattern for the layout of the photosites
+color filters. You can get detailed information about the `vvm$new()`
+function parameters with the command:
 
 ```{r eval=FALSE}
 help('vvm$new')
@@ -102,7 +133,21 @@ If we *print* this variable, we will get --in a nice style-- a list of its membe
 my.vvm
 ```
 
-Notice in the above list, there are some elements with the "active binding" tag. We will call them object variables or just variables. We will explain their use along this document.
+Notice in the above list, there are some components listed as "variables", technically 
+they are "active bindings", but as they behave like variables we call them that way.
+
+For example, the `vvm` class includes the `var.df` variable containing a data frame with noise information. As usual, we can access to that component through the class object, `my.var` in our examples. As any R variable, we can 'read' the value in the object-variable to pass it to other functions, to other variable or in a expression:
+
+```{r eval=FALSE}
+some_var <- my.vvm$var.df
+some_result <- some_function(..., my.vvm$var.df)
+```
+
+In the `imgnoiser` package most of those variables are read-only. However, technically its is possible to write or set values on them:
+
+```{r eval=FALSE}
+my.vvm$some.variable <- some_value
+```
 
 # Digesting the Image Samples {#digest}
 
