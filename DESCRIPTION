@@ -30,6 +30,7 @@ Suggests:
     gridExtra,
     pander
 Collate:
+    'R6-base.r'
     'imnr-utils.r'
     'color-mapping.r'
     'color-utils.r'
