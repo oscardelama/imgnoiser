@@ -34,9 +34,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
     ##------------------------------
     ## photo.conditions.df  (documented here)
     ##------------------------------
-    photo.conditions.df = function(value) {
-      if (!missing(value)) stop('The ".photo.conds.df" variable is read-only.')
-
+    photo.conditions.df = function() {
       if (nrow(private$.photo.conds.df) == 0)
         warning('There is no ".photo.conds.df" information. You should probably run the digest() function before.')
 

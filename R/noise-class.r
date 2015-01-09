@@ -18,12 +18,13 @@
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
+#' @include R6-base.r
 #' @import ggplot2
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist
 #' @importFrom data.table setnames
 #-----------------------------------------------------------------------------
-noise.var <- R6::R6Class('noise.var',
+noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
   private = list(
 
@@ -113,8 +114,8 @@ noise.var <- R6::R6Class('noise.var',
     ##------------------------------
     ## var.df (documented in sub-class)
     ##------------------------------
-    var.df = function(value) {
-      if (!missing(value)) stop('The "var.df" variable is read-only.')
+    var.df = function() {
+#       if (!missing(value)) stop('The "var.df" variable is read-only.')
 
       if (nrow(private$.var.df) == 0)
         warning('There is no "var" information. You should probably run the digest() function before.')
@@ -125,8 +126,7 @@ noise.var <- R6::R6Class('noise.var',
     ##------------------------------
     ## cov.df  (documented in sub-class)
     ##------------------------------
-    ,cov.df = function(value) {
-       if (!missing(value)) stop('The "cov.df" variable is read-only.')
+    ,cov.df = function() {
 
       if (nrow(private$.cov.df) == 0)
         warning('There is no "cov" information. You should probably run the digest() function before.')
@@ -197,26 +197,21 @@ noise.var <- R6::R6Class('noise.var',
     ##------------------------------
     ## channel.labels  (documented here)
     ##------------------------------
-    ,channel.labels = function(value) {
-      if (!missing(value)) stop('The "channel.labels" variable is read-only.')
-
+    ,channel.labels = function() {
       return(private$.channel.labels)
     }
 
     ##------------------------------
     ## channel.labels  (documented here)
     ##------------------------------
-    ,green.channels = function(value) {
-      if (!missing(value)) stop('This is a read-only variable.')
-
+    ,green.channels = function() {
       return(private$.green.channels)
     }
 
     ##------------------------------
     ## model.list  (documented here)
     ##------------------------------
-    ,model.list = function(value) {
-      if (!missing(value)) stop('The "model.list" variable cannot be changed.')
+    ,model.list = function() {
 
       model.names <- names(private$.model)
       model.list <- list()
@@ -229,11 +224,7 @@ noise.var <- R6::R6Class('noise.var',
     ##------------------------------
     ## model.list  (documented here)
     ##------------------------------
-    ,RGGB.indices = function(value) {
-      # Setter role
-      if (!missing(value)) stop('This is a read-only variable.')
-      else
-        # Getter role
+    ,RGGB.indices = function() {
         private$.RGGB.indices
     }
 
