@@ -177,9 +177,18 @@ select.files <- function(from, to, extension, path) {
 
   regexp <- paste0('.*\\.', extension)
   files <- list.files(path, pattern=regexp)
-  from <- paste0(from, '.', extension)
-  to <- paste0(to, '.', extension)
+  if (length(files) == 0)
+    warning("The given folder does not contains any file with the given name extension ", sQuote(extension))
+  else {
+    from <- paste0(from, '.', extension)
+    to <- paste0(to, '.', extension)
 
-  files <- files[files >= from & files <= to]
-  files;
+    files <- files[files >= from & files <= to]
+    if (length(files) == 0)
+      warning("There are files with the extension ", sQuote(extension), " but none of them is in the given range.")
+    else
+      message(length(files), " files were found.")
+
+    files;
+  }
 }
