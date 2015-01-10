@@ -32,6 +32,7 @@ Suggests:
 Collate:
     'R6-base.r'
     'imnr-utils.r'
+    'R6.base'
     'color-mapping.r'
     'color-utils.r'
     'doc-vvm.r'

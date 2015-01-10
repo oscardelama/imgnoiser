@@ -20,7 +20,10 @@
 matrix_3x3 <- function(x) matrix(x, nrow=3L, ncol=3L, byrow=TRUE);
 
 #' @include imnr-utils.r
-colmap <- R6::R6Class('colmap',
+#' @include R6.base
+#' @export
+#-----------------------------------------------------------------------------
+colmap <- R6::R6Class('colmap', inherit = R6.base,
 
   private = list(
 

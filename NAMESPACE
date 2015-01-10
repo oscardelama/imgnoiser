@@ -2,6 +2,7 @@
 
 export(XYZ.from.xyY)
 export(cct.approx.from.xy.1931)
+export(colmap)
 export(hvdvm)
 export(imgnoiser.fit.model)
 export(imgnoiser.get.model.source.data)
