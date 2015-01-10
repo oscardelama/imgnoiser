@@ -27,16 +27,12 @@ channelVar <- function(.v) {
 #-------------------------------------
 # valid.option
 #-------------------------------------
-channelMean <- function(v) {
-  return (mean(c(v)))
-}
+channelMean <- function(v) mean(c(v));
 
 #-------------------------------------
 # valid.option
 #-------------------------------------
-channelCov <- function(v1, v2) {
-  return (cov(c(v1), c(v2)))
-}
+channelCov <- function(v1, v2) cov(c(v1), c(v2));
 
 #-------------------------------------
 # valid.option
