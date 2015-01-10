@@ -146,10 +146,11 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       cov.df$mean.b <- 0
       cov.df$var.a <- 0
       cov.df$var.b <- 0
-      cov.df$channel.combo <- 0
 
       chan.comb <- dplyr::distinct(cov.df, chan.a, chan.b)[,c('chan.a', 'chan.b')]
-      chan.comb$id <- 1:nrow(chan.comb)
+      chan.comb$level <- 1:nrow(chan.comb)
+      chan.comb$label <- paste0(chan.comb$chan.a, ", ", chan.comb$chan.b)
+      cov.df$channel.combo <- factor(1, levels=chan.comb$level, labels=chan.comb$label)
 
        # Show progress bar
       show.progress <- package.option('show.progress')
@@ -169,7 +170,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         cov.df[ix, 'mean.b'] <- subset(var.df, pict == picture & channel == cov.chan.b, mean)
         cov.df[ix, 'var.a']  <- subset(var.df, pict == picture & channel == cov.chan.a, var)
         cov.df[ix, 'var.b']  <- subset(var.df, pict == picture & channel == cov.chan.b, var)
-        cov.df[ix, 'channel.combo']  <- subset(chan.comb, chan.a == cov.chan.a & chan.b == cov.chan.b, id)
+        cov.df[ix, 'channel.combo']  <- subset(chan.comb, chan.a == cov.chan.a & chan.b == cov.chan.b, label)
       }
       private$.merged.var.cov.df <- cov.df
       var.df <- NULL
