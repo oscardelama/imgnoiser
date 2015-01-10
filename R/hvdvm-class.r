@@ -89,6 +89,13 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         else
           meta.df <- photo.conds.file
       }
+      # Reset the variables depending on the result of this function
+      private$.merged.var.cov.df <- data.frame()
+      private$.var.df <- data.frame()
+      private$.cov.df <- data.frame()
+      private$.std.src.data <- list()
+      private$.model <- list()
+
       # Map the column names in the photo.conds.file
       meta.df <- map.col.names(meta.df, imgnoiser.option('conds.col.map'))
 
