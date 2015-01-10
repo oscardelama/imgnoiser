@@ -57,7 +57,13 @@ colmap <- R6::R6Class('colmap',
     .tone.curve        = NULL,
 
     #-- Temporary variables for RGB conversions (performance)
+    # Without raw white balance
+    .raw.to.rgb.mtx        = NULL,
     .scaled.raw.to.rgb.mtx = NULL,
+    # Including raw white balance
+    .forward.mtx           = NULL,
+    .scaled.forward.mtx    = NULL,
+    .AB.CC.inverse         = NULL,
     # Black and white levels sorted according to RGGB.indices
     .rggb.black.level      = NULL,
     # White level with black level subtracted
@@ -202,17 +208,20 @@ colmap <- R6::R6Class('colmap',
     ){
 
       # Validate levels
-      black.raw.level <- vector.alike(black.raw.level, c(1L,3L), type='n', all.unique = FALSE)
-      white.raw.level <- vector.alike(white.raw.level, c(1L,3L), type='n', all.unique = FALSE)
+      black.raw.level <- vector.alike(black.raw.level, c(1L,3L, 4L), type='n', all.unique = FALSE)
+      white.raw.level <- vector.alike(white.raw.level, c(1L,3L, 4L), type='n', all.unique = FALSE)
       # At least 11 bits of scale are expected in the raw range
       # This is not a code requirement but a rule of thumb to detect input  errors
       if (any(white.raw.level - black.raw.level < 2048))
         stop('The white level is expected to be greater than the black one at least by 2^11.')
 
-      force.to.three.values <- function(x) if (length(x) == 1L) rep(x, 3L) else x
+      force.to.four.values <- function(x)
+        if (length(x) == 1L) rep(x, 3L)
+        else if (length(x) == 3L) c(x[1], x[2], x[2], x[3])
+        else x
 
-      private$.black.raw.level = force.to.three.values(black.raw.level)
-      private$.white.raw.level = force.to.three.values(white.raw.level)
+      private$.black.raw.level = force.to.four.values(black.raw.level)
+      private$.white.raw.level = force.to.four.values(white.raw.level)
     },
 
     .set.analog.balance = function(analog.balance) {
@@ -259,6 +268,7 @@ colmap <- R6::R6Class('colmap',
     initialize = function (camera.metadata) {
 
       # The illuminant 1 is the one with lower illuminant CCT
+      browser()
       if (camera.metadata[['cam.matrices.1']][['illum.cct.k']] <
           camera.metadata[['cam.matrices.2']][['illum.cct.k']]) {
         cam.matrices.1 <- camera.metadata[['cam.matrices.1']]
@@ -397,7 +407,7 @@ colmap <- R6::R6Class('colmap',
       )
     },
 
-    get.conv.matrix.from.raw = function(from.neutral.raw, to.space) {
+    get.conv.matrix.from.raw = function(from.neutral.raw, to.space='sRGB') {
       # browser()
       private$.linear.rgb.from.raw <- NULL
       # Computing white linear (in [0,1])
@@ -451,16 +461,19 @@ colmap <- R6::R6Class('colmap',
           stop(paste0("Cannot convert to the space '", to.space, "'."))
         )
 
-      # Result
-      private$.linear.rgb.from.raw <- space.convert.mtx %*% XYZ.D50.from.raw
-      invisible(private$.linear.rgb.from.raw);
+      # Results
+      private$.AB.CC.inverse <- if (any(AB.CC.inverse != diag(1,3,3))) AB.CC.inverse else NULL
+      private$.forward.mtx <- forward.mtx
+      private$.raw.to.rgb.mtx <- space.convert.mtx %*% XYZ.D50.from.raw
+      space.convert.mtx %*% XYZ.D50.from.raw;
     },
 
     prepare.to.rgb.conversions = function(rgb.scale, RGGB.indices, tone.curve.id) {
       # compute the scale
       scale <- rgb.scale / (private$.white.raw.level - private$.black.raw.level)
       # Apply the scale to the conversion matrix (for performance reasons)
-      private$.scaled.raw.to.rgb.mtx <- t(apply(private$.linear.rgb.from.raw, 1, function(x) x*scale ))
+      private$.scaled.forward.mtx <- t(apply(private$.forward.mtx, 1, function(x) x*scale ))
+      private$.scaled.raw.to.rgb.mtx <- t(apply(private$.raw.to.rgb.mtx, 1, function(x) x*scale ))
 
       # Black & white level according to RGGB.indices
       private$.rggb.black.level <- private$.black.raw.level[RGGB.indices]
@@ -491,15 +504,15 @@ colmap <- R6::R6Class('colmap',
         stop("Unknown tone curve.")
     },
 
-    convert.to.rgb = function(cfa) {
+    convert.raw.to.rgb = function(cfa, is.neutral=FALSE) {
 
       #-- Linearization and scaling
       # browser()
       # Subtract black level
       raw.red  <- cfa[[private$.rggb.indices[1]]] - private$.rggb.black.level[1]
       raw.green.r <- cfa[[private$.rggb.indices[2]]] - private$.rggb.black.level[2]
-      raw.green.b <- cfa[[private$.rggb.indices[3]]] - private$.rggb.black.level[2]
-      raw.blue <- cfa[[private$.rggb.indices[4]]] - private$.rggb.black.level[3]
+      raw.green.b <- cfa[[private$.rggb.indices[3]]] - private$.rggb.black.level[3]
+      raw.blue <- cfa[[private$.rggb.indices[4]]] - private$.rggb.black.level[4]
 
       # Clip the lower limit
       raw.red[raw.red < 0] <- 0
@@ -510,8 +523,23 @@ colmap <- R6::R6Class('colmap',
       # clip the upper limit
       raw.red[raw.red > private$.rggb.white.level[1]] <- private$.rggb.white.level[1]
       raw.green.r[raw.green.r > private$.rggb.white.level[2]] <- private$.rggb.white.level[2]
-      raw.green.b[raw.green.b > private$.rggb.white.level[2]] <- private$.rggb.white.level[2]
-      raw.blue[raw.blue > private$.rggb.white.level[3]] <- private$.rggb.white.level[3]
+      raw.green.b[raw.green.b > private$.rggb.white.level[2]] <- private$.rggb.white.level[3]
+      raw.blue[raw.blue > private$.rggb.white.level[3]] <- private$.rggb.white.level[4]
+
+      if (is.neutral) {
+        #--- Raw white balance
+        red.mean <- channelMean(raw.red)
+        green.mean <- (channelMean(raw.green.r) + channelMean(raw.green.b)) / 2
+        blue.mean <- channelMean(raw.blue)
+
+        neutral.raw <- c(red.mean, green.mean, blue.mean)
+        white.bal <- max(neutral.raw)/neutral.raw
+        if (!is.null(private$.AB.CC.inverse)) white.bal <- white.bal %*% private$.AB.CC.inverse
+        #---
+        raw.to.rgb <- private$.scaled.forward.mtx %*% neutral.wbal
+      } else {
+        raw.to.rgb <- private$.scaled.raw.to.rgb.mtx
+      }
 
       # Hold the green channels in an array
       raw.greens <- array(0, dim = c(dim(cfa[[1]]),2))
@@ -521,14 +549,13 @@ colmap <- R6::R6Class('colmap',
       green.indices <- sample(c(1L, 2L), 3L, replace=TRUE)
 
       #--- Space Conversion
-      raw.to.rgb <- private$.scaled.raw.to.rgb.mtx
       rgb.red   <- raw.red*raw.to.rgb[1,1] + raw.greens[,,green.indices[1]]*raw.to.rgb[1,2] + raw.blue*raw.to.rgb[1,3]
       rgb.green <- raw.red*raw.to.rgb[2,1] + raw.greens[,,green.indices[2]]*raw.to.rgb[2,2] + raw.blue*raw.to.rgb[2,3]
       rgb.blue  <- raw.red*raw.to.rgb[3,1] + raw.greens[,,green.indices[3]]*raw.to.rgb[3,2] + raw.blue*raw.to.rgb[3,3]
 
       #-- Apply tone curve
       # This is a "naive" tone curve application. i.e there is no hue chroma compensations,
-      # this means some color shifting will occurr.
+      # this means some color shifting may occurr.
       if (!is.null(private$.spline.tone.curve)) {
         sp <- private$.spline.tone.curve
         rgb.red   <- predict(sp, rgb.red)[['y']]
