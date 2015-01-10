@@ -180,9 +180,6 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
     }
 
     ,wide.var.df = function() {
-      if (is.null(private$.merged.var.cov.df))
-        message('This data is built by request and may take a few seconds, please be patient.')
-
       var.df <- private$.var.df
       melted.df <- reshape2::melt(var.df, id=c('pict', 'channel'))
       wide.df <- reshape2::dcast(melted.df, pict ~ channel + variable)
