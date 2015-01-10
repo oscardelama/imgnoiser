@@ -1,7 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
-*.RData
+/*.RData
 inst/doc/*.R
 inst/samples/*.fit
 inst/samples/*.csv

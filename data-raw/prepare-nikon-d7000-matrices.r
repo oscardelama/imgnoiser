@@ -2,7 +2,7 @@
 # Create Nikon D7000 DNG matrices
 #----------------------------
 
-create.nikon.d7000.metadata <- function() {
+create.nikon.d7000.ISO100.metadata <- function() {
 
   to.matrix <- function(x) {
     if (!is.matrix(x))
@@ -36,7 +36,7 @@ create.nikon.d7000.metadata <- function() {
   #print(getwd())
   tone.curve <- read.csv('./data-raw/dng-tone-conversion.csv')
 
-  nikon.d7000.metadata <- list(
+  nikon.d7000.ISO100.colmap <- list(
         'cam.matrices.1'   = nikon.d7000.cam.matrix.1
         ,'cam.matrices.2'  = nikon.d7000.cam.matrix.2
         ,'analog.balance'  = analog.balance
@@ -45,5 +45,5 @@ create.nikon.d7000.metadata <- function() {
         ,'tone.curve'      = tone.curve
     )
 
-  save(nikon.d7000.metadata, file = './data/nikon-d7000-metadata.rdata')
+  save(nikon.d7000.ISO100.colmap, file = './data/nikon-d7000-ISO100-colmap.rdata')
 }
