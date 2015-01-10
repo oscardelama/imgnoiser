@@ -54,6 +54,12 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       # Placeholders for the resulting data
       cov.df <- data.frame()
       var.df <- data.frame()
+      # Reset the variables depending on the result of this function
+      private$.merged.var.cov.df <- data.frame()
+      private$.var.df <- data.frame()
+      private$.cov.df <- data.frame()
+      private$.std.src.data <- list()
+      private$.model <- list()
 
       known.greens <- (!is.null(private$.green.channels) & length(private$.green.channels) == 2)
 
@@ -154,11 +160,12 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         message(paste(length(file.names), "image samples were successfully processed."))
     }
 
-    ,digest.rgb = function(
+    ,digest.to.rgb = function(
       img.file.name = stop("The 'img.file.name' argument is required")
       ,img.file.count = NULL
       ,file.path = './'
       ,img.file.name.ext = '.fit'
+      ,is.neutral = FALSE
       ,map.to.rgb = NULL
       ,rgb.scale = 255
       ,rgb.labels = imgnoiser.option('rgb.labels')
@@ -212,7 +219,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
         # browser()
         cfa <- split_channels(file.name, file.path)
-        rgb <- map.to.rgb$convert.to.rgb(cfa)
+        rgb <- map.to.rgb$convert.raw.to.rgb(cfa, is.neutral)
 
         mean.r <- channelMean(rgb$r)
         mean.g <- channelMean(rgb$g)
