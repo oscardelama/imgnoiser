@@ -184,7 +184,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
       var.df <- private$.var.df
       melted.df <- reshape2::melt(var.df, id=c('pict', 'channel'))
-      wide.df <- reshape2::dcast(m2, pict ~ channel + variable)
+      wide.df <- reshape2::dcast(melted.df, pict ~ channel + variable)
 
       wide.df.names <- tolower(names(wide.df))
       wide.df.names <- sub("_", ".", wide.df.names)
