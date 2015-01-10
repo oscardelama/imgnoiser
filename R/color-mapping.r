@@ -271,7 +271,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     initialize = function (camera.metadata) {
 
       # The illuminant 1 is the one with lower illuminant CCT
-      browser()
+      # browser()
       if (camera.metadata[['cam.matrices.1']][['illum.cct.k']] <
           camera.metadata[['cam.matrices.2']][['illum.cct.k']]) {
         cam.matrices.1 <- camera.metadata[['cam.matrices.1']]
@@ -317,7 +317,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         if (dim(tone.curve)[1] < 8)
           stop("The tone curve must have at least eight rows.")
 
-        if (!between(c(tc$x, tc$y), 0, 1))
+        if (!between(c(tone.curve[,1L], tone.curve[,2L]), 0, 1))
           stop("The tone curve range and domain must be in [0,1]")
 
         # The first point must be (0,0)
