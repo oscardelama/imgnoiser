@@ -135,8 +135,6 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
     }
 
     ,merged.var.cov.df = function() {
-      #if (!missing(value)) stop('Sorry, this is a read-only variable.')
-
       if (is.null(private$.merged.var.cov.df))
         message('This data is built at the first request and may take a few seconds, please be patient.')
       else
@@ -176,6 +174,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       private$.merged.var.cov.df <- cov.df
       var.df <- NULL
       cov.df <- NULL
+      # Result
+      private$.merged.var.cov.df;
     }
 
     ,wide.var.df = function() {
