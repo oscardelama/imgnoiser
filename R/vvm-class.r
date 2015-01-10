@@ -55,7 +55,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       cov.df <- data.frame()
       var.df <- data.frame()
       # Reset the variables depending on the result of this function
-      private$.merged.var.cov.df <- data.frame()
+      private$.merged.var.cov.df <- NULL
       private$.var.df <- data.frame()
       private$.cov.df <- data.frame()
       private$.std.src.data <- list()
@@ -199,6 +199,12 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       # Placeholders for the resulting data
       cov.df <- data.frame()
       var.df <- data.frame()
+      # Reset the variables depending on the result of this function
+      private$.merged.var.cov.df <- NULL
+      private$.var.df <- data.frame()
+      private$.cov.df <- data.frame()
+      private$.std.src.data <- list()
+      private$.model <- list()
 
       # Initialize the RGB conversion
       map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, tone.curve.id)

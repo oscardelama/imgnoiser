@@ -90,7 +90,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           meta.df <- photo.conds.file
       }
       # Reset the variables depending on the result of this function
-      private$.merged.var.cov.df <- data.frame()
+      private$.merged.var.cov.df <- NULL
       private$.var.df <- data.frame()
       private$.cov.df <- data.frame()
       private$.std.src.data <- list()

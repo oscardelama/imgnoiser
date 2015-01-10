@@ -135,6 +135,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
     }
 
     ,merged.var.cov.df = function() {
+
       if (is.null(private$.merged.var.cov.df))
         message('This data is built at the first request and may take a few seconds, please be patient.')
       else
