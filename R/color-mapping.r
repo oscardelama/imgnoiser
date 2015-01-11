@@ -518,7 +518,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     convert.raw.to.rgb = function(cfa, is.neutral=FALSE) {
 
       #-- Linearization and scaling
-      browser()
+      # browser()
       # Subtract black level
       raw.red  <- cfa[[private$.rggb.indices[1]]] - private$.rggb.black.level[1]
       raw.green.r <- cfa[[private$.rggb.indices[2]]] - private$.rggb.black.level[2]
@@ -544,7 +544,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         blue.mean <- channelMean(raw.blue)
 
         neutral.raw <- c(red.mean, green.mean, blue.mean)
-        raw.white.bal <- max(neutral.raw)/neutral.raw
+        raw.white.bal <- diag(max(neutral.raw)/neutral.raw)
         if (!is.null(private$.AB.CC.inverse)) raw.white.bal <- raw.white.bal %*% private$.AB.CC.inverse
         #---
         raw.to.rgb <- private$.scaled.forward.mtx %*% raw.white.bal
