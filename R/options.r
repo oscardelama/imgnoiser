@@ -448,7 +448,7 @@ get.imgnoiser.default.options <- function() {
     ,'obj.save.options'     = TRUE
     ,'obj.load.options'     = TRUE
     ,'stop.save.overwrite'  = TRUE
-    ,'rgb.labels'           = c('Red', 'Green', 'Blue')
+    ,'rgb.labels'           = c('red', 'green', 'blue')
     ,'tone.curve.id'        = "camera.metadata"
   )
 }

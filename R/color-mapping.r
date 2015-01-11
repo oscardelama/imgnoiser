@@ -218,13 +218,12 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       if (any(white.raw.level - black.raw.level < 2048))
         stop('The white level is expected to be greater than the black one at least by 2^11.')
 
-      force.to.four.values <- function(x)
+      force.to.three.values <- function(x)
         if (length(x) == 1L) rep(x, 3L)
-        else if (length(x) == 3L) c(x[1], x[2], x[2], x[3])
         else x
 
-      private$.black.raw.level = force.to.four.values(black.raw.level)
-      private$.white.raw.level = force.to.four.values(white.raw.level)
+      private$.black.raw.level = force.to.three.values(black.raw.level)
+      private$.white.raw.level = force.to.three.values(white.raw.level)
     },
 
     .set.analog.balance = function(analog.balance) {
@@ -468,20 +467,29 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       private$.AB.CC.inverse <- if (any(AB.CC.inverse != diag(1,3,3))) AB.CC.inverse else NULL
       private$.forward.mtx <- forward.mtx
       private$.raw.to.rgb.mtx <- space.convert.mtx %*% XYZ.D50.from.raw
-      space.convert.mtx %*% XYZ.D50.from.raw;
+      invisible(private$.raw.to.rgb.mtx);
     },
 
     prepare.to.rgb.conversions = function(rgb.scale, RGGB.indices, tone.curve.id) {
+      # browser()
+      # Validate the matrices are ready
+      if (is.null(private$.forward.mtx) | is.null(private$.raw.to.rgb.mtx))
+        stop("The color conversion matrix is NULL.")
+
       # compute the scale
       scale <- rgb.scale / (private$.white.raw.level - private$.black.raw.level)
       # Apply the scale to the conversion matrix (for performance reasons)
+
       private$.scaled.forward.mtx <- t(apply(private$.forward.mtx, 1, function(x) x*scale ))
       private$.scaled.raw.to.rgb.mtx <- t(apply(private$.raw.to.rgb.mtx, 1, function(x) x*scale ))
 
       # Black & white level according to RGGB.indices
-      private$.rggb.black.level <- private$.black.raw.level[RGGB.indices]
+      private$.rggb.black.level <- private$.black.raw.level[c(1,2,2,3)]
+      private$.rggb.white.level <- private$.white.raw.level[c(1,2,2,3)]
+
+      private$.rggb.black.level <- private$.rggb.black.level[RGGB.indices]
       # White level "after black frame subtraction"
-      private$.rggb.white.level <- private$.white.raw.level[RGGB.indices] - private$.rggb.black.level
+      private$.rggb.white.level <- private$.rggb.white.level[RGGB.indices] - private$.rggb.black.level
       private$.rggb.indices <- RGGB.indices
 
       #-- Prepare a smooth spline through the scaled tone curve
@@ -510,7 +518,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     convert.raw.to.rgb = function(cfa, is.neutral=FALSE) {
 
       #-- Linearization and scaling
-      # browser()
+      browser()
       # Subtract black level
       raw.red  <- cfa[[private$.rggb.indices[1]]] - private$.rggb.black.level[1]
       raw.green.r <- cfa[[private$.rggb.indices[2]]] - private$.rggb.black.level[2]

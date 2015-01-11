@@ -182,11 +182,6 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       if (is.null(private$.green.channels) | length(private$.green.channels) != 2)
         stop("The green channels indices are not known, set the 'green.channels' argument at the object creation.")
 
-      # Get and validate the conversion matrix
-      linear.rgb.from.raw <- map.to.rgb$linear.rgb.from.raw
-      if (is.null(linear.rgb.from.raw))
-        stop("The conversion matrix in the 'map.to.rgb' object is null.")
-
       # Validate rgb.scale
       vector.alike(rgb.scale, 1L, type='n', valid.range=c(1, 2L^16L))
 
@@ -206,7 +201,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.std.src.data <- list()
       private$.model <- list()
 
-      # Initialize the RGB conversion
+      # Initialize the RGB conversion (there are some additional validations)
       map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, tone.curve.id)
 
       # Get show.progress option
