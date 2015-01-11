@@ -451,6 +451,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
       # Get the 'base' XYZ.to.raw matrix from which we can get other
       # color transformation matrices
+      # browser()
       XYZ.D50.from.raw <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
 
       space.convert.mtx <-
@@ -465,7 +466,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
       # Results
       private$.AB.CC.inverse <- if (any(AB.CC.inverse != diag(1,3,3))) AB.CC.inverse else NULL
-      private$.forward.mtx <- forward.mtx
+      private$.forward.mtx <- space.convert.mtx %*% forward.mtx
       private$.raw.to.rgb.mtx <- space.convert.mtx %*% XYZ.D50.from.raw
       invisible(private$.raw.to.rgb.mtx);
     },
@@ -534,13 +535,14 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       # clip the upper limit
       raw.red[raw.red > private$.rggb.white.level[1]] <- private$.rggb.white.level[1]
       raw.green.r[raw.green.r > private$.rggb.white.level[2]] <- private$.rggb.white.level[2]
-      raw.green.b[raw.green.b > private$.rggb.white.level[2]] <- private$.rggb.white.level[3]
-      raw.blue[raw.blue > private$.rggb.white.level[3]] <- private$.rggb.white.level[4]
+      raw.green.b[raw.green.b > private$.rggb.white.level[3]] <- private$.rggb.white.level[3]
+      raw.blue[raw.blue > private$.rggb.white.level[4]] <- private$.rggb.white.level[4]
 
       if (is.neutral) {
         #--- Raw white balance
         red.mean <- channelMean(raw.red)
         green.mean <- (channelMean(raw.green.r) + channelMean(raw.green.b)) / 2
+        # if (green.mean > 10000) browser()
         blue.mean <- channelMean(raw.blue)
 
         neutral.raw <- c(red.mean, green.mean, blue.mean)
