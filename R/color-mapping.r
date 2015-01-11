@@ -471,7 +471,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       invisible(private$.raw.to.rgb.mtx);
     },
 
-    prepare.to.rgb.conversions = function(rgb.scale, RGGB.indices, tone.curve.id) {
+    prepare.to.rgb.conversions = function(rgb.scale, RGGB.indices, tone.curve) {
       # browser()
       # Validate the matrices are ready
       if (is.null(private$.forward.mtx) | is.null(private$.raw.to.rgb.mtx))
@@ -500,17 +500,21 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         private$.spline.tone.curve <<- smooth.spline(x=tone.curve$x, y=tone.curve$y, df=nrow(tone.curve)-1)
       }
 
-      if (tone.curve.id == 'linear')
+      if (is.a.valid.tone.curve(tone.curve)) {
+        tc <- as.data.frame(tone.curve[,c(1:2)])
+        data.table::setnames(tc, c('x','y'))
+        prepare.tone.curve(tc)
+      } else if (tone.curve == 'linear')
         private$.spline.tone.curve <- NULL
-      else if (tone.curve.id == 'camera.metadata') {
+      else if (tone.curve == 'camera.metadata') {
         prepare.tone.curve(private$.tone.curve)
-      } else if (tone.curve.id == 'sRGB') {
+      } else if (tone.curve == 'sRGB') {
         prepare.tone.curve(prepare.sRGB.gamma.curve())
-      } else if (tone.curve.id == 'BT.709') {
+      } else if (tone.curve == 'BT.709') {
         prepare.tone.curve(prepare.BT.709.gamma.curve())
-      } else if (tone.curve.id == 'Std.2.2') {
+      } else if (tone.curve == 'Std.2.2') {
         prepare.tone.curve(prepare.std.2.2.gamma.curve())
-      } else if (tone.curve.id == 'Std.1.8') {
+      } else if (tone.curve == 'Std.1.8') {
         prepare.tone.curve(prepare.std.1.8.gamma.curve())
       } else
         stop("Unknown tone curve.")

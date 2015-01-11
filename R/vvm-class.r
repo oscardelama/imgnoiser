@@ -171,7 +171,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,rgb.labels = imgnoiser.option('rgb.labels')
       # This argument can be equal to 'linear' to avoid toning
       # otherwise will expect a tone curve in the camera metadata
-      ,tone.curve.id = imgnoiser.option('tone.curve.id')
+      ,tone.curve = imgnoiser.option('tone.curve.id')
     )
     {
       # Validate RGGB.indices
@@ -202,7 +202,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.model <- list()
 
       # Initialize the RGB conversion (there are some additional validations)
-      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, tone.curve.id)
+      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, tone.curve)
 
       # Get show.progress option
       show.progress <- package.option('show.progress')

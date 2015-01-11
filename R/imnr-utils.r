@@ -188,3 +188,16 @@ select.files <- function(from, to, extension, path) {
     files;
   }
 }
+
+is.a.valid.tone.curve <- function(tc) {
+  if (!is atomic(tc) & dim(tc)[2] == 2) {
+    if (is.numeric(tc[,1]) & is.numeric(tc[,2])) {
+      if (all(tc[,1] <= 1) & all(tc[,1] >= 0) & all(tc[,2] <= 1) & all(tc[,2] >= 0)) {
+        if (nrwo(tc) > 8) return (TRUE)
+      }
+    }
+    stop("Illegal tone curve.")
+  }
+  else
+    FALSE
+}
