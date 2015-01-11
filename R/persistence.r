@@ -100,7 +100,7 @@ imgnoiser.load <- function(
   obj$.unpack(bag)
   bag <- NULL
 
-  message('An instance of the ', dQuote(class.name[1]), ' class was successfully load from the ', dQuote(file.name), ' file.')
+  msg('An instance of the ', dQuote(class.name[1]), ' class was successfully load from the ', dQuote(file.name), ' file.')
 
   # Return the object
   invisible(obj);
@@ -195,7 +195,7 @@ imgnoiser.save <- function(
     bag[['imgnoiser.options']] <- options('imgnoiser')[[1L]]
 
   saveRDS(obj$.pack(bag), file.name)
-  message('The ', dQuote(obj.name), ' object was successully saved in the ', dQuote(file.name), ' file.')
+  msg('The ', dQuote(obj.name), ' object was successully saved in the ', dQuote(file.name), ' file.')
 }
 
 

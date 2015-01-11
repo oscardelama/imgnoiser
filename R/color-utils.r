@@ -186,7 +186,7 @@ planckian.temp.from.xy.1931 <- function(xy, verbosity=0) {
   dist.to.planck.locus <- function(inv.temp.k, xy0) {
     temp.k <- 1 / inv.temp.k
     if(temp.k < 1667 | temp.k > 15000) {
-      if (verbosity == 2L) message('Out of range')
+      if (verbosity == 2L) msg('Out of range')
       return(last.value*4)
     }
     #browser()
@@ -201,7 +201,7 @@ planckian.temp.from.xy.1931 <- function(xy, verbosity=0) {
   if (dist < 1e-04)
     return(temp.k)
   else {
-    if (verbosity > 0) message('Initial estimate:', temp.k)
+    if (verbosity > 0) msg('Initial estimate:', temp.k)
     # Find the closest point to the planckian locus
     min <- nlm(dist.to.planck.locus, p=c(1/temp.k), xy0=xy, fscale=1e-04, steptol=2e-4, print.level=verbosity)
     # Result

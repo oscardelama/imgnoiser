@@ -157,7 +157,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.std.src.data <- model.src.data
 
       if (!show.progress)
-        message(paste(length(file.names), "image samples were successfully processed."))
+        msg(paste(length(file.names), "image samples were successfully processed."))
     }
 
     ,digest.to.rgb = function(
@@ -267,7 +267,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.std.src.data <- model.src.data
 
       if (!show.progress)
-        message(paste(length(file.names), "image samples were successfully processed as RGBs."))
+        msg(paste(length(file.names), "image samples were successfully processed as RGBs."))
     }
 
     ##------------------------------

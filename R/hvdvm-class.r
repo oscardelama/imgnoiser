@@ -246,7 +246,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       private$.std.src.data <- model.src.data
 
       if (!show.progress)
-        message(paste(total.combin.count, "different sample combinations were successfully processed."))
+        msg(paste(total.combin.count, "different sample combinations were successfully processed."))
 
       invisible(self)
     }

@@ -54,6 +54,12 @@ object.summaries <- function(x) {
     }
   }, FUN.VALUE = character(1))
 
+  # Remove the print function from the list
+  # browser()
+  to.delete <- which(obj.kind == 'function' & obj.name == 'print')
+  obj.kind <- obj.kind[-to.delete]
+  obj.name <- obj.name[-to.delete]
+
   obj.name[obj.kind == 'function'] <- paste0(obj.name[obj.kind == 'function'], '()')
   order <- order(obj.kind, obj.name)
   obj.kind <- obj.kind[order]

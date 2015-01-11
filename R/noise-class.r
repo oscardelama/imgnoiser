@@ -137,7 +137,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
     ,merged.var.cov.df = function() {
 
       if (is.null(private$.merged.var.cov.df))
-        message('This data is built at the first request and may take a few seconds, please be patient.')
+        msg('This data is built at the first request and may take a few seconds, please be patient.')
       else
         return(private$.merged.var.cov.df)
 
@@ -354,8 +354,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
                     ,'call'         = model.call.txt
                 )
 
-      message('The model ', dQuote(model.name),' was successfully fitted using:')
-      message(model.call.txt)
+      msg('The model ', dQuote(model.name),' was successfully fitted using:')
+      msg(model.call.txt)
       invisible(self);
     }
 
@@ -534,7 +534,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       ) {
       private$check.model.name(model.name)
       private$.model[[model.name]] <- NULL
-      message('The model with name', dQuote(model.name),'has been removed.')
+      msg('The model with name', dQuote(model.name),'has been removed.')
     }
 
     ##------------------------------
@@ -568,7 +568,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         # Without a model this arguments are irrelevant, and ignored
         fit <- FALSE
         confid <- FALSE
-        if (obs != TRUE) message("Nothing to plot.")
+        if (obs != TRUE) warning("There is nothing selected, in the arguments, to be plot.")
       } else {
         # Validate the model name
         private$check.model.name(model.name)

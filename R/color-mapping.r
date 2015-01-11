@@ -437,8 +437,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       raw.wbal <- mtx.inverse(diag(ref.neutral, 3L, 3L))
 
       # Report some findings
-      message("White Balance CCT:", raw.white.info[['white.bal.cct']])
-      message("White Balance xy (1931):", raw.white.info[['white.bal.xy']])
+      msg("White Balance CCT:", raw.white.info[['white.bal.cct']])
+      msg("White Balance xy (1931):", raw.white.info[['white.bal.xy']])
 
       # Interpolate the forward matrices
       forward.mtx <- interp.matrix.by.inv.temp(

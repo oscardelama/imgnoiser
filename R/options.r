@@ -322,7 +322,7 @@ imgnoiser.options.save <- function(
 
   all.options <- base::options('imgnoiser')[[1L]]
   saveRDS(all.options, file.name)
-  message('The options were succesully saved in the ', dQuote(file.name), ' file.')
+  msg('The options were succesully saved in the ', dQuote(file.name), ' file.')
 }
 
 ##------------------------------
@@ -370,7 +370,7 @@ imgnoiser.options.load <- function(
 
   all.options <- readRDS(file.name)
   options('imgnoiser' =  all.options)
-  message('The options were succesully retrieved from the ', dQuote(file.name), ' file.')
+  msg('The options were succesully retrieved from the ', dQuote(file.name), ' file.')
 }
 
 imgnoiser.default.options <- list()
@@ -450,5 +450,6 @@ get.imgnoiser.default.options <- function() {
     ,'stop.save.overwrite'  = TRUE
     ,'rgb.labels'           = c('red', 'green', 'blue')
     ,'tone.curve.id'        = "camera.metadata"
+    ,'mute'                 = FALSE
   )
 }
