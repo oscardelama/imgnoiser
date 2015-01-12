@@ -181,6 +181,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
     }
 
     ,wide.var.df = function() {
+      browser()
       var.df <- private$.var.df
       melted.df <- reshape2::melt(var.df, id=c('pict', 'channel'))
       wide.df <- reshape2::dcast(melted.df, pict ~ channel + variable)

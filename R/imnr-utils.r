@@ -234,8 +234,6 @@ select.file.range <- function(
     files <- files[files >= file.name.from & files <= file.name.to]
     if (length(files) == 0)
       warning("There are files with the name extension ", sQuote(file.name.ext), " but none of them is in the given range.")
-    else
-      msg(paste0(length(files), " files were found."))
 
     files;
   }

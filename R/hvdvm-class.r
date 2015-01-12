@@ -41,6 +41,19 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       return(private$.photo.conds.df)
     }
 
+    ,wide.var.df = function() {
+      var.df <- private$.var.df
+      melted.df <- reshape2::melt(var.df, id=c('cond', 'pict1', 'pict2', 'channel'))
+      wide.df <- reshape2::dcast(melted.df, cond + pict1 + pict2 ~ channel + variable)
+      # Standardize the names
+      wide.df.names <- tolower(names(wide.df))
+      wide.df.names <- sub("_", ".", wide.df.names)
+      wide.df.names <- make.names(wide.df.names, unique=TRUE)
+      data.table::setnames(wide.df, wide.df.names)
+      # result
+      wide.df;
+    }
+
   ),
 
   public = list(
