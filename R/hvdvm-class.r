@@ -41,6 +41,53 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
       return(private$.photo.conds.df)
     }
 
+    ,merged.var.cov.df = function() {
+
+      if (is.null(private$.merged.var.cov.df))
+        msg('This data is built at the first request and may take a few seconds, please be patient.')
+      else
+        return(private$.merged.var.cov.df)
+
+      var.df <- as.data.frame(private$.var.df)
+      cov.df <- as.data.frame(private$.cov.df)
+      cov.df$mean.a <- 0
+      cov.df$mean.b <- 0
+      cov.df$var.a <- 0
+      cov.df$var.b <- 0
+
+      chan.comb <- dplyr::distinct(cov.df, chan.a, chan.b)[,c('chan.a', 'chan.b')]
+      chan.comb$level <- 1:nrow(chan.comb)
+      chan.comb$label <- paste0(chan.comb$chan.a, ", ", chan.comb$chan.b)
+      cov.df$channel.combo <- factor(1, levels=chan.comb$level, labels=chan.comb$label)
+
+      # Show progress bar
+      show.progress <- package.option('show.progress')
+      if (show.progress == TRUE) {
+        message(paste("Processing", nrow(cov.df), "rows:"))
+        prog.bar <- txtProgressBar(min = 1L, max = nrow(cov.df), style = 3L)
+      }
+
+      for (ix in 1:nrow(cov.df)) {
+        # Show progress bar
+        if (show.progress) setTxtProgressBar(prog.bar, ix)
+
+        pict.1 <- cov.df[ix, 'pict1']
+        pict.2 <- cov.df[ix, 'pict2']
+        cov.chan.a <- cov.df[ix, 'chan.a']
+        cov.chan.b <- cov.df[ix, 'chan.b']
+        cov.df[ix, 'mean.a'] <- subset(var.df, pict1 == pict.1 & pict2 == pict.2 & channel == cov.chan.a, mean)
+        cov.df[ix, 'mean.b'] <- subset(var.df, pict1 == pict.1 & pict2 == pict.2 & channel == cov.chan.b, mean)
+        cov.df[ix, 'var.a']  <- subset(var.df, pict1 == pict.1 & pict2 == pict.2 & channel == cov.chan.a, var)
+        cov.df[ix, 'var.b']  <- subset(var.df, pict1 == pict.1 & pict2 == pict.2 & channel == cov.chan.b, var)
+        cov.df[ix, 'channel.combo']  <- subset(chan.comb, chan.a == cov.chan.a & chan.b == cov.chan.b, label)
+      }
+      private$.merged.var.cov.df <- cov.df
+      var.df <- NULL
+      cov.df <- NULL
+      # Result
+      private$.merged.var.cov.df;
+    }
+
     ,wide.var.df = function() {
       var.df <- private$.var.df
       melted.df <- reshape2::melt(var.df, id=c('cond', 'pict1', 'pict2', 'channel'))
