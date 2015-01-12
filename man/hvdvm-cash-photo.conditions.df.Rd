@@ -12,7 +12,7 @@ A data.frame containing the following columns:
      \code{\link{hvdvm$cov.df}} variables.
 
     \item\code{lighting}
-    \item\code{ISO}
+    \item\code{iso}
     \item\code{shutter.speed}
     \item\code{aperture}
     \item\code{focal.length}

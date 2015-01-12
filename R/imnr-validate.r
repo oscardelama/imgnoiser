@@ -144,15 +144,15 @@ package.option <- function(name) {
 #-------------------------------------
 # get.img.file.names
 #-------------------------------------
-get.img.file.names <- function(img.file.name, img.file.count, img.file.name.ext, file.path) {
-
-  img.file.name <- vector.alike(img.file.name, 1L, Inf)
-
-  if (length(img.file.name) > 1L) {
-    img.file.name
-  } else
-    expand_img_file_names(img.file.name, img.file.count, img.file.name.ext, file.path)
-}
+# get.img.file.names <- function(img.file.name, img.file.count, img.file.name.ext, file.path) {
+#
+#   img.file.name <- vector.alike(img.file.name, 1L, Inf)
+#
+#   if (length(img.file.name) > 1L) {
+#     img.file.name
+#   } else
+#     file.name.seq(img.file.name, img.file.count, img.file.name.ext, file.path)
+# }
 
 #-------------------------------------
 # valid.file.path

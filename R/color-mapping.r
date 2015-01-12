@@ -229,6 +229,31 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     .set.analog.balance = function(analog.balance) {
       vector.alike(analog.balance, 3, type='n', all.unique=FALSE)
       private$.analog.bal.matx <- diag(analog.balance, 3L, 3L)
+    },
+
+    .interp.raw.from.XYZ = function(cct.k) {
+
+      CC <- interp.matrix.by.inv.temp(
+        cct.k,
+        private$.cam.calib.matx.1,
+        private$.illum.cct.k.1,
+        private$.cam.calib.matx.2,
+        private$.illum.cct.k.2
+      )
+
+      CM <- interp.matrix.by.inv.temp(
+        cct.k,
+        private$.color.matx.1,
+        private$.illum.cct.k.1,
+        private$.color.matx.2,
+        private$.illum.cct.k.2
+      )
+
+      # Result
+      list(
+        'raw.from.XYZ.mtx' = private$.analog.bal.matx %*% CC %*% CM,
+        'cam.calib.mtx'    = CC
+      );
     }
 
   ),
@@ -267,7 +292,9 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
   public = list(
 
-    initialize = function (camera.metadata) {
+    initialize = function (
+        camera.metadata = stop("The 'camera.metadata' argument is missing.")
+    ){
 
       # The illuminant 1 is the one with lower illuminant CCT
       # browser()
@@ -332,32 +359,10 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       }
     },
 
-    interp.raw.from.XYZ = function(cct.k) {
-
-      CC <- interp.matrix.by.inv.temp(
-                    cct.k,
-                    private$.cam.calib.matx.1,
-                    private$.illum.cct.k.1,
-                    private$.cam.calib.matx.2,
-                    private$.illum.cct.k.2
-                  )
-
-      CM <- interp.matrix.by.inv.temp(
-                    cct.k,
-                    private$.color.matx.1,
-                    private$.illum.cct.k.1,
-                    private$.color.matx.2,
-                    private$.illum.cct.k.2
-                  )
-
-      # Result
-      list(
-        'raw.from.XYZ.mtx' = private$.analog.bal.matx %*% CC %*% CM,
-        'cam.calib.mtx'    = CC
-        );
-    },
-
-    find.raw.white.cct = function(white.linear, verbosity=0) {
+    find.raw.white.cct = function(
+      white.linear = stop("The 'white.linear' argument is missing."),
+      verbosity = 0
+    ) {
 
       # Validate argument
       if (any(white.linear < 0 | white.linear > 1))
@@ -382,7 +387,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       for (n in 1L:5L) {
 
         # Interpolated matrix fro raw to XYZ
-        raw.from.XYZ <- self$interp.raw.from.XYZ(white.bal.cct)
+        raw.from.XYZ <- private$.interp.raw.from.XYZ(white.bal.cct)
         raw.from.XYZ.mtx <- raw.from.XYZ[['raw.from.XYZ.mtx']]
 
         # Get white in XYZ space
@@ -409,7 +414,10 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       )
     },
 
-    get.conv.matrix.from.raw = function(from.neutral.raw, to.space='sRGB') {
+    get.conv.matrix.from.raw = function(
+      from.neutral.raw = stop("The 'white.linear' argument is missing."),
+      to.space='sRGB'
+    ) {
       # browser()
       private$.linear.rgb.from.raw <- NULL
       # Computing white linear (in [0,1])
@@ -471,7 +479,11 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       invisible(private$.raw.to.rgb.mtx);
     },
 
-    prepare.to.rgb.conversions = function(rgb.scale, RGGB.indices, tone.curve) {
+    prepare.to.rgb.conversions = function(
+      rgb.scale = 255,
+      RGGB.indices = c(1,2,3,4),
+      tone.curve = 'linear'
+    ) {
       # browser()
       # Validate the matrices are ready
       if (is.null(private$.forward.mtx) | is.null(private$.raw.to.rgb.mtx))
@@ -512,15 +524,18 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         prepare.tone.curve(prepare.sRGB.gamma.curve())
       } else if (tone.curve == 'BT.709') {
         prepare.tone.curve(prepare.BT.709.gamma.curve())
-      } else if (tone.curve == 'Std.2.2') {
+      } else if (tone.curve == 'Gamma.2.2') {
         prepare.tone.curve(prepare.std.2.2.gamma.curve())
-      } else if (tone.curve == 'Std.1.8') {
+      } else if (tone.curve == 'Gamma.1.8') {
         prepare.tone.curve(prepare.std.1.8.gamma.curve())
       } else
         stop("Unknown tone curve.")
     },
 
-    convert.raw.to.rgb = function(cfa, is.neutral=FALSE) {
+    convert.raw.to.rgb = function(
+      cfa = stop("The 'white.linear' argument is missing."),
+      is.neutral = FALSE
+    ) {
 
       #-- Linearization and scaling
       # browser()

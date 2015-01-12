@@ -14,8 +14,9 @@ var.len.after.digest <- function(n, vvm.obj) {
 
   # process n samples
   suppressMessages(
-    vvm.obj$digest('crop_', n, test.data.folder)
+    vvm.obj$digest(file.name.seq('crop_', n, '.fit'), path.to.files=test.data.folder)
   )
+  # browser();
   nrow(vvm.obj$var.df)
 }
 #-------------
@@ -88,7 +89,7 @@ test_that("The vvm$digest function can receive as argument an explicit list of s
   # There must be 5 channel values per sample
   # including green average.
   suppressMessages(
-    vvm.obj$digest(sample.file.names, file.path = test.data.folder)
+    vvm.obj$digest(sample.file.names, path.to.files = test.data.folder)
   )
   # There must be 5 channel values per sample:
   # four channels plus green average.

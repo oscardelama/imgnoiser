@@ -15,7 +15,7 @@
   \itemize{
     \item\code{crop.file.name}
     \item\code{lighting}
-    \item\code{ISO}
+    \item\code{iso}
     \item\code{shutter.speed}
     \item\code{aperture}
     \item\code{focal.length}

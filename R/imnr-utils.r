@@ -50,28 +50,55 @@ print_model_summary <- function(model, model.name, channel.labels) {
 }
 
 #-----------------------------
-# @Pure functional
-# function expand.img.file.names(img.file.name, img.file.count)
+#' Prepare a sequence of file names
+#'
+#' Return a character vector with file names following a sequence pattern.
+#'
+#' This is a convenience function for the case when you want to prepare a
+#' vector of file names with the following pattern:
+#'
+#' <file.name.base><file.counter>.<file.name.ext>
+#'
+#' As in ('crop_1.fit', 'crop_2.fit', ... 'crop_75.fit')
+#'
+#' @param file.name.base The base file name, a constant prefix of the file
+#'   finames.
+#'
+#' @param file.count The number of files in the sequence. The returning list
+#'   will contain a file with file counter from 1 to up to this argument.
+#'
+#' @param file.name.ext The file name extension. A constant for all the file
+#'   names.
+#'
+#' @return A character vector with \code{img.file.count} elements, with the
+#'   pattern <file.name.base><file.counter>.<file.name.ext>. Where
+#'   <file.counter> will vary from 1 to \code{file.count}
+#'
+#' @export
 #-----------------------------
-expand_img_file_names <- function(img.file.name, img.file.count, img.file.name.ext, file.path) {
+file.name.seq <- function(
+  file.name.base,
+  file.count,
+  file.name.ext
+) {
 
-  img.file.name <- as.character(vector.alike(img.file.name, 1L, Inf))
-  img.file.count <- vector.alike(img.file.count, 1L, type='i')
-  img.file.name.ext <- vector.alike(img.file.name.ext, 1L)
+  file.name.base <- as.character(vector.alike(file.name.base, 1L, Inf))
+  file.count <- vector.alike(file.count, 1L, type='i')
+  file.name.ext <- vector.alike(file.name.ext, 1L)
 
-  if (!grepl('(\\.)?(fit|fits)$', img.file.name.ext, ignore.case=TRUE))
+  if (!grepl('(\\.)?(fit|fits)$', file.name.ext, ignore.case=TRUE))
     stop("Unsupported file name extension.")
 
-  if (!is.whole.number(img.file.count))
-    stop("The 'img.file.count' argument is not integer.")
+  if (!is.whole.number(file.count))
+    stop("The 'file.count' argument is not integer.")
 
   # The name extension begins with '.'
-  if (!grepl('^\\.', img.file.name.ext))
-    img.file.name.ext <- paste0('.', img.file.name.ext)
+  if (!grepl('^\\.', file.name.ext))
+    file.name.ext <- paste0('.', file.name.ext)
 
-  all.file.names <- rep("", times = img.file.count);
-  for (name.ix in 1L:img.file.count)
-    all.file.names[name.ix] <- paste0(img.file.name, name.ix, img.file.name.ext)
+  all.file.names <- rep("", times = file.count);
+  for (name.ix in 1L:file.count)
+    all.file.names[name.ix] <- paste0(file.name.base, name.ix, file.name.ext)
 
   all.file.names;
 
@@ -142,18 +169,24 @@ get.test.data.folder <- function() {
 }
 
 #-----------------------------
-#' Query the files in a given folder
+#' Query the files in a given folder within a given range.
 #'
-#' Return a vector with the names of the files in the folder \code{path}, whose
-#' names are alphabetically between \code{from} and \code{to} and have the name
-#' extension given in \code{extension}.
+#' Return a vector with the names of the files in the folder
+#' \code{path.to.files}, whose names are alphabetically between
+#' \code{file.name.from} and \code{file.name.to} and have the name extension
+#' given in \code{path.to.files}.
 #'
-#' @param from
-#' @param to The \code{from} and \code{to} are the alphabetical range of the
-#'   desired files in folder given in \code{path}. These names should not
-#'   include the name extension which is specified with \code{extension}.
+#' @param file.name.from
+#' @param file.name.to The \code{file.name.from} and \code{file.name.to} are the
+#'   alphabetical range of the desired files from the folder given in
+#'   \code{path.to.files}. These names should not include the file name
+#'   extension, which is specified with \code{file.name.ext}.
 #'
-#' @param extension The file name extension common to the desired files.
+#' @param file.name.ext The file name extension common to the desired files.
+#'
+#' @param path.to.files Folder or directory with files with the name extension
+#'   \code{file.name.ext} from which those with names between
+#'   \code{file.name.from} and \code{file.name.to} will be returned.
 #'
 #' @return A character vector with the file names satisfying the selection.
 #'
@@ -162,32 +195,45 @@ get.test.data.folder <- function() {
 #'
 #' # Select the file in the folder './samples' whose name is between
 #' # _DSC5695.NEF and _DSC5716.NEF
-#' files <- select.files('_DSC5695', '_DSC5716', '.NEF', './samples')
+#' files <- select.file.range('_DSC5695', '_DSC5716', '.NEF', './samples')
 #' }
 #'
 #' @export
-select.files <- function(from, to, extension, path) {
-  vector.alike(extension, 1)
+#'
+select.file.range <- function(
+  file.name.from,
+  file.name.to,
+  file.name.ext,
+  path.to.files
+) {
 
-  # Remove beginning period
-  if (grepl('^\\..*', extension)) {
-    if (nchar(extension) == 1)
-      stop("Invalid extension.")
-    else
-      extension <- substr(extension, 2, nchar(extension))
+  file.name.from <- vector.alike(file.name.from, 1L, Inf)
+
+  if (length(file.name.from) > 1L) {
+    return(file.name.from)
   }
 
-  regexp <- paste0('.*\\.', extension)
+  vector.alike(file.name.ext, 1)
+
+  # Remove possibly beginning period
+  if (grepl('^\\..*', file.name.ext)) {
+    if (nchar(file.name.ext) == 1)
+      stop("Invalid file.name.ext.")
+    else
+      file.name.ext <- substr(file.name.ext, 2, nchar(file.name.ext))
+  }
+
+  regexp <- paste0('.*\\.', file.name.ext)
   files <- list.files(path, pattern=regexp)
   if (length(files) == 0)
-    warning("The given folder does not contains any file with the given name extension ", sQuote(extension))
+    warning("The given folder does not contains any file with the given name extension ", sQuote(file.name.ext))
   else {
-    from <- paste0(from, '.', extension)
-    to <- paste0(to, '.', extension)
+    file.name.from <- paste0(file.name.from, '.', file.name.ext)
+    file.name.to <- paste0(file.name.to, '.', file.name.ext)
 
-    files <- files[files >= from & files <= to]
+    files <- files[files >= file.name.from & files <= file.name.to]
     if (length(files) == 0)
-      warning("There are files with the extension ", sQuote(extension), " but none of them is in the given range.")
+      warning("There are files with the name extension ", sQuote(file.name.ext), " but none of them is in the given range.")
     else
       msg(paste0(length(files), " files were found."))
 

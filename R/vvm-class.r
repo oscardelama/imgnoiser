@@ -42,14 +42,15 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     ## load
     ##------------------------------
     ,digest = function(
-         img.file.name = stop("The 'img.file.name' argument is required")
-        ,img.file.count = NULL
-        ,file.path = './'
-        ,img.file.name.ext = '.fit'
+        file.name.from  = stop("The 'file.name.from' argument is missing.")
+        ,file.name.to   = stop("The 'file.name.to' argument is missing.")
+        ,path.to.files  = './'
+        ,file.name.ext  = '.pgm'
     )
     {
       # browser();
-      file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext, file.path)
+      # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
+      file.names <- select.file.range(file.name.from, file.name.to, path.to.files, file.name.ext)
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -78,7 +79,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
 
-        cfa <- split_channels(file.name, file.path)
+        cfa <- split_channels(file.name, path.to.files)
 
         # Build a sythetic channel with the average of both green channels
         if (known.greens) {
@@ -161,10 +162,10 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     }
 
     ,digest.to.rgb = function(
-      img.file.name = stop("The 'img.file.name' argument is required")
-      ,img.file.count = NULL
-      ,file.path = './'
-      ,img.file.name.ext = '.fit'
+      file.name.from  = stop("The 'file.name.from' argument is missing.")
+      ,file.name.to   = stop("The 'file.name.to' argument is missing.")
+      ,path.to.files  = './'
+      ,file.name.ext  = '.pgm'
       ,is.neutral = FALSE
       ,map.to.rgb = NULL
       ,rgb.scale = 255
@@ -174,6 +175,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,tone.curve = imgnoiser.option('tone.curve.id')
     )
     {
+
       # Validate RGGB.indices
       if (is.null(self$RGGB.indices))
         stop("The channels color are not known, set the 'RGGB.indices' argument at the object creation.")
@@ -189,7 +191,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       vector.alike(rgb.labels, 3L)
 
       # Validate and get file names of samples
-      file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext, file.path)
+      file.names <- select.file.range(file.name.from, file.name.to, path.to.files, file.name.ext)
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -219,7 +221,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
         # browser()
-        cfa <- split_channels(file.name, file.path)
+        cfa <- split_channels(file.name, path.to.files)
         rgb <- map.to.rgb$convert.raw.to.rgb(cfa, is.neutral)
 
         mean.r <- channelMean(rgb$r)
@@ -295,61 +297,55 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 vvm.doc <- list()
 
 #----------------------------------------------
-#' Process the image samples.
+#' Process the raw image samples.
 #'
-#' Read image samples and compute variance and covariance statistics for
+#' Read raw image samples and compute variance and covariance statistics for
 #' each channnel.
 #'
 #' The calling arguments describe the list of raw image files that will be
 #' processed. The image samples file names are expected to have the following
 #' pattern:
 #'
-#' \emph{\code{<img.file.name>}<index>\code{<img.file.name.ext>}}
+#' \emph{\code{path.to.files}/\code{<img.file.base>}.\code{<file.name.ext>}}
 #'
-#' Where \code{<img.file.name>} and \code{<img.file.name.ext>} are arguments of
-#' this function. An example of file names with this pattern is ('crop_1.fit',
-#' 'crop_2.fit', ...), where 'crop_' is given in \code{<img.file.name>} and
-#' 'fit' is given in \code{<img.file.name.ext>}.
+#' Where \code{<img.file.base>} is alfabetically between the
+#' \code{file.name.from} and \code{file.name.to} arguments.
 #'
-#' The file path to the files is given in the \code{file.path} argument. i.e. it
-#' is must not be part of the \code{<img.file.name>} argument.
-#'
-#' The numbering iof the file names must start with 1 and end with
-#' \code{img.file.count} value without any gap in in the sequence.
+#' In other words, the folder given in \code{path.to.files} is scanned looking
+#' for files with base name between (and including) \code{file.name.from} and
+#' \code{file.name.to}, having all of them the extension \code{file.name.ext}.
 #'
 #' If your sample file names do not follow this pattern, you can specify them as
-#' a character vector used as argument for the \code{<img.file.name>} parameter.
+#' a character vector as argument for the \code{<file.name.from>} parameter.
+#'
+#' The \code{\link{select.file.range}} may help you to get a baseline selection with
+#' the files you want to get processed by this function.
 #'
 #' @section Usage:
 #'  \preformatted{
 #'   vvm$digest(
-#'      img.file.name = stop("The 'img.file.name' argument is required"),
-#'      img.file.count = NULL,
-#'      file.path = './',
-#'      img.file.name.ext = '.fit'
+#'      file.name.from = stop("The 'file.name.from' argument is missing."),
+#'      file.name.to   = stop("The 'file.name.to' argument is missing."),
+#'      path.to.files  = './',
+#'      file.name.ext  = '.pgm'
 #'      )
 #'  }
 #'
-#' @param img.file.name A single character value, with the prefix of the raw
-#'   image samples file names. It can also be a character vector with the whole
-#'   file name sequence of the image samples, but without the file path, which
-#'   should be given in the \code{file.path} argument.
+#' @param file.name.from
+#' @param file.name.to The \code{file.name.from} and \code{file.name.to} are the
+#'   alphabetical range of the desired files from the folder given in
+#'   \code{path.to.files}. These names should not include the file name
+#'   extension, which is specified with \code{file.name.ext}.
 #'
-#' @param img.file.count The number of image sample files. If the
-#'   \code{<img.file.name>} argument contains the whole file name sequence this
-#'   argument is irrelevant and consequently ignored.
+#' @param path.to.files The file path where the raw image file samples are located.
 #'
-#' @param file.path The file path where the raw image file samples are located.
-#'
-#' @param img.file.name.ext The file name extension of the raw image file
-#'   samples. It can be 'fit' or 'fits'. This file name extension may start with
-#'   a period as in '.fit' or not (e.g. 'fit'). When required, the function will add
-#'   the period '.' to build the sequence of file names.
+#' @param file.name.ext The file name extension of the raw image file samples.
+#'   It can be 'fit', 'fits' or 'pgm'. This file name extension may start or not
+#'   with a period as in '.fit' or fit'.
 #'
 #'   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
 #'   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
-#'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format. The letter
-#'   case is irrelevant for the file name extension.
+#'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.
 #'
 #' @return A \code{invisible} instance of the calling object.
 #'
@@ -363,18 +359,168 @@ vvm.doc <- list()
 #' # Create a new vvm instance
 #' my.vvm <- vvm$new(has.RGGB.pattern=TRUE)
 #'
-#' # Process 40 files names 'crop_1.fit', 'crop_2.fit'...
-#' # in the ./data-raw/ folder
-#' my.vvm$digest("crop_", 40, './data-raw/')
+#' img.path <- 'D:/Noise-Study/Nikon-D7000/ISO-100'
+#' my.vvm$digest('_ODL5695', '_ODL5767', '.pgm', img.path)
 #' }
 #'
 #' @name vvm$digest
 #----------------------------------------------
 vvm.doc$digest <- function(
-   img.file.name = stop("The 'img.file.name' argument is required")
-  ,img.file.count = NULL
-  ,file.path = './'
-  ,img.file.name.ext = '.fit'
+  file.name.from  = stop("The 'file.name.from' argument is missing.")
+  ,file.name.to   = stop("The 'file.name.to' argument is missing.")
+  ,path.to.files  = './'
+  ,file.name.ext  = '.pgm'
+)
+  NULL
+
+#----------------------------------------------
+#' Process the raw image samples after their conversion to RGB.
+#'
+#' Read raw image samples, convert them to a RGB color space and compute from
+#' them noise variance and covariance channel statistics.
+#'
+#' The calling arguments describe the list of raw image files that will be
+#' processed in the same way as in the \code{digest} function. The image samples
+#' file names are expected to have the following pattern:
+#'
+#' \emph{\code{path.to.files}/\code{<img.file.base>}.\code{<file.name.ext>}}
+#'
+#' Where \code{<img.file.base>} is alfabetically between the
+#' \code{file.name.from} and \code{file.name.to} arguments.
+#'
+#' In other words, the folder given in \code{path.to.files} is scanned looking
+#' for files with base name between (and including) \code{file.name.from} and
+#' \code{file.name.to}, having all of them the extension \code{file.name.ext}.
+#'
+#' If your sample file names do not follow this pattern, you can specify them as
+#' a character vector as argument for the \code{<file.name.from>} parameter.
+#'
+#' The \code{\link{select.file.range}} may help you to get a baseline selection with
+#' the files you want to get processed by this function.
+#'
+#' @section Usage:
+#'  \preformatted{
+#'   vvm$digest(
+#'      file.name.from = stop("The 'file.name.from' argument is missing."),
+#'      file.name.to   = stop("The 'file.name.to' argument is missing."),
+#'      path.to.files  = './',
+#'      file.name.ext  = '.pgm'
+#'      )
+#'  }
+#'
+#' @param file.name.from
+#' @param file.name.to The \code{file.name.from} and \code{file.name.to} are the
+#'   alphabetical range of the desired files from the folder given in
+#'   \code{path.to.files}. These names should not include the file name
+#'   extension, which is specified with \code{file.name.ext}.
+#'
+#' @param path.to.files The file path where the raw image file samples are located.
+#'
+#' @param file.name.ext The file name extension of the raw image file samples.
+#'   It can be 'fit', 'fits' or 'pgm'. This file name extension may start or not
+#'   with a period as in '.fit' or fit'.
+#'
+#'   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
+#'   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
+#'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.
+#'
+#' @param is.neutral A logical value indicating if the target of the samples is
+#'   a neutral surface. When that is the case additional raw white-balance is
+#'   done per in a per sample basis.
+#'
+#' @param map.to.rgb An object of the class \code{colmap} initialized with color
+#'   data of the camera sensor whose image samples will be processed. This
+#'   object must have selected a RGB color space target and white-balance
+#'   calibrated for the samples that are going to be processed through the use
+#'   of its function \code{colmap$get.conv.matrix.from.raw()}.
+#'
+#' @param rgb.scale The scale of the RGB pixel values after the transformation
+#'   from the camera raw space. The pixel values will be between 0 and the
+#'   \code{rgb.scale}.
+#'
+#'   In the conversion the RGB pixel values will be floating point numbers, not
+#'   integers.
+#'
+#' @param rgb.labels A character vector with the three labels for the RGB
+#'   colors. By default they are \code{c('red', 'green', 'blue')}.
+#'
+#' @param tone.curve A tone curve to be applied to the linear RGB colors after
+#'   the conversion from linear raw to linear RGB. Possible character values
+#'   are:
+#'
+#' \itemize{
+#'
+#'  \item \code{'camera.metadata'}: For the use of the tone curve in the data used
+#'  to initialize the colmap object given in the \code{map.to.rgb} argument.
+#'
+#'  \item \code{'linear'}: To keep convert the raw values to the target RGB
+#'  space but leaving the values in linear way.
+#'
+#'  \item \code{'sRGB'}: To use the tone curve prescribed by the sRGB color
+#'  space.
+#'
+#'  \item \code{'BT.709'}: To use the tone curve prescribed by that standard.
+#'
+#'  \item \code{'Gamma.2.2'}: To use a standard 2.2 gamma tone curve.
+#'
+#'  \item \code{'Gamma.1.8'}: To use a standard 1.8 gamma tone curve.
+#'
+#' }
+#'
+#'   This argument can also be a tone curve by itself. In such case, its first
+#'   two columns must numeric and it must have at least 8 rows, with values in
+#'   the [0,1]range. The first columns will represent the source color values
+#'   which will be mapped to the corresponding value in the second column.
+#'
+#'   During the tone curve application the missing values will be interpolated
+#'   using smooth splines, with the required degree to pass over each given
+#'   point.
+#'
+#' @return A \code{invisible} instance of the calling object.
+#'
+#' @seealso See the section \emph{"Input data for the *vvm* Procedure"} in the
+#'   \emph{"Introduction to the *vvm* technique"} vignette,
+#'   \code{\link{vvm}}.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # Create a colmap object
+#' cm.obj <- imgnoiser::colmap$new(imgnoiser::nikon.d7000.ISO100.colmap)
+#'
+#' # Set target space to 'sRGB' and white-balance for the raw images
+#' # neutral reference
+#' neutral.raw <- c(3696, 7539, 5588)
+#' cm.obj$get.conv.matrix.from.raw(neutral.raw, to.space = 'sRGB')
+#'
+#' # Create a new vvm instance
+#' rgb.vvm <- vvm$new(has.RGGB.pattern = TRUE)
+#' img.path <- 'H:/Noise-Study/Nikon-D700/ISO-100/'
+#'
+#' # Process the images
+#' rgb.vvm$digest.to.rgb( file.name.from = '_ODL5695',
+#'                        file.name.to   = '_ODL5767',
+#'                        file.name.ext  = '.pgm',
+#'                        path.to.files  = img.path,
+#'                        is.neutral = TRUE,
+#'                        map.to.rgb = cm.obj,
+#'                        rgb.scale = 255,
+#'                        tone.curve = 'camera.metadata')
+#' #> 70 image samples were successfully processed as RGBs.
+#' }
+#'
+#' @name vvm$digest.to.rgb
+#----------------------------------------------
+vvm.doc$digest.to.rgb <- function(
+  file.name.from  = stop("The 'file.name.from' argument is missing.")
+  ,file.name.to   = stop("The 'file.name.to' argument is missing.")
+  ,path.to.files  = './'
+  ,file.name.ext  = '.pgm'
+  ,is.neutral = FALSE
+  ,map.to.rgb = NULL
+  ,rgb.scale = 255
+  ,rgb.labels = imgnoiser.option('rgb.labels')
+  ,tone.curve = imgnoiser.option('tone.curve.id')
   )
   NULL
 
