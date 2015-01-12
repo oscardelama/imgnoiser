@@ -77,7 +77,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         ,crop.files.path = './'
       ) {
 
-      #browser()
+      # browser()
       # Check photo.conds.file is the name of an existing file
       if (is.atomic(photo.conds.file)) {
         photo.conds.file <- valid.metadata.fname(photo.conds.file)
@@ -121,8 +121,8 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
 
       # Find the pictures taken with the same conditions
       tbl <- dplyr::tbl_df(meta.df)
-      grb <- dplyr::group_by(tbl, lighting, ISO, shutter.speed, aperture, focal.length)
-      sel <- dplyr::select(grb, lighting, ISO, shutter.speed, aperture, focal.length)
+      grb <- dplyr::group_by(tbl, lighting, iso, shutter.speed, aperture, focal.length)
+      sel <- dplyr::select(grb, lighting, iso, shutter.speed, aperture, focal.length)
       sum <- dplyr::summarise(sel, count = n())
       photo.conds.df <- dplyr::filter(sum, count > 1L)
       photo.conds.df <- cbind(cond = 1L:nrow(photo.conds.df), photo.conds.df)
@@ -150,7 +150,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         # Find the pics taken with this condition
         picts <- subset(meta.df,
                         lighting == cond$lighting &
-                        ISO == cond$ISO &
+                        iso == cond$iso &
                         shutter.speed == cond$shutter.speed &
                         aperture == cond$aperture &
                         focal.length == cond$focal.length
@@ -302,7 +302,7 @@ hvdvm.doc <- list()
 #'   \itemize{
 #'     \item\code{crop.file.name}
 #'     \item\code{lighting}
-#'     \item\code{ISO}
+#'     \item\code{iso}
 #'     \item\code{shutter.speed}
 #'     \item\code{aperture}
 #'     \item\code{focal.length}
@@ -478,7 +478,7 @@ hvdvm.doc$cov.df <- function() NULL
 #'      \code{\link{hvdvm$cov.df}} variables.
 #'
 #'     \item\code{lighting}
-#'     \item\code{ISO}
+#'     \item\code{iso}
 #'     \item\code{shutter.speed}
 #'     \item\code{aperture}
 #'     \item\code{focal.length}

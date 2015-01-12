@@ -84,7 +84,7 @@ This command will extract *common* (`-common`) exif metadata from the Nikon '.ne
 
 ```{r, echo = FALSE, message = FALSE, results = "hide"}
 csv.df <- read.csv(paste0(test.data.folder,'iso100White.csv'))
-csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'ISO', 'shutter.speed', 'aperture', 'focal.length')]
+csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'iso', 'shutter.speed', 'aperture', 'focal.length')]
 ```
 
 ```{r, echo = FALSE, comment=" " } 
@@ -97,7 +97,7 @@ The `hvdvm` class expects the *photo conditions file* contains the following col
 
 * `crop.file.name`
 * `lighting`
-* `ISO`
+* `iso`
 * `shutter.speed` (exposition time)
 * `aperture`
 * `focal.length`
@@ -177,7 +177,7 @@ For this example, the file is named `iso100White.csv` and looks like this:
 
 ```{r, echo=FALSE, message=FALSE, results="hide"}
 csv.df <- read.csv(paste0(test.data.folder,'iso100White.csv'))
-csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'ISO', 'shutter.speed', 'aperture', 'focal.length')]
+csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'iso', 'shutter.speed', 'aperture', 'focal.length')]
 ```
 
 ```{r, echo=FALSE, comment=" " } 
@@ -190,7 +190,7 @@ The `.csv` file must include the following columns:
 
 * `crop.file.name`
 * `lighting`
-* `ISO`
+* `iso`
 * `shutter.speed`
 * `aperture`
 * `focal.length`

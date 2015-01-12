@@ -68,7 +68,7 @@
 #'  \itemize{
 #'     \item\code{crop.file.name}
 #'     \item\code{lighting}
-#'     \item\code{ISO}
+#'     \item\code{iso}
 #'     \item\code{shutter.speed}
 #'     \item\code{aperture}
 #'     \item\code{focal.length}
@@ -79,10 +79,11 @@
 #'  naming, you can use set this option value to map from your naming to the
 #'  expected one.
 #'
-#'  For example, if you have a column named \code{ShutterSpeed} which is not the
-#'  expected \code{shutter.speed} column name, this option must contain an entry
-#'  with \code{ShutterSpeed} as key and \code{shutter.speed} as value, as in
-#'  \code{list('ShutterSpeed' = 'shutter.speed')}.
+#'  For example, if you have a column named \code{ShutterSpeed} which is
+#'  similar, but not the expected \code{shutter.speed} column name, this option
+#'  must contain an entry with \code{ShutterSpeed} as key and
+#'  \code{shutter.speed} as value, as in \code{list('ShutterSpeed' =
+#'  'shutter.speed')}.
 #' }
 #'
 #' \subsection{conf.factor}{
@@ -417,9 +418,9 @@ imgnoiser.options.force.reset <- function() {
 get.imgnoiser.default.options <- function() {
 
   photo.conds.col.map <- list(
-    'crop.file.name'  = 'crop.file.name'
+    'crop.file.name'   = 'crop.file.name'
     ,'lighting'        = 'lighting'
-    ,'ISO'             = 'ISO'
+    ,'iso'             = 'iso'
     ,'shutter.speed'   = 'shutter.speed'
     ,'aperture'        = 'aperture'
     ,'focal.length'    = 'focal.length'

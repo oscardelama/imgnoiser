@@ -85,6 +85,10 @@ expand_img_file_names <- function(img.file.name, img.file.count, img.file.name.e
 #-----------------------------
 map.col.names <- function(df, col.map) {
 
+  df.names <- sub(' ', '.', tolower(names(df)))
+  data.table::setnames(df, df.names)
+  target.names <- unlist(col.map)
+
   # Keep only the entries where the key is different to the value
   col.map <- col.map[names(col.map) != unlist(col.map)]
 
@@ -102,6 +106,8 @@ map.col.names <- function(df, col.map) {
     data.table::setnames(df, df.name)
   }
 
+  # Keep only the interesting column names
+  df <- df[, which(names(df) %in% target.names)]
   return(df)
 }
 
