@@ -104,10 +104,10 @@ functions and variables through that particular object. For example:
 
 ```{r eval=FALSE}
 # Create an 'vvm' instance object and save it in the 'my.vvm.object' variable
-my.vvm.object <- vvm.new()
+my.vvm <- vvm.new()
 # Starting from here we can access to any class function and variable using the
 # instance object. for example:
-my.vvm.object$digest('crop_', 40)
+my.vvm$digest('crop_1', 'crop_240', './samples/', '.fit')
 ```
 
 Of course, we can create many instance objects, for the processing of the same
@@ -137,14 +137,14 @@ my.vvm
 Notice in the above list, there are some components listed as "variables", technically 
 they are "active bindings", but as they behave like variables we call them that way.
 
-For example, the `vvm` class includes the `var.df` variable containing a data frame with noise information. As usual, we can access to that component through the class object, `my.var` in our examples. As any R variable, we can 'read' the value in the object-variable to pass it to other functions, to other variable or in a expression:
+For example, the `vvm` class includes the `var.df` variable containing a data frame with noise information. As usual, we can access to that component through the instance object, `my.var` in our examples. As any R variable, we can 'read' the value in the object-variable to pass it to other functions, to other variable or in a expression:
 
 ```{r eval=FALSE}
 some_var <- my.vvm$var.df
 some_result <- some_function(..., my.vvm$var.df)
 ```
 
-In the `imgnoiser` package most of those variables are read-only. However, technically its is possible to write or set values on them:
+In the `imgnoiser` package most of those variables are read-only. However, technically its is possible to write or set values on them, eventually we might end up having some of them.
 
 ```{r eval=FALSE}
 my.vvm$some.variable <- some_value
@@ -152,30 +152,29 @@ my.vvm$some.variable <- some_value
 
 # Digesting the Image Samples {#digest}
 
-The function that reads and process the image samples in the `vvm` class is called `digest()`. We must feed that function with a sequence of image samples, prepared as described in the section [*"Input data for the *vvm* Procedure"*](#vvm-input).
+The function that reads and process the image samples in the `vvm` class is called `digest()`. We must feed that function with a set of image samples, prepared as described in the section [*"Input data for the *vvm* Procedure"*](#vvm-input).
 
-For this example, we have 240 image samples named {`crop_1.fit`, `crop_2.fit`, ... `crop_240.fit`} in a folder called 'samples'. The image file names have the following name pattern:
+For this example, we have image samples named {`crop_1.fit`, `crop_2.fit`, ... `crop_240.fit`} in a folder called 'samples'. 
 
-    <image file name prefix><image counter>.<file name extension>
-            crop_                 25       .       fit
+The `vvm$digest()` function will receive arguments specifying that set of samples. The `file.name.from` and `file.name.to` parameters are for the alphabetical range of the images file names in a given folder. In this example `crop_1` and `crop_240`, respectively. Notice these arguments are for the base names, i.e. excluding the path and the name extension, which are specified with the `path.to.files` and the `file.name.ext` parameters.
 
-The `vvm$digest()` function will receive those file name pattern components as call arguments. 
+The file sequence may contain gaps, and the letter case is relevant. All the files found in the given folder within the given range will be processed by the `digest()` function. 
 
-The file name sequence must not contain gaps, there must not be a missing file in the sequence. If you have a sequence of file names with gaps or just with names not following at all this pattern, you can call `vvm$digest()` function using as argument a vector containing those file names.
+If you have a set of sample file names not meeting this conditions, you can call the `vvm$digest()` function using as argument for the `file.name.from` parameter a vector containing explicitly the sample file names. The package functions `select.file.range` and `file.name.seq` can help you to build that vector.
 
 When the `show.progress` option is `TRUE` --as it is by default-- a progress bar will appear showing you how much of the process was already done. If that option is `FALSE`, as we will use for this example, at the end of the processing, the function will print a message about how many image samples were processed.
 
 ```{r echo=FALSE, message=FALSE, results="hide"}
 imgnoiser.option('show.progress', FALSE)
-my.vvm$digest('crop_', 84, test.data.folder)
+my.vvm$digest('crop_1', 'crop_240', test.data.folder, '.fit')
 ```
 
 ```{r eval=FALSE}
 # Turn off the progress bar
 imgnoiser.option('show.progress', FALSE)
 # The image files are in the './samples/' folder
-my.vvm$digest('crop_', samples.count, './samples/')
-#> 84 image samples were successfully processed.
+my.vvm$digest('crop_1', 'crop_240', './samples/', '.fit')
+#> 240 image samples were successfully processed.
 ```
 
 # Getting the Computed Values {#result}
@@ -253,10 +252,28 @@ Compute and collect statistics from the raw images files.
 
 ```R
 digest(
-  img.file.name = stop("The 'img.file.name' argument is required"),
-  img.file.count = NULL,
-  file.path = "./",
-  img.file.name.ext = ".fit"
+  file.name.from = stop("The 'file.name.from' argument is missing."),
+  file.name.to   = stop("The 'file.name.to' argument is missing."),
+  path.to.files  = './',
+  file.name.ext  = '.pgm'
+)
+```
+
+## digest.to.rgb() ##
+
+Compute and collect statistics from RGB images obtained converting the raw image samples.
+
+```R
+digest.to.rgb(
+  file.name.from = stop("The 'file.name.from' argument is missing."),
+  file.name.to   = stop("The 'file.name.to' argument is missing."),
+  path.to.files  = './',
+  file.name.ext  = '.pgm',
+  is.neutral = FALSE,
+  map.to.rgb = NULL,
+  rgb.scale = 255,
+  rgb.labels = imgnoiser.option('rgb.labels'),
+  tone.curve = imgnoiser.option('tone.curve.id'),
 )
 ```
 
@@ -274,6 +291,21 @@ Get the resulting noise covariance data.
 
 ```R
 cov.df
+```
+
+## merged.var.cov.df ##
+
+Get the resulting noise variance and covariance merged data.
+
+```R
+merged.var.cov.df
+```
+##  wide.var.df ## 
+
+Get the resulting noise variance data in a wide format.
+
+```R
+wide.var.df
 ```
 
 ## channel.labels ##
