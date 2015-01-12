@@ -50,7 +50,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     {
       # browser();
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
-      file.names <- select.file.range(file.name.from, file.name.to, path.to.files, file.name.ext)
+      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
 
       # Placeholders for the resulting data
       cov.df <- data.frame()

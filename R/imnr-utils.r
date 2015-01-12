@@ -224,7 +224,7 @@ select.file.range <- function(
   }
 
   regexp <- paste0('.*\\.', file.name.ext)
-  files <- list.files(path, pattern=regexp)
+  files <- list.files(path.to.files, pattern=regexp)
   if (length(files) == 0)
     warning("The given folder does not contains any file with the given name extension ", sQuote(file.name.ext))
   else {
