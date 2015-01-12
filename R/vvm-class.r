@@ -191,7 +191,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       vector.alike(rgb.labels, 3L)
 
       # Validate and get file names of samples
-      file.names <- select.file.range(file.name.from, file.name.to, path.to.files, file.name.ext)
+      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
