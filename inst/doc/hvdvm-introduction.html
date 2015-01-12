@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-01-08" />
+<meta name="date" content="2015-01-12" />
 
 <title>hvdvm Class Introduction</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <div id="header">
 <h1 class="title"><em>hvdvm</em> Class Introduction</h1>
-<h4 class="date"><em>2015-01-08</em></h4>
+<h4 class="date"><em>2015-01-12</em></h4>
 </div>
 
 
@@ -107,7 +107,7 @@ Table of Contents
 <th align="center">crop.file.name</th>
 <th align="center">photo.file.name</th>
 <th align="center">lighting</th>
-<th align="center">ISO</th>
+<th align="center">iso</th>
 <th align="right">shutter.speed</th>
 <th align="center">aperture</th>
 <th align="right">focal.length</th>
@@ -175,7 +175,7 @@ Table of Contents
 <ul>
 <li><code>crop.file.name</code></li>
 <li><code>lighting</code></li>
-<li><code>ISO</code></li>
+<li><code>iso</code></li>
 <li><code>shutter.speed</code> (exposition time)</li>
 <li><code>aperture</code></li>
 <li><code>focal.length</code></li>
@@ -203,29 +203,35 @@ my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">help</span>(<span class="st">'hvdvm$new'</span>)</code></pre>
 <p>We will save our instance object in the <code>my.hvdvm</code> variable.</p>
 <pre class="sourceCode r"><code class="sourceCode r">my.hvdvm &lt;-<span class="st"> </span>hvdvm$<span class="kw">new</span>(<span class="dt">has.RGGB.pattern =</span> <span class="ot">TRUE</span>)</code></pre>
-<p>If we print this variable, we will get –in a nice style– a list of its members. Those are the class members you can use, with exception to those whose name start with a period <code>.</code> which are meant for internal use only.</p>
+<p>If we <em>print</em> this variable, we will get a list of its components, helping us to remember what we can do with the object.</p>
 <pre class="sourceCode r"><code class="sourceCode r">my.hvdvm
 <span class="co">#&gt; &lt;hvdvm&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     .pack: function</span>
-<span class="co">#&gt;     .unpack: function</span>
-<span class="co">#&gt;     channel.labels: active binding</span>
-<span class="co">#&gt;     cov.df: active binding</span>
-<span class="co">#&gt;     digest: function</span>
-<span class="co">#&gt;     exists.model: function</span>
-<span class="co">#&gt;     fit.model: function</span>
-<span class="co">#&gt;     get.model: function</span>
-<span class="co">#&gt;     get.model.predictions: function</span>
-<span class="co">#&gt;     green.channels: active binding</span>
-<span class="co">#&gt;     initialize: function</span>
-<span class="co">#&gt;     model.list: active binding</span>
-<span class="co">#&gt;     photo.conditions.df: active binding</span>
-<span class="co">#&gt;     plot: function</span>
-<span class="co">#&gt;     print.model.summary: function</span>
-<span class="co">#&gt;     remove.model: function</span>
-<span class="co">#&gt;     RGGB.indices: active binding</span>
-<span class="co">#&gt;     var.df: active binding</span></code></pre>
-<p>Notice in the above list, there are some elements with the “active binding” tag. We will call them object variables or just variables. We will explain their use along this document.</p>
+<span class="co">#&gt;   function:</span>
+<span class="co">#&gt;     digest()</span>
+<span class="co">#&gt;     exists.model()</span>
+<span class="co">#&gt;     fit.model()</span>
+<span class="co">#&gt;     get.model()</span>
+<span class="co">#&gt;     get.model.predictions()</span>
+<span class="co">#&gt;     initialize()</span>
+<span class="co">#&gt;     plot()</span>
+<span class="co">#&gt;     print.model.summary()</span>
+<span class="co">#&gt;     remove.model()</span>
+<span class="co">#&gt;   variable:</span>
+<span class="co">#&gt;     channel.labels</span>
+<span class="co">#&gt;     cov.df</span>
+<span class="co">#&gt;     green.channels</span>
+<span class="co">#&gt;     merged.var.cov.df</span>
+<span class="co">#&gt;     model.list</span>
+<span class="co">#&gt;     photo.conditions.df</span>
+<span class="co">#&gt;     RGGB.indices</span>
+<span class="co">#&gt;     var.df</span>
+<span class="co">#&gt;     wide.var.df</span></code></pre>
+<p>Notice in the above list, there are some components listed as “variables”, technically they are “active bindings”, but as they behave like variables we call them that way.</p>
+<p>For example, the <code>vvm</code> class includes the <code>var.df</code> variable containing a data frame with noise information. As usual, we can access to that component through the class object, <code>my.var</code> in our examples. As any R variable, we can ‘read’ the value in the object-variable to pass it to other functions, to other variable or in a expression:</p>
+<pre class="sourceCode r"><code class="sourceCode r">some_var &lt;-<span class="st"> </span>my.hvdvm$var.df
+some_result &lt;-<span class="st"> </span><span class="kw">some_function</span>(..., my.hvdvm$var.df)</code></pre>
+<p>In the <code>imgnoiser</code> package most of those variables are read-only. However, technically its is possible to write or set values on them, eventually we might end up having some of them.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.hvdvm$some.variable &lt;-<span class="st"> </span>some_value</code></pre>
 </div>
 <div id="digest" class="section level1">
 <h1><span class="header-section-number">4</span> Digesting the Image Samples</h1>
@@ -238,7 +244,7 @@ my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv
 <th align="center">crop.file.name</th>
 <th align="center">photo.file.name</th>
 <th align="center">lighting</th>
-<th align="center">ISO</th>
+<th align="center">iso</th>
 <th align="right">shutter.speed</th>
 <th align="center">aperture</th>
 <th align="right">focal.length</th>
@@ -306,7 +312,7 @@ my.hvdvm.object$<span class="kw">digest</span>(<span class="st">'iso100White.csv
 <ul>
 <li><code>crop.file.name</code></li>
 <li><code>lighting</code></li>
-<li><code>ISO</code></li>
+<li><code>iso</code></li>
 <li><code>shutter.speed</code></li>
 <li><code>aperture</code></li>
 <li><code>focal.length</code></li>
@@ -400,7 +406,7 @@ my.hvdvm$<span class="kw">digest</span>(<span class="st">'iso100White.csv'</span
 <tr class="header">
 <th align="center">cond</th>
 <th align="center">lighting</th>
-<th align="center">ISO</th>
+<th align="center">iso</th>
 <th align="right">shutter.speed</th>
 <th align="center">aperture</th>
 <th align="right">focal.length</th>
@@ -489,7 +495,7 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 <th align="right">pict2</th>
 <th align="right">chan.a</th>
 <th align="right">chan.b</th>
-<th align="right">cov</th>
+<th align="right">cov.a.b</th>
 </tr>
 </thead>
 <tbody>

@@ -96,7 +96,7 @@ my.hvdvm <- hvdvm$new(has.RGGB.pattern = TRUE)
 my.vvm <- vvm$new(has.RGGB.pattern = TRUE)
 # test.data.folder <- '../data-raw/'
 my.hvdvm$digest(paste0(test.data.folder,'iso100White.csv'), test.data.folder)
-my.vvm$digest('crop_', samples.count, test.data.folder)
+my.vvm$digest('crop_1', 'crop_240', test.data.folder, '.fit')
 ```
 
 # Introduction to Model Fitting # {#intro-fit}

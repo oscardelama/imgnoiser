@@ -84,7 +84,7 @@ This command will extract *common* (`-common`) exif metadata from the Nikon '.ne
 
 ```{r, echo = FALSE, message = FALSE, results = "hide"}
 csv.df <- read.csv(paste0(test.data.folder,'iso100White.csv'))
-csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'ISO', 'shutter.speed', 'aperture', 'focal.length')]
+csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'iso', 'shutter.speed', 'aperture', 'focal.length')]
 ```
 
 ```{r, echo = FALSE, comment=" " } 
@@ -97,7 +97,7 @@ The `hvdvm` class expects the *photo conditions file* contains the following col
 
 * `crop.file.name`
 * `lighting`
-* `ISO`
+* `iso`
 * `shutter.speed` (exposition time)
 * `aperture`
 * `focal.length`
@@ -146,13 +146,28 @@ We will save our instance object in the `my.hvdvm` variable.
 my.hvdvm <- hvdvm$new(has.RGGB.pattern = TRUE)
 ```
 
-If we print this variable, we will get --in a nice style-- a list of its members. Those are the class members you can use, with exception to those whose name start with a period `.` which are meant for internal use only.
+If we *print* this variable, we will get a list of its components, helping us 
+to remember what we can do with the object. 
 
 ```{r}
 my.hvdvm
 ```
 
-Notice in the above list, there are some elements with the "active binding" tag. We will call them object variables or just variables. We will explain their use along this document.
+Notice in the above list, there are some components listed as "variables", technically 
+they are "active bindings", but as they behave like variables we call them that way.
+
+For example, the `vvm` class includes the `var.df` variable containing a data frame with noise information. As usual, we can access to that component through the class object, `my.var` in our examples. As any R variable, we can 'read' the value in the object-variable to pass it to other functions, to other variable or in a expression:
+
+```{r eval=FALSE}
+some_var <- my.hvdvm$var.df
+some_result <- some_function(..., my.hvdvm$var.df)
+```
+
+In the `imgnoiser` package most of those variables are read-only. However, technically its is possible to write or set values on them, eventually we might end up having some of them.
+
+```{r eval=FALSE}
+my.hvdvm$some.variable <- some_value
+```
 
 # Digesting the Image Samples {#digest}
 
@@ -162,7 +177,7 @@ For this example, the file is named `iso100White.csv` and looks like this:
 
 ```{r, echo=FALSE, message=FALSE, results="hide"}
 csv.df <- read.csv(paste0(test.data.folder,'iso100White.csv'))
-csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'ISO', 'shutter.speed', 'aperture', 'focal.length')]
+csv.df <- csv.df[1:6,c('crop.file.name', 'photo.file.name', 'lighting', 'iso', 'shutter.speed', 'aperture', 'focal.length')]
 ```
 
 ```{r, echo=FALSE, comment=" " } 
@@ -175,7 +190,7 @@ The `.csv` file must include the following columns:
 
 * `crop.file.name`
 * `lighting`
-* `ISO`
+* `iso`
 * `shutter.speed`
 * `aperture`
 * `focal.length`

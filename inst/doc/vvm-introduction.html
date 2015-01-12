@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-01-08" />
+<meta name="date" content="2015-01-12" />
 
 <title>vvm Class Introduction</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <div id="header">
 <h1 class="title"><em>vvm</em> Class Introduction</h1>
-<h4 class="date"><em>2015-01-08</em></h4>
+<h4 class="date"><em>2015-01-12</em></h4>
 </div>
 
 
@@ -80,7 +80,7 @@ Table of Contents
 <div id="vvm-proc" class="section level1">
 <h1><span class="header-section-number">1</span> The <em>vvm</em> Technique</h1>
 <p>The <em>variance</em> and the <em>mean</em> of the pixel values from raw image samples, coming from photographs of a uniformly lit plain surface, have a quadratic relationship when the <em>Variance</em> is expressed as a function of the <em>Mean</em>.</p>
-<p>In this relationship, the quadratic term is caused by the PRNU (pixel response non uniformity). The PRNU term means that every sensor photosite, even when exposed to exactly the same ligh intensity, does not response exactly in the same way, producing different pixel values causing image noise.</p>
+<p>In this relationship, the quadratic term is caused by the PRNU (pixel response non uniformity). The PRNU term means that every sensor photosite, even when exposed to exactly the same light intensity, does not have exactly the same response, producing different pixel values causing image noise.</p>
 <p>The linear term in the <em>Variance Versus Mean</em> (<code>vvm</code>) relationship is mainly caused by the <em>Photon Shot Noise</em>, and the intercept or constant term is caused by the <em>Read Noise</em>.</p>
 <p>Knowing this <em>Variance Versus Mean</em> relationship, we can build a regression between them to have a profile of the camera noise, and compute some features that characterize the noise performance of a camera sensor.</p>
 <p>Without the proper tools, the application of this technique is labor intensive, slow and error prone. The <code>vvm</code> class contains well suited functions to automatize the process and make it easy to apply over a large set of samples.</p>
@@ -93,15 +93,15 @@ Table of Contents
 </div>
 <div id="create" class="section level1">
 <h1><span class="header-section-number">3</span> Creating a <em>vvm</em> Instance</h1>
-<p>To use of the <code>vvm</code> class, and in general any other classes in the package. We need first to create an instance of the class, which is done calling the <code>vvm$new()</code> function. This function name –for instance creation– is standardized; so, every class contains this function. For example, there are the <code>vvm$new()</code> and <code>hvdvvm$new()</code> functions.</p>
-<p>The return value of this <code>new()</code> function is what is called a class instance object. This way the output of the <code>vvm$new()</code> function is a <code>vvm</code> instance object.</p>
+<p>To use of the <code>vvm</code> class, and in general any other class in the package, we need first to create an instance of the class, which is done calling the <code>vvm$new()</code> function. This function name –for instance creation– is standardized; by default, every class contains this function. For example, there are the <code>vvm$new()</code> and <code>hvdvvm$new()</code> functions.</p>
+<p>The return value of this <code>new()</code> function is what is called a class instance object. This way the output of the <code>vvm$new()</code> function is a <code>vvm</code> instance object or just an <em>object</em> for short.</p>
 <p>Once we have an object of the class, we can access to the class functions and variables through that particular object. For example:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Create an 'vvm' instance object and save it in the 'my.vvm.object' variable</span>
-my.vvm.object &lt;-<span class="st"> </span><span class="kw">vvm.new</span>()
+my.vvm &lt;-<span class="st"> </span><span class="kw">vvm.new</span>()
 <span class="co"># Starting from here we can access to any class function and variable using the</span>
 <span class="co"># instance object. for example:</span>
-my.vvm.object$<span class="kw">digest</span>(<span class="st">'crop_'</span>, <span class="dv">40</span>)</code></pre>
-<p>Of course, we can create many instances, for the processing of the same or different image samples.</p>
+my.vvm$<span class="kw">digest</span>(<span class="st">'crop_1'</span>, <span class="st">'crop_240'</span>, <span class="st">'./samples/'</span>, <span class="st">'.fit'</span>)</code></pre>
+<p>Of course, we can create many instance objects, for the processing of the same or different image samples.</p>
 <p>We will create and save an instance of the <code>vvm</code> class assuming our image samples have the RGGB pattern for the layout of the photosites color filters. You can get detailed information about the <code>vvm$new()</code> function parameters with the command:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">help</span>(<span class="st">'vvm$new'</span>)</code></pre>
 <p>We will save our instance object in the <code>my.vvm</code> variable.</p>
@@ -109,41 +109,46 @@ my.vvm.object$<span class="kw">digest</span>(<span class="st">'crop_'</span>, <s
 <p>If we <em>print</em> this variable, we will get –in a nice style– a list of its members. Those are the class members you can use, with exception of those whose name start with a period <code>.</code> which are meant for internal use only.</p>
 <pre class="sourceCode r"><code class="sourceCode r">my.vvm
 <span class="co">#&gt; &lt;vvm&gt;</span>
-<span class="co">#&gt;   Public:</span>
-<span class="co">#&gt;     .pack: function</span>
-<span class="co">#&gt;     .unpack: function</span>
-<span class="co">#&gt;     channel.labels: active binding</span>
-<span class="co">#&gt;     cov.df: active binding</span>
-<span class="co">#&gt;     digest: function</span>
-<span class="co">#&gt;     digest.rgb: function</span>
-<span class="co">#&gt;     exists.model: function</span>
-<span class="co">#&gt;     fit.model: function</span>
-<span class="co">#&gt;     get.model: function</span>
-<span class="co">#&gt;     get.model.predictions: function</span>
-<span class="co">#&gt;     green.channels: active binding</span>
-<span class="co">#&gt;     initialize: function</span>
-<span class="co">#&gt;     model.list: active binding</span>
-<span class="co">#&gt;     plot: function</span>
-<span class="co">#&gt;     print.model.summary: function</span>
-<span class="co">#&gt;     remove.model: function</span>
-<span class="co">#&gt;     RGGB.indices: active binding</span>
-<span class="co">#&gt;     var.df: active binding</span></code></pre>
-<p>Notice in the above list, there are some elements with the “active binding” tag. We will call them object variables or just variables. We will explain their use along this document.</p>
+<span class="co">#&gt;   function:</span>
+<span class="co">#&gt;     digest()</span>
+<span class="co">#&gt;     digest.to.rgb()</span>
+<span class="co">#&gt;     exists.model()</span>
+<span class="co">#&gt;     fit.model()</span>
+<span class="co">#&gt;     get.model()</span>
+<span class="co">#&gt;     get.model.predictions()</span>
+<span class="co">#&gt;     initialize()</span>
+<span class="co">#&gt;     plot()</span>
+<span class="co">#&gt;     print.model.summary()</span>
+<span class="co">#&gt;     remove.model()</span>
+<span class="co">#&gt;   variable:</span>
+<span class="co">#&gt;     channel.labels</span>
+<span class="co">#&gt;     cov.df</span>
+<span class="co">#&gt;     green.channels</span>
+<span class="co">#&gt;     merged.var.cov.df</span>
+<span class="co">#&gt;     model.list</span>
+<span class="co">#&gt;     RGGB.indices</span>
+<span class="co">#&gt;     var.df</span>
+<span class="co">#&gt;     wide.var.df</span></code></pre>
+<p>Notice in the above list, there are some components listed as “variables”, technically they are “active bindings”, but as they behave like variables we call them that way.</p>
+<p>For example, the <code>vvm</code> class includes the <code>var.df</code> variable containing a data frame with noise information. As usual, we can access to that component through the instance object, <code>my.var</code> in our examples. As any R variable, we can ‘read’ the value in the object-variable to pass it to other functions, to other variable or in a expression:</p>
+<pre class="sourceCode r"><code class="sourceCode r">some_var &lt;-<span class="st"> </span>my.vvm$var.df
+some_result &lt;-<span class="st"> </span><span class="kw">some_function</span>(..., my.vvm$var.df)</code></pre>
+<p>In the <code>imgnoiser</code> package most of those variables are read-only. However, technically its is possible to write or set values on them, eventually we might end up having some of them.</p>
+<pre class="sourceCode r"><code class="sourceCode r">my.vvm$some.variable &lt;-<span class="st"> </span>some_value</code></pre>
 </div>
 <div id="digest" class="section level1">
 <h1><span class="header-section-number">4</span> Digesting the Image Samples</h1>
-<p>The function that reads and process the image samples in the <code>vvm</code> class is called <code>digest()</code>. We must feed that function with a sequence of image samples, prepared as described in the section <a href="#vvm-input"><em>“Input data for the <em>vvm</em> Procedure”</em></a>.</p>
-<p>For this example, we have 240 image samples named {<code>crop_1.fit</code>, <code>crop_2.fit</code>, … <code>crop_240.fit</code>} in a folder called ‘samples’. The image file names have the following name pattern:</p>
-<pre><code>&lt;image file name prefix&gt;&lt;image counter&gt;.&lt;file name extension&gt;
-        crop_                 25       .       fit</code></pre>
-<p>The <code>vvm$digest()</code> function will receive those file name pattern components as call arguments.</p>
-<p>The file name sequence must not contain gaps, there must not be a missing file in the sequence. If you have a sequence of file names with gaps or just with names not following at all this pattern, you can call <code>vvm$digest()</code> function using as argument a vector containing those file names.</p>
+<p>The function that reads and process the image samples in the <code>vvm</code> class is called <code>digest()</code>. We must feed that function with a set of image samples, prepared as described in the section <a href="#vvm-input"><em>“Input data for the <em>vvm</em> Procedure”</em></a>.</p>
+<p>For this example, we have image samples named {<code>crop_1.fit</code>, <code>crop_2.fit</code>, … <code>crop_240.fit</code>} in a folder called ‘samples’.</p>
+<p>The <code>vvm$digest()</code> function will receive arguments specifying that set of samples. The <code>file.name.from</code> and <code>file.name.to</code> parameters are for the alphabetical range of the images file names in a given folder. In this example <code>crop_1</code> and <code>crop_240</code>, respectively. Notice these arguments are for the base names, i.e. excluding the path and the name extension, which are specified with the <code>path.to.files</code> and the <code>file.name.ext</code> parameters.</p>
+<p>The file sequence may contain gaps, and the letter case is relevant. All the files found in the given folder within the given range will be processed by the <code>digest()</code> function.</p>
+<p>If you have a set of sample file names not meeting this conditions, you can call the <code>vvm$digest()</code> function using as argument for the <code>file.name.from</code> parameter a vector containing explicitly the sample file names. The package functions <code>select.file.range</code> and <code>file.name.seq</code> can help you to build that vector.</p>
 <p>When the <code>show.progress</code> option is <code>TRUE</code> –as it is by default– a progress bar will appear showing you how much of the process was already done. If that option is <code>FALSE</code>, as we will use for this example, at the end of the processing, the function will print a message about how many image samples were processed.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Turn off the progress bar</span>
 <span class="kw">imgnoiser.option</span>(<span class="st">'show.progress'</span>, <span class="ot">FALSE</span>)
 <span class="co"># The image files are in the './samples/' folder</span>
-my.vvm$<span class="kw">digest</span>(<span class="st">'crop_'</span>, samples.count, <span class="st">'./samples/'</span>)
-<span class="co">#&gt; 84 image samples were successfully processed.</span></code></pre>
+my.vvm$<span class="kw">digest</span>(<span class="st">'crop_1'</span>, <span class="st">'crop_240'</span>, <span class="st">'./samples/'</span>, <span class="st">'.fit'</span>)
+<span class="co">#&gt; 240 image samples were successfully processed.</span></code></pre>
 </div>
 <div id="result" class="section level1">
 <h1><span class="header-section-number">5</span> Getting the Computed Values</h1>
@@ -195,10 +200,10 @@ my.vvm$<span class="kw">digest</span>(<span class="st">'crop_'</span>, samples.c
 <td align="right">7639</td>
 </tr>
 <tr class="even">
-<td align="left">crop_2.fit</td>
+<td align="left">crop_10.fit</td>
 <td align="center">Red</td>
-<td align="right">6729</td>
-<td align="right">3488</td>
+<td align="right">3525</td>
+<td align="right">1609</td>
 </tr>
 </tbody>
 </table>
@@ -208,7 +213,7 @@ my.vvm$<span class="kw">digest</span>(<span class="st">'crop_'</span>, samples.c
 <p>Now we can plot the data showing the relationship between the <code>var</code> and the <code>mean</code> variables for each <code>channel</code>.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Plot the data in the standard model</span>
 my.vvm$<span class="kw">plot</span>()</code></pre>
-<p><img src="data:image/png;base64,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" title alt style="display: block; margin: auto;" /></p>
+<p><img src="data:image/png;base64,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" title alt style="display: block; margin: auto;" /></p>
 <p>You can notice a slight quadratic pattern in the plot showing the relationship between the pixel variance and mean. We will see later the use of the plot function in more detail.</p>
 </div>
 <div id="cov" class="section level2">
@@ -224,7 +229,7 @@ my.vvm$<span class="kw">plot</span>()</code></pre>
 <th align="left">pict</th>
 <th align="center">chan.a</th>
 <th align="center">chan.b</th>
-<th align="right">cov</th>
+<th align="right">cov.a.b</th>
 </tr>
 </thead>
 <tbody>
@@ -289,34 +294,59 @@ my.vvm$<span class="kw">plot</span>()</code></pre>
 <h2><span class="header-section-number">7.2</span> digest()</h2>
 <p>Compute and collect statistics from the raw images files.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">digest</span>(
-  <span class="dt">img.file.name =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'img.file.name' argument is required&quot;</span>),
-  <span class="dt">img.file.count =</span> <span class="ot">NULL</span>,
-  <span class="dt">file.path =</span> <span class="st">&quot;./&quot;</span>,
-  <span class="dt">img.file.name.ext =</span> <span class="st">&quot;.fit&quot;</span>
+  <span class="dt">file.name.from =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'file.name.from' argument is missing.&quot;</span>),
+  <span class="dt">file.name.to   =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'file.name.to' argument is missing.&quot;</span>),
+  <span class="dt">path.to.files  =</span> <span class="st">'./'</span>,
+  <span class="dt">file.name.ext  =</span> <span class="st">'.pgm'</span>
+)</code></pre>
+</div>
+<div id="digest.to.rgb" class="section level2">
+<h2><span class="header-section-number">7.3</span> digest.to.rgb()</h2>
+<p>Compute and collect statistics from RGB images obtained converting the raw image samples.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">digest.to.rgb</span>(
+  <span class="dt">file.name.from =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'file.name.from' argument is missing.&quot;</span>),
+  <span class="dt">file.name.to   =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'file.name.to' argument is missing.&quot;</span>),
+  <span class="dt">path.to.files  =</span> <span class="st">'./'</span>,
+  <span class="dt">file.name.ext  =</span> <span class="st">'.pgm'</span>,
+  <span class="dt">is.neutral =</span> <span class="ot">FALSE</span>,
+  <span class="dt">map.to.rgb =</span> <span class="ot">NULL</span>,
+  <span class="dt">rgb.scale =</span> <span class="dv">255</span>,
+  <span class="dt">rgb.labels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">'rgb.labels'</span>),
+  <span class="dt">tone.curve =</span> <span class="kw">imgnoiser.option</span>(<span class="st">'tone.curve.id'</span>),
 )</code></pre>
 </div>
 <div id="var.df" class="section level2">
-<h2><span class="header-section-number">7.3</span> var.df</h2>
+<h2><span class="header-section-number">7.4</span> var.df</h2>
 <p>Get the resulting noise variance data.</p>
 <pre class="sourceCode r"><code class="sourceCode r">var.df</code></pre>
 </div>
 <div id="cov.df" class="section level2">
-<h2><span class="header-section-number">7.4</span> cov.df</h2>
+<h2><span class="header-section-number">7.5</span> cov.df</h2>
 <p>Get the resulting noise covariance data.</p>
 <pre class="sourceCode r"><code class="sourceCode r">cov.df</code></pre>
 </div>
+<div id="merged.var.cov.df" class="section level2">
+<h2><span class="header-section-number">7.6</span> merged.var.cov.df</h2>
+<p>Get the resulting noise variance and covariance merged data.</p>
+<pre class="sourceCode r"><code class="sourceCode r">merged.var.cov.df</code></pre>
+</div>
+<div id="wide.var.df" class="section level2">
+<h2><span class="header-section-number">7.7</span> wide.var.df</h2>
+<p>Get the resulting noise variance data in a wide format.</p>
+<pre class="sourceCode r"><code class="sourceCode r">wide.var.df</code></pre>
+</div>
 <div id="channel.labels" class="section level2">
-<h2><span class="header-section-number">7.5</span> channel.labels</h2>
+<h2><span class="header-section-number">7.8</span> channel.labels</h2>
 <p>Get the channel labels.</p>
 <pre class="sourceCode r"><code class="sourceCode r">channel.labels</code></pre>
 </div>
 <div id="green.channels" class="section level2">
-<h2><span class="header-section-number">7.6</span> green.channels</h2>
+<h2><span class="header-section-number">7.9</span> green.channels</h2>
 <p>Get the green channels indices.</p>
 <pre class="sourceCode r"><code class="sourceCode r">green.channels</code></pre>
 </div>
 <div id="fit.model" class="section level2">
-<h2><span class="header-section-number">7.7</span> fit.model()</h2>
+<h2><span class="header-section-number">7.10</span> fit.model()</h2>
 <p>Fit a model to the noise data.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fit.model</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
@@ -328,7 +358,7 @@ my.vvm$<span class="kw">plot</span>()</code></pre>
 )</code></pre>
 </div>
 <div id="print.model.summary" class="section level2">
-<h2><span class="header-section-number">7.8</span> print.model.summary()</h2>
+<h2><span class="header-section-number">7.11</span> print.model.summary()</h2>
 <p>Print a fitted model summary.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print.model.summary</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
@@ -337,14 +367,14 @@ my.vvm$<span class="kw">plot</span>()</code></pre>
 )</code></pre>
 </div>
 <div id="get.model.predictions" class="section level2">
-<h2><span class="header-section-number">7.9</span> get.model.predictions()</h2>
+<h2><span class="header-section-number">7.12</span> get.model.predictions()</h2>
 <p>Get the values predicted by a fitted model.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model.predictions</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
 )</code></pre>
 </div>
 <div id="get.model" class="section level2">
-<h2><span class="header-section-number">7.10</span> get.model()</h2>
+<h2><span class="header-section-number">7.13</span> get.model()</h2>
 <p>Get a fitted model object.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
@@ -352,26 +382,26 @@ my.vvm$<span class="kw">plot</span>()</code></pre>
 )</code></pre>
 </div>
 <div id="exists.model" class="section level2">
-<h2><span class="header-section-number">7.11</span> exists.model()</h2>
+<h2><span class="header-section-number">7.14</span> exists.model()</h2>
 <p>Find if a model with a given name has already been fitted.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exists.model</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
 )</code></pre>
 </div>
 <div id="model.list" class="section level2">
-<h2><span class="header-section-number">7.12</span> model.list</h2>
+<h2><span class="header-section-number">7.15</span> model.list</h2>
 <p>Get a list with the fitted models.</p>
 <pre class="sourceCode r"><code class="sourceCode r">model.list</code></pre>
 </div>
 <div id="remove.model" class="section level2">
-<h2><span class="header-section-number">7.13</span> remove.model()</h2>
+<h2><span class="header-section-number">7.16</span> remove.model()</h2>
 <p>Remove a fitted model.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">remove.model</span>(
   <span class="dt">model.name =</span> <span class="kw">stop</span>(<span class="st">&quot;A model name argument is required.&quot;</span>)
 )</code></pre>
 </div>
 <div id="plot" class="section level2">
-<h2><span class="header-section-number">7.14</span> plot()</h2>
+<h2><span class="header-section-number">7.17</span> plot()</h2>
 <p>Plot a fitted model and its source data.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(
   <span class="dt">model.name =</span> <span class="ot">FALSE</span>,
