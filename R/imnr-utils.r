@@ -189,7 +189,7 @@ select.files <- function(from, to, extension, path) {
     if (length(files) == 0)
       warning("There are files with the extension ", sQuote(extension), " but none of them is in the given range.")
     else
-      msg(length(files), " files were found.")
+      msg(paste0(length(files), " files were found."))
 
     files;
   }
@@ -208,6 +208,9 @@ is.a.valid.tone.curve <- function(tc) {
     FALSE
 }
 
-msg <- function(txt) {
-  if (imgnoiser.option('mute') != TRUE) message(txt)
+msg <- function(...) {
+  if (imgnoiser.option('mute') != TRUE) {
+    txt <- paste0(list(...), collapse="")
+    message(txt)
+  }
 }
