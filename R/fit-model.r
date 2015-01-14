@@ -340,7 +340,7 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #'   \code{\link{imgnoiser.fit.model}} for the fitting of the \code{fit}
 #'   argument.
 #'
-#' @param conf.level Confidence level used to compute \code{lcl} and \code{ucl}
+#' @param conf.level Confidence level used to compute \code{lpl} and \code{upl}
 #'   in the resulting data frame.
 #'
 #' @param split.value The factor value identifying the group of observation in
@@ -374,13 +374,9 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #'
 #'      \item \code{fit.se} The prediction standard error.
 #'
-#'      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
-#'      the predicted value minus the confidence factor multiplied by the
-#'      fitting standard error.
+#'      \item \code{lpl} The \emph{lower prediction confidence limit}.
 #'
-#'      \item \code{ucl} The \emph{upper confidence limit}. It is computed as
-#'      the predicted value plus the confidence factor multiplied by the fitting
-#'      standard error.
+#'      \item \code{upl} The \emph{upper prediction confidence limit}.
 #'    }
 #'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}, the
@@ -421,8 +417,8 @@ imgnoiser.model.predictions <- function(
         ,'y'         = pred.fit.df$fit
         ,'split.by'  = split.value
         ,'fit.se'    = pred$se.fit
-        ,'lcl'       = pred.fit.df$lwr
-        ,'ucl'       = pred.fit.df$upr
+        ,'lpl'       = pred.fit.df$lwr
+        ,'upl'       = pred.fit.df$upr
       )
   data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
 

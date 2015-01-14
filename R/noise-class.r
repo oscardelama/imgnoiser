@@ -693,26 +693,23 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
           if (!is.null(pred.y)) {
             plot.envir$pred.df <- data.frame(
                       'x'         = model.predictions.df$x
-                      ,'y'        = model.predictions.df$lcl
+                      ,'y'        = model.predictions.df$lpl
                       ,'split.by' = model.predictions.df$split.by
                       )
             # Use the model names
             data.table::setnames(plot.envir$pred.df, 1L:3L, label$term[1:3])
-            plot.envir$pred.df$lcl <- try_eval(lazy.y, plot.envir$pred.df)
-            plot.envir$pred.df[,2] = model.predictions.df$ucl
-            plot.envir$pred.df$ucl <- try_eval(lazy.y, plot.envir$pred.df)
+            plot.envir$pred.df$lpl <- try_eval(lazy.y, plot.envir$pred.df)
+            plot.envir$pred.df[,2] = model.predictions.df$upl
+            plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$pred.df)
             plot.envir$pred.df[,2] = model.predictions.df[,2]
             # Set the XY names
             data.table::setnames(plot.envir$pred.df, 1L:3L, names(label$term)[1:3])
           }
           else
             plot.envir$pred.df <- model.predictions.df
-          # colour=split.by,
-#           p <- p + ggplot2::geom_smooth(ggplot2::aes(x=x, y=y, ymin=lcl, ymax=ucl,
-#                    group=split.by, colour=split.by),  linetype= I(0),
-#                    data=plot.envir$pred.df, stat="identity")
-          p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x, ymin=lcl,
-                                                     ymax=ucl,
+
+          p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x,
+                                                     ymin=lpl, ymax=upl,
                                                      fill=split.by),
                                         alpha=I(ribbon.opacity),
                                         data=plot.envir$pred.df, stat="identity")
@@ -1100,7 +1097,8 @@ noise.var.doc$fit.model <-
 #'   argument is omitted, the predictions for selected points in the range
 #'   of the source data used to build the model are used.
 #'
-#' @param select The channels for which we want to get the predictions.
+#' @param select A vector with the channels whose predictions we want. They can
+#'   be their labels or their indices.
 #'
 #' @param conf.level The confidence level to get the predictions interval. It
 #'   must be in the [0,1] range
@@ -1129,13 +1127,9 @@ noise.var.doc$fit.model <-
 #'
 #'      \item \code{fit.se} The prediction standard error.
 #'
-#'      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
-#'      the predicted value minus the confidence factor multiplied by the
-#'      fitting standard error.
+#'      \item \code{lpl} The \emph{lower prediction confidence limit}.
 #'
-#'      \item \code{ucl} The \emph{upper confidence limit}. It is computed as
-#'      the predicted value plus the confidence factor multiplied by the fitting
-#'      standard error.
+#'      \item \code{upl} The \emph{upper prediction confidence limit}.
 #'    }
 #'
 #' @examples
