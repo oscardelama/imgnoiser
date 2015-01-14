@@ -378,8 +378,6 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       # browser()
       # Validate the model name
       private$check.model.name(model.name)
-      # Validate the confidence level
-      vector.alike(conf.level, 1, type='n', valid.range=c(0,1))
 
       if (is.null(x))
         private$.model[[model.name]][['predictions']]
@@ -398,6 +396,10 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         if (is.null(conf.level))
           # Get the the confidence level
           conf.level <- model.str[['conf.level']]
+        else
+          # Validate the confidence level
+          vector.alike(conf.level, 1, type='n', valid.range=c(0,1))
+
 
         # pick the selected models
         if (!is.null(select))
