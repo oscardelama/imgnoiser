@@ -312,7 +312,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       formula <- get.model.formula(model.src.data, formula, degree, model.family)
 
       # Placeholder for the model(s)
-      model.obj <- list()
+      model.objects <- list()
       # Placeholder for the split values
       split.values <- vector()
       # Placeholder for the model fitted data
@@ -326,13 +326,14 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         # Ignore the split if it has not enough data to fit a model
         # if (length(splitted.x[[split.value]]) <= 1L) next
         # @TODO: Handle cases when the data make crash the fitting function
-        model.fit <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
-        model.call.txt <- model.fit[['call']]
-        model <- model.fit[['model']]
+        fitted.model <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
+        model.call.txt <- fitted.model[['call']]
+        model.obj <- fitted.model[['model']]
+        lazy.dots <- fitted.model[['lazy.dots']]
 
         grid <- build.model.grid(splitted.x[[split.value]])
-        predictions <- model.predictor.func(model.src.data, model.fit, conf.level,
-                                            model.family, split.value, grid)
+        predictions <- model.predictor.func(model.src.data, model.obj, conf.level,
+                                            model.family, split.value, grid, lazy.dots)
         predict.df <- data.table::rbindlist(list(
                            predict.df
                           ,predictions
@@ -340,7 +341,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
         ix_model <- ix_model + 1L
         # Pack the model object as a list item named as the split value
-        model.obj[[split.value]] <- model
+        model.objects[[split.value]] <- model.obj
         split.values[ix_model] <- split.value
       }
 
@@ -353,10 +354,11 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       private$.model[[model.name]] <- list(
                      'source'       = model.src.data
                     ,'predictions'  = predict.df
-                    ,'fit'          = model.obj
+                    ,'fit'          = model.objects
                     ,'model.family' = model.family
                     ,'call'         = model.call.txt
                     ,'conf.level'   = conf.level
+                    ,'lazy.dots'    = lazy.dots
                 )
 
       msg('The model ', dQuote(model.name),' was successfully fitted using:')
@@ -391,6 +393,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         model.src.data <- model.str[['source']]
         # Get the model objects
         model.objs <-  model.str[['fit']]
+        # Lazy dots
+        lazy.dots <- model.str[['lazy.dots']]
         # Get the model family
         model.family <-  model.str[['model.family']]
         if (is.null(conf.level))
@@ -413,13 +417,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         predictions <- data.frame();
 
         for (split.value in names(model.objs)) {
-          preds <- model.predictor.func(model.src.data,
-                                 model.objs[[split.value]],
-                                 conf.level,
-                                 model.family,
-                                 split.value,
-                                 grid
-                                )
+          preds <- model.predictor.func(model.src.data, model.objs[[split.value]],
+                                 conf.level, model.family, split.value, grid, lazy.dots)
           # Collect the predictions
           predictions <- data.table::rbindlist(list(
                               predictions,

@@ -393,26 +393,25 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #-----------------------------
 imgnoiser.model.predictions <- function(
         model.src.data
-        ,model.fit
+        ,model.obj
         ,conf.level
         ,model.family
         ,split.value
         ,x.df
+        ,lazy.dots
 ) {
 
-  fit <- model.fit[['model']]
   # Use domain names
   data.table::setnames(x.df, model.src.data[['label']][['term']]['x'])
 
   # Use the model weights also in the predictions
-  lazy.dots <- model.fit[['lazy.dots']]
   if ('weights' %in% names(lazy.dots)) {
     pred.weights <- lazyeval::lazy_eval(lazy.dots[['weights']], x.df)
-    pred <- stats::predict(fit, newdata = x.df, interval='prediction',
+    pred <- stats::predict(model.obj, newdata = x.df, interval='prediction',
                            weights=pred.weights, se.fit=TRUE, level = conf.level)
   }
   else
-    pred <- stats::predict(fit, newdata = x.df, interval='prediction',
+    pred <- stats::predict(model.obj, newdata = x.df, interval='prediction',
                            se.fit=TRUE, level = conf.level)
 
   pred.fit.df <- as.data.frame(pred$fit)
@@ -557,12 +556,12 @@ build.model.grid <- function(x) {
     min <- range[1L]
     max <- range[2L]
     if (min <= 0) {
-      equally.spaced.linear.len <- 30
+      equally.spaced.linear.len <- 35
       log.points <- numeric()
     } else {
       log.points <- seq(log(min), log(max), length = 12L)
       log.points <- log.points[c(-1L,-12L)]
-      equally.spaced.linear.len <- 20L
+      equally.spaced.linear.len <- 25L
     }
     points <- c(exp(log.points), seq(min, max, length = equally.spaced.linear.len))
     return (sort(points))
