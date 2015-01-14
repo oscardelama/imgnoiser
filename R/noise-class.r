@@ -301,7 +301,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       if (length(x) != length(split.by))
         stop(paste("The x and split.by model components in the model",
                    sQuote(model.name),"don't have the same length"))
-
+      # Validate the confidence level
+      vector.alike(conf.level, 1, type='n', valid.range=c(0,1))
       # Get the model fitter function
       model.fitter.func <- imgnoiser.option('fit.model')
       # Get the model value predictor function
@@ -355,6 +356,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
                     ,'fit'          = model.obj
                     ,'model.family' = model.family
                     ,'call'         = model.call.txt
+                    ,'conf.level'   = conf.level
                 )
 
       msg('The model ', dQuote(model.name),' was successfully fitted using:')
@@ -369,12 +371,16 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         model.name = imgnoiser.option('fit.model.name')
         ,x = NULL
         ,select = NULL
+        ,conf.level = NULL
         ,...
       ) {
 
       # browser()
       # Validate the model name
       private$check.model.name(model.name)
+      # Validate the confidence level
+      vector.alike(conf.level, 1, type='n', valid.range=c(0,1))
+
       if (is.null(x))
         private$.model[[model.name]][['predictions']]
       else {
@@ -389,6 +395,10 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         model.objs <-  model.str[['fit']]
         # Get the model family
         model.family <-  model.str[['model.family']]
+        if (is.null(conf.level))
+          # Get the the confidence level
+          conf.level <- model.str[['conf.level']]
+
         # pick the selected models
         if (!is.null(select))
           model.objs <- private$select.model(model.objs, select)
@@ -403,6 +413,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         for (split.value in names(model.objs)) {
           preds <- model.predictor.func(model.src.data,
                                  model.objs[[split.value]],
+                                 conf.level,
                                  model.family,
                                  split.value,
                                  grid
@@ -1066,15 +1077,32 @@ noise.var.doc$fit.model <-
 #' @section Usage:
 #'  \preformatted{
 #'   vvm$get.model.predictions(
-#'      model.name = imgnoiser.option('fit.model.name')
+#'      model.name = imgnoiser.option('fit.model.name'),
+#'      x = NULL,
+#'      select = NULL,
+#'      conf.level,
+#'      ...
 #'      )
 #'
 #'   hvdvm$get.model.predictions(
-#'      model.name = imgnoiser.option('fit.model.name')
+#'      model.name = imgnoiser.option('fit.model.name'),
+#'      x = NULL,
+#'      select = NULL,
+#'      conf.level,
+#'      ...
 #'      )
 #'  }
 #'
 #' @param model.name The name of the model whose predicitions are desired.
+#'
+#' @param x The predictor values for which the predictions are desired. If this
+#'   argument is omitted, the predictions for selected points in the range
+#'   of the source data used to build the model are used.
+#'
+#' @param select The channels for which we want to get the predictions.
+#'
+#' @param conf.level The confidence level to get the predictions interval. It
+#'   must be in the [0,1] range
 #'
 #' @return A data frame with the predictions from the model. In the following
 #'   descriptions, we will call \code{pred.df} to this result.
@@ -1124,8 +1152,7 @@ noise.var.doc$fit.model <-
 #' @aliases vvm$get.model.predictions
 #' @name hvdvm$get.model.predictions
 #----------------------------------------------
-noise.var.doc$get.model.predictions <- function(model.name = imgnoiser.option('fit.model.name'))
-  NULL
+noise.var.doc$get.model.predictions <- function() NULL
 
 #----------------------------------------------
 #' Print a fitted model summary

@@ -40,6 +40,8 @@
   argument. If a formula is provided the \code{degree} argument will be
   ignored.}
 
+\item{conf.level}{Confidence level to compute the prediction intervals}
+
 \item{model.data.name}{Identifies the specific data that will be part of the
   model.
 

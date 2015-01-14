@@ -4,58 +4,28 @@
 \alias{vvm$digest}
 \title{Process the raw image samples.}
 \arguments{
-\item{img.file.name}{A single character value, with the prefix of the raw
-  image samples file names. It can also be a character vector with the whole
-  file name sequence of the image samples, but without the file path, which
-  should be given in the \code{file.path} argument.}
+\item{file.name.from}{}
 
-\item{img.file.count}{The number of image sample files. If the
-  \code{<img.file.name>} argument contains the whole file name sequence this
-  argument is irrelevant and consequently ignored.}
+\item{file.name.to}{The \code{file.name.from} and \code{file.name.to} are the
+  alphabetical range of the desired files from the folder given in
+  \code{path.to.files}. These names should not include the file name
+  extension, which is specified with \code{file.name.ext}.}
 
-\item{file.path}{The file path where the raw image file samples are located.}
+\item{path.to.files}{The file path where the raw image file samples are located.}
 
-\item{img.file.name.ext}{The file name extension of the raw image file
-  samples. It can be 'fit' or 'fits'. This file name extension may start with
-  a period as in '.fit' or not (e.g. 'fit'). When required, the function will add
-  the period '.' to build the sequence of file names.
+\item{file.name.ext}{The file name extension of the raw image file samples.
+  It can be 'fit', 'fits' or 'pgm'. This file name extension may start or not
+  with a period as in '.fit' or fit'.
 
   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
-  \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format. The letter
-  case is irrelevant for the file name extension.}
-
-\item{img.file.name}{A single character value, with the prefix of the raw
-  image samples file names. It can also be a character vector with the whole
-  file name sequence of the image samples, but without the file path, which
-  should be given in the \code{file.path} argument.}
-
-\item{img.file.count}{The number of image sample files. If the
-  \code{<img.file.name>} argument contains the whole file name sequence this
-  argument is irrelevant and consequently ignored.}
-
-\item{file.path}{The file path where the raw image file samples are located.}
-
-\item{img.file.name.ext}{The file name extension of the raw image file
-  samples. It can be 'fit' or 'fits'. This file name extension may start with
-  a period as in '.fit' or not (e.g. 'fit'). When required, the function will add
-  the period '.' to build the sequence of file names.
-
-  The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
-  for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
-  \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format. The letter
-  case is irrelevant for the file name extension.}
+  \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.}
 }
 \value{
-A \code{invisible} instance of the calling object.
-
 A \code{invisible} instance of the calling object.
 }
 \description{
 Read raw image samples and compute variance and covariance statistics for
-each channnel.
-
-Read image samples and compute variance and covariance statistics for
 each channnel.
 }
 \details{
@@ -63,65 +33,29 @@ The calling arguments describe the list of raw image files that will be
 processed. The image samples file names are expected to have the following
 pattern:
 
-\emph{\code{<img.file.name>}<index>\code{<img.file.name.ext>}}
+\emph{\code{path.to.files}/\code{<img.file.base>}.\code{<file.name.ext>}}
 
-Where \code{<img.file.name>} and \code{<img.file.name.ext>} are arguments of
-this function. An example of file names with this pattern is ('crop_1.fit',
-'crop_2.fit', ...), where 'crop_' is given in \code{<img.file.name>} and
-'fit' is given in \code{<img.file.name.ext>}.
+Where \code{<img.file.base>} is alfabetically between the
+\code{file.name.from} and \code{file.name.to} arguments.
 
-The file path to the files is given in the \code{file.path} argument. i.e. it
-is must not be part of the \code{<img.file.name>} argument.
-
-The numbering of the file names must start with 1 and end with
-\code{img.file.count} value without any gap in in the sequence.
+In other words, the folder given in \code{path.to.files} is scanned looking
+for files with base name between (and including) \code{file.name.from} and
+\code{file.name.to}, having all of them the extension \code{file.name.ext}.
 
 If your sample file names do not follow this pattern, you can specify them as
-a character vector used as argument for the \code{<img.file.name>} parameter.
+a character vector as argument for the \code{<file.name.from>} parameter.
 
-The \code{\link{select.files}} will help you to select from a folder the files
-you want to get processed by this function.
-
-The calling arguments describe the list of raw image files that will be
-processed. The image samples file names are expected to have the following
-pattern:
-
-\emph{\code{<img.file.name>}<index>\code{<img.file.name.ext>}}
-
-Where \code{<img.file.name>} and \code{<img.file.name.ext>} are arguments of
-this function. An example of file names with this pattern is ('crop_1.fit',
-'crop_2.fit', ...), where 'crop_' is given in \code{<img.file.name>} and
-'fit' is given in \code{<img.file.name.ext>}.
-
-The file path to the files is given in the \code{file.path} argument. i.e. it
-is must not be part of the \code{<img.file.name>} argument.
-
-The numbering iof the file names must start with 1 and end with
-\code{img.file.count} value without any gap in in the sequence.
-
-If your sample file names do not follow this pattern, you can specify them as
-a character vector used as argument for the \code{<img.file.name>} parameter.
+The \code{\link{select.file.range}} may help you to get a baseline selection with
+the files you want to get processed by this function.
 }
 \section{Usage}{
 
  \preformatted{
   vvm$digest(
-     img.file.name = stop("The 'img.file.name' argument is required"),
-     img.file.count = NULL,
-     file.path = './',
-     img.file.name.ext = '.fit'
-     )
- }
-}
-
-\section{Usage}{
-
- \preformatted{
-  vvm$digest(
-     img.file.name = stop("The 'img.file.name' argument is required"),
-     img.file.count = NULL,
-     file.path = './',
-     img.file.name.ext = '.fit'
+     file.name.from = stop("The 'file.name.from' argument is missing."),
+     file.name.to   = stop("The 'file.name.to' argument is missing."),
+     path.to.files  = './',
+     file.name.ext  = '.pgm'
      )
  }
 }
@@ -131,25 +65,11 @@ a character vector used as argument for the \code{<img.file.name>} parameter.
 # Create a new vvm instance
 my.vvm <- vvm$new(has.RGGB.pattern=TRUE)
 
-# Process 40 files names 'crop_1.fit', 'crop_2.fit'...
-# in the ./data-raw/ folder
-my.vvm$digest("crop_", 40, './data-raw/')
-}
-\dontrun{
-
-# Create a new vvm instance
-my.vvm <- vvm$new(has.RGGB.pattern=TRUE)
-
-# Process 40 files names 'crop_1.fit', 'crop_2.fit'...
-# in the ./data-raw/ folder
-my.vvm$digest("crop_", 40, './data-raw/')
+img.path <- 'D:/Noise-Study/Nikon-D7000/ISO-100'
+my.vvm$digest('_ODL5695', '_ODL5767', '.pgm', img.path)
 }
 }
 \seealso{
-See the section \emph{"Input data for the *vvm* Procedure"} in the
-  \emph{"Introduction to the *vvm* technique"} vignette,
-  \code{\link{vvm}}.
-
 See the section \emph{"Input data for the *vvm* Procedure"} in the
   \emph{"Introduction to the *vvm* technique"} vignette,
   \code{\link{vvm}}.

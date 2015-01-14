@@ -37,12 +37,6 @@ A list with the following elements:
          different values are in this variable.
      }
 
-   \item \code{confid.factor} A numeric value: the confidence factor that
-   will be used for computing the confidence limits around the fitted values.
-   For example 1.96 corresponding to a 97.5\% confidence level for fitting
-   errors with a normal distribution. In this case the limits are the fitted
-   values +/- 1.96 times the standard error.
-
    \item \code{label} A list with the labels for the elements in the data
    model and for the its representation in a plot.
 
@@ -70,9 +64,6 @@ A list with the following elements:
  The \code{x} and \code{y} values in the function return value are the
  \code{mean} and the \code{var} variables in the variance data, and as
  \code{split.by} is used the \code{channel} variable.
-
- The \emph{confidence factor} (\code{confid.factor}) value is taken from the
- \code{confid.factor} option in \code{\link{imgnoiser.option}}.
 
  The labels (\code{xlab}, \code{ylab}) and title (\code{main}) are customized
  according the class of the \code{noise.obj} argument.

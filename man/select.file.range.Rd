@@ -34,7 +34,7 @@ given in \code{path.to.files}.
 
 # Select the file in the folder './samples' whose name is between
 # _DSC5695.NEF and _DSC5716.NEF
-files <- select.files('_DSC5695', '_DSC5716', '.NEF', './samples')
+files <- select.file.range('_DSC5695', '_DSC5716', '.NEF', './samples')
 }
 }
 

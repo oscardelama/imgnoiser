@@ -16,8 +16,8 @@ imgnoiser.model.predictions(
 \item{model.src.data}{The model data source as returned by
   \code{\link{imgnoiser.get.model.source.data}} with the model data source.}
 
-\item{fit}{A model, returned by \code{\link{imgnoiser.fit.model}}, for which
-  prediction is desired.}
+\item{conf.level}{Confidence level used to compute \code{lcl} and \code{ucl}
+  in the resulting data frame.}
 
 \item{model.family}{The \code{model.family} argument used in the call to
   \code{\link{imgnoiser.fit.model}} for the fitting of the \code{fit}
@@ -29,6 +29,9 @@ imgnoiser.model.predictions(
 
 \item{x.df}{A data frame with the predictor data for which the predictions
   are required.}
+
+\item{fit}{A model, returned by \code{\link{imgnoiser.fit.model}}, for which
+  prediction is desired.}
 }
 \value{
 A data.frame containing:
@@ -53,7 +56,7 @@ A data.frame containing:
      the \code{channel} column in the variance data. This is the
      \code{split.value} argument.
 
-     \item \code{sderr} The prediction standard error.
+     \item \code{fit.se} The prediction standard error.
 
      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
      the predicted value minus the confidence factor multiplied by the
@@ -63,10 +66,6 @@ A data.frame containing:
      the predicted value plus the confidence factor multiplied by the fitting
      standard error.
    }
-
-The\code{ucl} and \code{lcl} variables are computed using the emph{confidence
-factor} returned by the \code{\link{imgnoiser.get.model.source.data}}
-function in the \code{confid.factor} element.
 }
 \description{
 Return predicted values from the models fitted with the

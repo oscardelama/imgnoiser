@@ -15,17 +15,25 @@
   want to customize the plot before printing it, set this parameter to FALSE
   and use the returned ggplot2 value.}
 
-\item{fit}{If TRUE the predictions, of the model referred with the
+\item{fit}{If TRUE the prediction intervals of the model referred with the
   \code{model.name} argument, will be plotted as a line for each channel.}
 
-\item{confid}{If TRUE the area between the predictions confidence limits, of
+\item{x}{}
+
+\item{y}{The default model uses the \code{mean} and \code{var} variables in
+  the \code{var.df} data frame as the variables to plot in the x and y axes.
+  However, you can change the plot to use in those axes the expressions you
+  want. For example, you may want to plot the SNR (signal to noise ratio), in
+  such case use \code{y = mean/sqrt(var)}.}
+
+\item{pred.int}{If TRUE the area between the predictions confidence limits, of
   the model referred with the \code{model.name} argument, will be drawn with
   a semi-transparent color.}
 
-\item{main}{The plot main title. If it is not given, the title in the model
+\item{tlab}{The plot main title. If it is not given, the title in the model
   data source will be used. A NULL value means no title is desired.}
 
-\item{subt}{The plot subt-title. If it is not given the plot won't have a
+\item{slab}{The plot subt-title. If it is not given the plot won't have a
   sub-title.}
 
 \item{xlab}{The plot x axis title. If it is not given, the corresponding
@@ -66,12 +74,14 @@ Plot a fitted model and its source data
      model.name = FALSE,
      obs = TRUE,
      print = TRUE,
-     fit = TRUE,
-     confid = FALSE,
-     main = NA,
-     subt = NA,
-     xlab = NA,
-     ylab = NA,
+     fit = FALSE,
+     pred.int = FALSE,
+     x = NULL,
+     y = NULL,
+     tlab = NULL,
+     slab = NULL,
+     xlab = NULL,
+     ylab = NULL,
      xlim = NULL,
      ylim = NULL,
      warnings = FALSE
@@ -81,12 +91,14 @@ Plot a fitted model and its source data
      model.name = FALSE,
      obs = TRUE,
      print = TRUE,
-     fit = TRUE,
-     confid = FALSE,
-     main = NA,
-     subt = NA,
-     xlab = NA,
-     ylab = NA,
+     fit = FALSE,
+     pred.int = FALSE,
+     x = NULL,
+     y = NULL,
+     tlab = NULL,
+     slab = NULL,
+     xlab = NULL,
+     ylab = NULL,
      xlim = NULL,
      ylim = NULL,
      warnings = FALSE

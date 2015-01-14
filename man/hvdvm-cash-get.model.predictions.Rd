@@ -6,6 +6,15 @@
 \title{Get the values predicted by a fitted model}
 \arguments{
 \item{model.name}{The name of the model whose predicitions are desired.}
+
+\item{x}{The predictor values for which the predictions are desired. If this
+  argument is omitted, the predictions for selected points in the range
+  of the source data used to build the model are used.}
+
+\item{select}{The channels for which we want to get the predictions.}
+
+\item{conf.level}{The confidence level to get the predictions interval. It
+  must be in the [0,1] range}
 }
 \value{
 A data frame with the predictions from the model. In the following
@@ -30,7 +39,7 @@ A data frame with the predictions from the model. In the following
      the \code{std.var} default model, this corresponds to the
      \code{channel} column in the variance data.
 
-     \item \code{sderr} The prediction standard error.
+     \item \code{fit.se} The prediction standard error.
 
      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
      the predicted value minus the confidence factor multiplied by the
@@ -40,10 +49,6 @@ A data frame with the predictions from the model. In the following
      the predicted value plus the confidence factor multiplied by the fitting
      standard error.
    }
-
-  The confidence factor used to compute the \code{lcl} and \code{ucl} columns
-  is set when the \code{fit.model} function is called taking the value of the
-  option \code{confid.factor} of the \code{\link{imgnoiser.option}} function.
 }
 \description{
 Get the values predicted from a given fitted model.
@@ -52,11 +57,19 @@ Get the values predicted from a given fitted model.
 
  \preformatted{
   vvm$get.model.predictions(
-     model.name = imgnoiser.option('fit.model.name')
+     model.name = imgnoiser.option('fit.model.name'),
+     x = NULL,
+     select = NULL,
+     conf.level,
+     ...
      )
 
   hvdvm$get.model.predictions(
-     model.name = imgnoiser.option('fit.model.name')
+     model.name = imgnoiser.option('fit.model.name'),
+     x = NULL,
+     select = NULL,
+     conf.level,
+     ...
      )
  }
 }
@@ -65,9 +78,9 @@ Get the values predicted from a given fitted model.
 
 # Get the 'standard' model predictions
 preds.df <- my.hvdvm$get.model.predictions()
-# Set the lcl and ucl confidence limits using 2.5 as confidence factor
-preds.df$lcl <- preds.df[,2L] - 2.5*preds.df$sderr
-preds.df$ucl <- preds.df[,2L] + 2.5*preds.df$sderr
+# Set the lcl and ucl confidence limits using +/- 2.5 fit standard error
+preds.df$lcl <- preds.df[,2L] - 2.5*preds.df$fit.se
+preds.df$ucl <- preds.df[,2L] + 2.5*preds.df$fit.se
 }
 }
 \seealso{
