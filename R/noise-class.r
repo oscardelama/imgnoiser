@@ -101,7 +101,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         if (length(select) == 0)
           stop('No model satisfies the select condition.')
         else
-          models <- models[[select]]
+          # This returns a list, even if it has only one element
+          models <- models[select]
       }
 
       models;
