@@ -86,17 +86,9 @@
 #'  'shutter.speed')}.
 #' }
 #'
-#' \subsection{conf.factor}{
-#'  Confidence factor which will be used to scale the prediction standard error
-#'  in order to get the the confidence interval for each prediction.
-#'
-#'  For example, if the value of this argument is 2 the confidence interval for
-#'  each prediction will be \code{+/- 2 * se.fit} where \code{se.fit} is the
-#'  prediction standard error.
-#'
-#'  This option value is, by default, returned by the
-#' \code{\link{imgnoiser.get.model.source.data}} function in the
-#' \code{confid.factor} element.
+#' \subsection{conf.level}{
+#'  Default confidence level used for model predictions in the computation of upper
+#'  and lower predicition confidence limits.
 #' }
 #'
 #' \subsection{fit.model}{
@@ -432,7 +424,6 @@ get.imgnoiser.default.options <- function() {
     ,'fit.model.name'       = 'standard'
     ,'plot.line.width'      = 1
     ,'plot.point.size'      = 1.75
-    ,'confid.factor'        = 1.96
     ,'show.progress'        = TRUE
     ,'show.signif.stars'    = FALSE
     ,'color.pallette'       = c('#E41A1C','#307AB8','#2C972E','#984EA3', '#E17E25')
@@ -452,5 +443,7 @@ get.imgnoiser.default.options <- function() {
     ,'rgb.labels'           = c('red', 'green', 'blue')
     ,'tone.curve.id'        = "camera.metadata"
     ,'mute'                 = FALSE
+    ,'conf.level'           = 0.95
+    ,'opacity'              = 0.2
   )
 }

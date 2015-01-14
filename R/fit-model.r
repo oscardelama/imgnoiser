@@ -67,12 +67,6 @@
 #'          different values are in this variable.
 #'      }
 #'
-#'    \item \code{confid.factor} A numeric value: the confidence factor that
-#'    will be used for computing the confidence limits around the fitted values.
-#'    For example 1.96 corresponding to a 97.5\% confidence level for fitting
-#'    errors with a normal distribution. In this case the limits are the fitted
-#'    values +/- 1.96 times the standard error.
-#'
 #'    \item \code{label} A list with the labels for the elements in the data
 #'    model and for the its representation in a plot.
 #'
@@ -100,9 +94,6 @@
 #'  The \code{x} and \code{y} values in the function return value are the
 #'  \code{mean} and the \code{var} variables in the variance data, and as
 #'  \code{split.by} is used the \code{channel} variable.
-#'
-#'  The \emph{confidence factor} (\code{confid.factor}) value is taken from the
-#'  \code{confid.factor} option in \code{\link{imgnoiser.option}}.
 #'
 #'  The labels (\code{xlab}, \code{ylab}) and title (\code{main}) are customized
 #'  according the class of the \code{noise.obj} argument.
@@ -140,7 +131,6 @@ imgnoiser.get.model.source.data <- function(model.name, noise.obj) {
             ,'split.by' = var.df$channel
             ,row.names = NULL
           )
-        ,'confid.factor' = imgnoiser.option('confid.factor')
         ,'name' = model.name
         ,'label' = c(
               list(
@@ -278,10 +268,10 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
   # names(dom.data) <- model.src.data[['label']][['term']]
   data.table::setnames(dom.data,  model.src.data[['label']][['term']])
 
-  dots <- lazyeval::lazy_dots(...)
+  dots.lazy <- lazyeval::lazy_dots(...)
 
   #-- Prepare the model call in text form
-  model.call.params.txt <- get.param.list(dots)
+  model.call.params.txt <- get.param.list(dots.lazy)
   if ('lazy' %in% class(lazy.formula)) {
     formula.txt <- deparse(lazy.formula[['expr']])
     model.call.txt <- paste0(model.family,'(formula = ',formula.txt,', data = model.src(<%MODEL%>)', model.call.params.txt,')')
@@ -298,7 +288,7 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
   # fit.model(model.family, model.formula, dom.data, model.call.params)
   fit <- model.fitter.func(model.family, model.formula, dom.data, model.call.params)
 
-  return(list('model'= fit, 'call'= model.call.txt))
+  return(list('model'= fit, 'call'= model.call.txt, 'lazy.dots' = dots.lazy))
 }
 
 #-----------------------------
@@ -350,6 +340,9 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #'   \code{\link{imgnoiser.fit.model}} for the fitting of the \code{fit}
 #'   argument.
 #'
+#' @param conf.level Confidence level used to compute \code{lcl} and \code{ucl}
+#'   in the resulting data frame.
+#'
 #' @param split.value The factor value identifying the group of observation in
 #'   the model data source for ehich a model was fitted. In the default model
 #'   this corresponds to a channel label in the variance data.
@@ -379,7 +372,7 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #'      the \code{channel} column in the variance data. This is the
 #'      \code{split.value} argument.
 #'
-#'      \item \code{sderr} The prediction standard error.
+#'      \item \code{fit.se} The prediction standard error.
 #'
 #'      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
 #'      the predicted value minus the confidence factor multiplied by the
@@ -390,10 +383,6 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #'      standard error.
 #'    }
 #'
-#' The\code{ucl} and \code{lcl} variables are computed using the emph{confidence
-#' factor} returned by the \code{\link{imgnoiser.get.model.source.data}}
-#' function in the \code{confid.factor} element.
-#'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}, the
 #'   option \code{get.model.prediction} of \code{\link{imgnoiser.option}},
 #'   \code{\link{imgnoiser.get.model.source.data}},
@@ -402,31 +391,43 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
 #' @importFrom data.table setnames
 #' @export
 #-----------------------------
-imgnoiser.model.predictions <- function(model.src.data, fit, model.family, split.value, x.df) {
+imgnoiser.model.predictions <- function(
+        model.src.data
+        ,model.fit
+        ,conf.level
+        ,model.family
+        ,split.value
+        ,x.df
+) {
 
-  conf.factor <- model.src.data[['confid.factor']]
-  # If not given, use 97.5% confidence level (normal case)
-  if (!is.given(conf.factor)) conf.factor <- 1.96
+  fit <- model.fit[['model']]
   # Use domain names
-  #names(x.df) <- model.src.data[['label']][['term']]['x']
   data.table::setnames(x.df, model.src.data[['label']][['term']]['x'])
 
-  pred <- stats::predict(fit, newdata = x.df, se.fit = TRUE)
+  # Use the model weights also in the predictions
+  lazy.dots <- model.fit[['lazy.dots']]
+  if ('weights' %in% names(lazy.dots)) {
+    pred.weights <- lazyeval::lazy_eval(lazy.dots[['weights']], x.df)
+    pred <- stats::predict(fit, newdata = x.df, interval='prediction',
+                           weights=pred.weights, se.fit=TRUE, level = conf.level)
+  }
+  else
+    pred <- stats::predict(fit, newdata = x.df, interval='prediction',
+                           se.fit=TRUE, level = conf.level)
 
+  pred.fit.df <- as.data.frame(pred$fit)
   result <-
       data.frame(
          'x'         = x.df[,1L]
-        ,'y'         = pred$fit
+        ,'y'         = pred.fit.df$fit
         ,'split.by'  = split.value
-        ,'sderr'     = pred$se.fit
-        ,'lcl'       = pred$fit - conf.factor * pred$se.fit
-        ,'ucl'       = pred$fit + conf.factor * pred$se.fit
-        ,row.names   = NULL
+        ,'fit.se'    = pred$se.fit
+        ,'lcl'       = pred.fit.df$lwr
+        ,'ucl'       = pred.fit.df$upr
       )
-  #names(result)[1:3] <- model.src.data[['label']][['term']][1:3]
   data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
 
-  result
+  result;
 }
 
 #### Helper functions (non public) ######

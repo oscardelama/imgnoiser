@@ -48,7 +48,6 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         ,file.name.ext  = '.pgm'
     )
     {
-      # browser();
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
       file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
 
@@ -280,11 +279,12 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,model.family = imgnoiser.option('fit.model.family')
       ,degree = 2L
       ,formula = NULL
+      ,conf.level = imgnoiser.option('conf.level')
       ,model.data.name = imgnoiser.option('fit.model.data')
       , ...
     ) {
 
-      super$fit.model(self, model.name, model.family, degree, formula, model.data.name, ...)
+      super$fit.model(self, model.name, model.family, degree, formula, conf.level, model.data.name, ...)
       invisible(self);
     }
 

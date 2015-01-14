@@ -315,15 +315,16 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
     ## fit.model (documented here)
     ##------------------------------
     ,fit.model = function(
-         model.name = imgnoiser.option('fit.model.name')
-        ,model.family = imgnoiser.option('fit.model.family')
-        ,degree = 1L
-        ,formula = NULL
-        ,model.data.name = imgnoiser.option('fit.model.data')
-        , ...
-      ) {
+       model.name = imgnoiser.option('fit.model.name')
+      ,model.family = imgnoiser.option('fit.model.family')
+      ,degree = 1L
+      ,formula = NULL
+      ,conf.level = imgnoiser.option('conf.level')
+      ,model.data.name = imgnoiser.option('fit.model.data')
+      , ...
+    ) {
 
-      super$fit.model(self, model.name, model.family, degree, formula, model.data.name, ...)
+      super$fit.model(self, model.name, model.family, degree, formula, conf.level, model.data.name, ...)
       invisible(self)
     }
 

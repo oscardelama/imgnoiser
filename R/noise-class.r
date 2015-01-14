@@ -264,8 +264,6 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
       private$.channel.labels <- valid.channel.labels(channel.labels, avg.green.label)
       private$.green.channels <- green.channels
-
-
     }
 
     ##------------------------------
@@ -277,7 +275,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,model.family
         ,degree
         ,formula = NULL
-        ,model.data
+        ,conf.level
+        ,model.data.name
         ,...
       ) {
 
@@ -286,7 +285,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
       # Get the 'training' data for the regression
       get.model.src.data.func <- imgnoiser.option('get.model.src.data')
-      model.src.data <- get.model.src.data.func(model.data, noise.obj)
+      model.src.data <- get.model.src.data.func(model.data.name, noise.obj)
 
       x <- model.src.data[['data']]$x
       y <- model.src.data[['data']]$y
@@ -296,10 +295,12 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         stop(paste('Missing x or y components in the model', sQuote(model.name),"."))
 
       if (length(x) != length(y))
-        stop(paste("The x and y components in the model", sQuote(model.name),"don't have the same length"))
+        stop(paste("The x and y components in the model", sQuote(model.name),
+                   "don't have the same length"))
 
       if (length(x) != length(split.by))
-        stop(paste("The x and split.by model components in the model", sQuote(model.name),"don't have the same length"))
+        stop(paste("The x and split.by model components in the model",
+                   sQuote(model.name),"don't have the same length"))
 
       # Get the model fitter function
       model.fitter.func <- imgnoiser.option('fit.model')
@@ -324,12 +325,13 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         # Ignore the split if it has not enough data to fit a model
         # if (length(splitted.x[[split.value]]) <= 1L) next
         # @TODO: Handle cases when the data make crash the fitting function
-        model <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
-        model.call.txt <- model[['call']]
-        model <- model[['model']]
+        model.fit <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
+        model.call.txt <- model.fit[['call']]
+        model <- model.fit[['model']]
 
         grid <- build.model.grid(splitted.x[[split.value]])
-        predictions <- model.predictor.func(model.src.data, model, model.family, split.value, grid)
+        predictions <- model.predictor.func(model.src.data, model.fit, conf.level,
+                                            model.family, split.value, grid)
         predict.df <- data.table::rbindlist(list(
                            predict.df
                           ,predictions
@@ -545,31 +547,36 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
          model.name = FALSE
         ,obs = TRUE
         ,print = TRUE
-        ,fit = TRUE
-        ,confid = FALSE
-        ,main = NA
-        ,subt = NA
-        ,xlab = NA
-        ,ylab = NA
+        ,fit = FALSE
+        ,pred.int = FALSE
+        ,x = NULL
+        ,y = NULL
+        ,tlab = NULL
+        ,slab = NULL
+        ,xlab = NULL
+        ,ylab = NULL
         ,xlim = NULL
         ,ylim = NULL
         ,warnings = FALSE
     ) {
+
       # The model.name argument is a single element atomic vector
       vector.alike(model.name, 1L, type='?')
-      confid <- vector.alike(confid, 1L, type='l')
+      pred.int <- vector.alike(pred.int, 1L, type='l')
       print <- vector.alike(print, 1L, type='l')
       fit <- vector.alike(fit, 1L, type='l')
       # Get user defaults
+      if ((fit == TRUE | pred.int==TRUE) & (model.name == FALSE)) model.name <- TRUE
       if (model.name == TRUE) model.name <- imgnoiser.option('fit.model.name')
       point.size <- imgnoiser.option('plot.point.size')
+      # Get the user color pallete
+      color.pallette <- imgnoiser.option('color.pallette')
+      # Get the user color pallete
+      ribbon.opacity <- imgnoiser.option('opacity')
 
       if (model.name == FALSE) {
         model.src <- private$.std.src.data
-        # Without a model this arguments are irrelevant, and ignored
-        fit <- FALSE
-        confid <- FALSE
-        if (obs != TRUE) warning("There is nothing selected, in the arguments, to be plot.")
+        if (obs != TRUE) warning("There is nothing to plot selected in the arguments.")
       } else {
         # Validate the model name
         private$check.model.name(model.name)
@@ -580,52 +587,149 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       split.variable <- label[['term']]['split.by']
 
       # Get the labels
-      if (is.NA(main)) main <- label$main
-      if (is.NA(xlab)) xlab <- label$xlab
-      if (is.NA(ylab)) ylab <- label$ylab
+      t.lab <- tlab
+      s.lab <- slab
+      x.lab <- xlab
+      y.lab <- ylab
+      if (is.null(t.lab)) t.lab <- label$main
+      if (is.null(x.lab)) x.lab <- label$xlab
+      if (is.null(y.lab)) y.lab <- label$ylab
 
       # Initialize the plot
       p <- ggplot2::ggplot()
-      if (is.given(xlab)) p <- p + ggplot2::xlab(xlab)
-      if (is.given(ylab)) p <- p + ggplot2::ylab(ylab)
 
-      #-- Set the titles
-      if (is.given(main) & is.given(subt))
-        p <- p + ggplot2::ggtitle(bquote(atop(.(main), atop(italic(.(subt)), ""))))
-      else
-        if (is.given(main))
-          p <- p + ggplot2::ggtitle(main)
-      #--
+      # Plotting data environment
+      plot.envir <- new.env()
+      # Try lazy evals
+      try_eval <- function(exp.lazy, data) {
+        tryCatch(lazyeval::lazy_eval(exp.lazy, data),
+                 error = function(c) NULL,
+                 warning = function(c) NULL
+        )
+      }
+      # Get the transformation as lazy expressions
+      lazy.x <- lazyeval::lazy(x)
+      lazy.y <- lazyeval::lazy(y)
 
       if (obs == TRUE) {
-        # Merge the model source data
         model.df <- model.src[['data']]
-        p <- p + ggplot2::geom_point(ggplot2::aes(x=x, y=y, group=split.by, color=split.by), data=model.df, size=point.size, alpha=I(0.75))
+        # Merge the model source data
+        plot.envir$data.df <- data.frame('split.by' = model.df$split.by)
+
+        # Use the model names
+        data.table::setnames(model.df, 1L:3L, label$term[1:3])
+        plot.x <- try_eval(lazy.x, model.df)
+        plot.y <- try_eval(lazy.y, model.df)
+        # Reset the original XY names
+        data.table::setnames(model.df, 1L:3L, names(label$term)[1:3])
+
+        if (is.null(plot.x))
+          plot.envir$data.df$x <- model.df$x
+        else {
+          plot.envir$data.df$x <- plot.x
+          if (is.null(xlab)) x.lab <- lazy.x$expr
+        }
+
+        if (is.null(plot.y))
+          plot.envir$data.df$y <- model.df$y
+        else {
+          plot.envir$data.df$y <- plot.y
+          if (is.null(ylab)) y.lab <- lazy.y$expr
+          if (is.null(tlab)) t.lab <- NULL
+        }
+
+        p <- p + ggplot2::geom_point(ggplot2::aes(x=x, y=y, group=split.by, color=split.by),
+                                     data=plot.envir$data.df, size=point.size, alpha=I(0.75))
       }
 
-      if (fit == TRUE | confid == TRUE) {
+      # browser()
+      if (fit == TRUE | pred.int == TRUE) {
         # Get the model predictions
-        model.predictions.df <- private$.model[[model.name]][['predictions']]
+        model.predictions.df <- as.data.frame(private$.model[[model.name]][['predictions']])
+        pred.x <- try_eval(lazy.x, model.predictions.df)
+        pred.y <- try_eval(lazy.y, model.predictions.df)
         # Use XY names
-        # names(model.predictions.df)[1:3] <- names(label$term)[1:3]
         data.table::setnames(model.predictions.df, 1L:3L, names(label$term)[1:3])
+
+        plot.envir$pred.df <- data.frame('split.by' = model.predictions.df$split.by)
+
+        if (is.null(pred.x))
+          plot.envir$pred.df$x <- model.predictions.df$x
+        else {
+          plot.envir$pred.df$x <- pred.x
+          if (is.null(xlab)) x.lab <- lazy.x$expr
+        }
+
+        if (is.null(pred.y))
+          plot.envir$pred.df$y <- model.predictions.df$y
+        else {
+          plot.envir$pred.df$y <- pred.y
+          if (is.null(ylab)) y.lab <- lazy.y$expr
+          if (is.null(tlab)) t.lab <- NULL
+
+        }
 
         if (fit == TRUE) {
           # Use user line width
           line.width <- imgnoiser.option('plot.line.width')
-          p <- p + ggplot2::geom_line(ggplot2::aes(x=x, y=y, group=split.by, color=split.by), data=model.predictions.df, size=line.width)
+          p <- p + ggplot2::geom_line(ggplot2::aes(x=x, y=y, group=split.by, colour=split.by),
+                                      data=plot.envir$pred.df, size=line.width)
         }
 
-        if (confid == TRUE)
-          p <- p + ggplot2::geom_smooth(ggplot2::aes(x=x, y=y, group=split.by, color=split.by, ymin = lcl, ymax = ucl), data=model.predictions.df, stat="identity")
+        if (pred.int == TRUE) {
+
+          if (!is.null(pred.y)) {
+            plot.envir$pred.df <- data.frame(
+                      'x'         = model.predictions.df$x
+                      ,'y'        = model.predictions.df$lcl
+                      ,'split.by' = model.predictions.df$split.by
+                      )
+            # Use the model names
+            data.table::setnames(plot.envir$pred.df, 1L:3L, label$term[1:3])
+            plot.envir$pred.df$lcl <- try_eval(lazy.y, plot.envir$pred.df)
+            plot.envir$pred.df[,2] = model.predictions.df$ucl
+            plot.envir$pred.df$ucl <- try_eval(lazy.y, plot.envir$pred.df)
+            plot.envir$pred.df[,2] = model.predictions.df[,2]
+            # Set the XY names
+            data.table::setnames(plot.envir$pred.df, 1L:3L, names(label$term)[1:3])
+          }
+          else
+            plot.envir$pred.df <- model.predictions.df
+          # colour=split.by,
+#           p <- p + ggplot2::geom_smooth(ggplot2::aes(x=x, y=y, ymin=lcl, ymax=ucl,
+#                    group=split.by, colour=split.by),  linetype= I(0),
+#                    data=plot.envir$pred.df, stat="identity")
+          p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x, ymin=lcl,
+                                                     ymax=ucl,
+                                                     fill=split.by),
+                                        alpha=I(ribbon.opacity),
+                                        data=plot.envir$pred.df, stat="identity")
+          # Change the label
+          if (!is.null(split.variable))
+            p <- p + ggplot2::labs(fill=split.variable)
+          # Use the user color pallette to fill the ribbon
+          if (!is.null(color.pallette))
+            p <- p + ggplot2::scale_fill_manual(values=color.pallette)
+
+        }
       }
 
+      # Set the axes labels
+      if (!is.null(x.lab)) p <- p + ggplot2::xlab(x.lab)
+      if (!is.null(y.lab)) p <- p + ggplot2::ylab(y.lab)
+
+      #-- Set the titles
+      if (!is.null(t.lab) & !is.null(s.lab))
+        p <- p + ggplot2::ggtitle(bquote(atop(.(t.lab), atop(italic(.(s.lab)), ""))))
+      else
+        if (!is.null(t.lab))
+          p <- p + ggplot2::ggtitle(t.lab)
+      #--
+
       # Change the label
-      if (is.given(split.variable))
+      if (!is.null(split.variable))
         p <- p + ggplot2::labs(colour=split.variable)
 
-      # Use user color pallete
-      color.pallette <- imgnoiser.option('color.pallette')
       if (!is.null(color.pallette))
         p <- p + ggplot2::scale_colour_manual(values=color.pallette)
 
@@ -890,6 +994,8 @@ noise.var.doc$initialize <- function()
 #'   argument. If a formula is provided the \code{degree} argument will be
 #'   ignored.
 #'
+#' @param conf.level Confidence level to compute the prediction intervals
+#'
 #' @param model.data.name Identifies the specific data that will be part of the
 #'   model.
 #'
@@ -941,13 +1047,15 @@ noise.var.doc$initialize <- function()
 #' @name hvdvm$fit.model
 #----------------------------------------------
 noise.var.doc$fit.model <-
-      function( model.name = imgnoiser.option('fit.model.name')
-               ,model.family = imgnoiser.option('fit.model.family')
-               ,degree = 1L
-               ,formula = NULL
-               ,model.data.name = imgnoiser.option('fit.model.data')
-               , ...
-              )
+      function(
+         model.name = imgnoiser.option('fit.model.name')
+        ,model.family = imgnoiser.option('fit.model.family')
+        ,degree = 1L
+        ,formula = NULL
+        ,conf.level = imgnoiser.option('conf.level')
+        ,model.data.name = imgnoiser.option('fit.model.data')
+        , ...
+      )
   NULL
 
 #----------------------------------------------
@@ -990,7 +1098,7 @@ noise.var.doc$fit.model <-
 #'      the \code{std.var} default model, this corresponds to the
 #'      \code{channel} column in the variance data.
 #'
-#'      \item \code{sderr} The prediction standard error.
+#'      \item \code{fit.se} The prediction standard error.
 #'
 #'      \item \code{lcl} The \emph{lower confidence limit}. It is computed as
 #'      the predicted value minus the confidence factor multiplied by the
@@ -1001,18 +1109,14 @@ noise.var.doc$fit.model <-
 #'      standard error.
 #'    }
 #'
-#'   The confidence factor used to compute the \code{lcl} and \code{ucl} columns
-#'   is set when the \code{fit.model} function is called taking the value of the
-#'   option \code{confid.factor} of the \code{\link{imgnoiser.option}} function.
-#'
 #' @examples
 #' \dontrun{
 #'
 #' # Get the 'standard' model predictions
 #' preds.df <- my.hvdvm$get.model.predictions()
-#' # Set the lcl and ucl confidence limits using 2.5 as confidence factor
-#' preds.df$lcl <- preds.df[,2L] - 2.5*preds.df$sderr
-#' preds.df$ucl <- preds.df[,2L] + 2.5*preds.df$sderr
+#' # Set the lcl and ucl confidence limits using +/- 2.5 fit standard error
+#' preds.df$lcl <- preds.df[,2L] - 2.5*preds.df$fit.se
+#' preds.df$ucl <- preds.df[,2L] + 2.5*preds.df$fit.se
 #' }
 #'
 #' @seealso \code{\link{hvdvm$fit.model}}, \code{\link{vvm$fit.model}}
@@ -1217,12 +1321,14 @@ noise.var.doc$remove.model = function(
 #'      model.name = FALSE,
 #'      obs = TRUE,
 #'      print = TRUE,
-#'      fit = TRUE,
-#'      confid = FALSE,
-#'      main = NA,
-#'      subt = NA,
-#'      xlab = NA,
-#'      ylab = NA,
+#'      fit = FALSE,
+#'      pred.int = FALSE,
+#'      x = NULL,
+#'      y = NULL,
+#'      tlab = NULL,
+#'      slab = NULL,
+#'      xlab = NULL,
+#'      ylab = NULL,
 #'      xlim = NULL,
 #'      ylim = NULL,
 #'      warnings = FALSE
@@ -1232,12 +1338,14 @@ noise.var.doc$remove.model = function(
 #'      model.name = FALSE,
 #'      obs = TRUE,
 #'      print = TRUE,
-#'      fit = TRUE,
-#'      confid = FALSE,
-#'      main = NA,
-#'      subt = NA,
-#'      xlab = NA,
-#'      ylab = NA,
+#'      fit = FALSE,
+#'      pred.int = FALSE,
+#'      x = NULL,
+#'      y = NULL,
+#'      tlab = NULL,
+#'      slab = NULL,
+#'      xlab = NULL,
+#'      ylab = NULL,
 #'      xlim = NULL,
 #'      ylim = NULL,
 #'      warnings = FALSE
@@ -1254,17 +1362,24 @@ noise.var.doc$remove.model = function(
 #'   want to customize the plot before printing it, set this parameter to FALSE
 #'   and use the returned ggplot2 value.
 #'
-#' @param fit If TRUE the predictions, of the model referred with the
+#' @param fit If TRUE the prediction intervals of the model referred with the
 #'   \code{model.name} argument, will be plotted as a line for each channel.
 #'
-#' @param confid If TRUE the area between the predictions confidence limits, of
+#' @param x
+#' @param y The default model uses the \code{mean} and \code{var} variables in
+#'   the \code{var.df} data frame as the variables to plot in the x and y axes.
+#'   However, you can change the plot to use in those axes the expressions you
+#'   want. For example, you may want to plot the SNR (signal to noise ratio), in
+#'   such case use \code{y = mean/sqrt(var)}.
+#'
+#' @param pred.int If TRUE the area between the predictions confidence limits, of
 #'   the model referred with the \code{model.name} argument, will be drawn with
 #'   a semi-transparent color.
 #'
-#' @param main The plot main title. If it is not given, the title in the model
+#' @param tlab The plot main title. If it is not given, the title in the model
 #'   data source will be used. A NULL value means no title is desired.
 #'
-#' @param subt The plot subt-title. If it is not given the plot won't have a
+#' @param slab The plot subt-title. If it is not given the plot won't have a
 #'   sub-title.
 #'
 #' @param xlab The plot x axis title. If it is not given, the corresponding
@@ -1311,21 +1426,7 @@ noise.var.doc$remove.model = function(
 #' @aliases vvm$plot hvdvm$plot
 #' @name hvdvm$plot
 #----------------------------------------------
-noise.var.doc$plot <- function(
-  model.name = FALSE
-  ,obs = TRUE
-  ,print = TRUE
-  ,fit = TRUE
-  ,confid = FALSE
-  ,main = NA
-  ,subt = NA
-  ,xlab = NA
-  ,ylab = NA
-  ,xlim = NULL
-  ,ylim = NULL
-  ,warnings = FALSE
-)
-  NULL
+noise.var.doc$plot <- function()   NULL
 
 rm(noise.var.doc)
 #**********************
