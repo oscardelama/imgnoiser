@@ -444,6 +444,7 @@ get.imgnoiser.default.options <- function() {
     ,'tone.curve.id'        = "camera.metadata"
     ,'mute'                 = FALSE
     ,'conf.level'           = 0.95
-    ,'opacity'              = 0.2
+    ,'plot.ribbon.opacity'  = 0.2
+    ,'plot.point.opacity'   = 0.75
   )
 }
