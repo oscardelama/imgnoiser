@@ -601,13 +601,19 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       split.variable <- label[['term']]['split.by']
 
       # Get the labels
+      set.null.if.na <- function(x, v) {
+        if (is.null(x)) v
+        else if (is.na(x[1])) NULL
+            else x
+      }
       t.lab <- tlab
       s.lab <- slab
       x.lab <- xlab
       y.lab <- ylab
-      if (is.null(t.lab)) t.lab <- label$main
-      if (is.null(x.lab)) x.lab <- label$xlab
-      if (is.null(y.lab)) y.lab <- label$ylab
+      t.lab <- set.null.if.na(t.lab, label$main)
+      s.lab <- set.null.if.na(t.lab, NULL)
+      x.lab <- set.null.if.na(t.lab, label$xlab)
+      y.lab <- set.null.if.na(t.lab, label$ylab)
 
       # Initialize the plot
       p <- ggplot2::ggplot()
