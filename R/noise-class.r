@@ -182,7 +182,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
     }
 
     ,wide.var.df = function() {
-      browser()
+      # browser()
       var.df <- private$.var.df
       melted.df <- reshape2::melt(var.df, id=c('pict', 'channel'))
       wide.df <- reshape2::dcast(melted.df, pict ~ channel + variable)
@@ -333,6 +333,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         lazy.dots <- fitted.model[['lazy.dots']]
 
         grid <- build.model.grid(splitted.x[[split.value]])
+        # browser()
         predictions <- model.predictor.func(model.src.data, model.obj, conf.level,
                                             model.family, split.value, grid, lazy.dots)
         predict.df <- data.table::rbindlist(list(
@@ -582,11 +583,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       if ((fit == TRUE | pred.int==TRUE) & (model.name == FALSE)) model.name <- TRUE
       if (model.name == TRUE & pred.int != TRUE & fit != TRUE) fit <- TRUE
       if (model.name == TRUE) model.name <- imgnoiser.option('fit.model.name')
-      point.size <- imgnoiser.option('plot.point.size')
       # Get the user color pallete
       color.pallette <- imgnoiser.option('color.pallette')
-      # Get the user color pallete
-      ribbon.opacity <- imgnoiser.option('opacity')
 
       if (model.name == FALSE) {
         model.src <- private$.std.src.data
@@ -594,7 +592,9 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       } else {
         # Validate the model name
         private$check.model.name(model.name)
-        model.src <- private$.model[[model.name]][['source']]
+        if (pred.int != TRUE & fit != TRUE) fit <- TRUE
+        model.str <- private$.model[[model.name]]
+        model.src <- model.str[['source']]
       }
 
       label <- model.src[['label']]
@@ -634,6 +634,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         data.table::setnames(model.df, 1L:3L, label$term[1:3])
         plot.x <- try_eval(lazy.x, model.df)
         plot.y <- try_eval(lazy.y, model.df)
+
         # Reset the original XY names
         data.table::setnames(model.df, 1L:3L, names(label$term)[1:3])
 
@@ -652,18 +653,23 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
           if (is.null(tlab)) t.lab <- NULL
         }
 
+        point.size <- imgnoiser.option('plot.point.size')
+        point.opacity <- imgnoiser.option('plot.point.opacity')
         p <- p + ggplot2::geom_point(ggplot2::aes(x=x, y=y, group=split.by, color=split.by),
-                                     data=plot.envir$data.df, size=point.size, alpha=I(0.75))
+                                     data=plot.envir$data.df,
+                                     size=point.size,
+                                     alpha=I(point.opacity))
       }
 
       # browser()
       if (fit == TRUE | pred.int == TRUE) {
+        model.family <- model.str[['model.family']]
         # Get the model predictions
         model.predictions.df <- as.data.frame(private$.model[[model.name]][['predictions']]);
         # This is the data to plot
         plot.envir$pred.df <- model.predictions.df
         # Use XY names
-        names(plot.envir$pred.df)[1L:3L] <- names(label$term)[1:3]
+        names(plot.envir$pred.df)[1L:3L] <- names(label$term)[1L:3L]
 
         # Transform the x axis
         pred.x <- try_eval(lazy.x, model.predictions.df)
@@ -689,32 +695,39 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       }
 
       if (pred.int == TRUE) {
-        # A temporal copy of the fitted model variables
-        plot.envir$temp.df <- model.predictions.df[,c(1:3)]
 
-        #-- Transform the upper and lower prediction limits
-        plot.envir$temp.df[,2] <- model.predictions.df$lpl
-        pred.lpl <- try_eval(lazy.y, plot.envir$temp.df)
+        if (model.family =='smooth.spline')
+          warning("The 'smooth.spline' model doesn't allow prediction intervals.")
+        else {
 
-        if (!is.null(pred.lpl)) {
-          plot.envir$pred.df$lpl <- pred.lpl
-          plot.envir$temp.df[,2] <- model.predictions.df$upl
-          plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$temp.df)
+          # A temporal copy of the fitted model variables
+          plot.envir$temp.df <- model.predictions.df[,c(1:3)]
+
+          #-- Transform the upper and lower prediction limits
+          plot.envir$temp.df[,2] <- model.predictions.df$lpl
+          pred.lpl <- try_eval(lazy.y, plot.envir$temp.df)
+
+          if (!is.null(pred.lpl)) {
+            plot.envir$pred.df$lpl <- pred.lpl
+            plot.envir$temp.df[,2] <- model.predictions.df$upl
+            plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$temp.df)
+          }
+          #--
+
+          # Get the user color pallete
+          ribbon.opacity <- imgnoiser.option('plot.ribbon.opacity')
+          p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x,
+                                                     ymin=lpl, ymax=upl,
+                                                     fill=split.by),
+                                        alpha=I(ribbon.opacity),
+                                        data=plot.envir$pred.df, stat="identity")
+          # Change the label
+          if (!is.null(split.variable))
+            p <- p + ggplot2::labs(fill=split.variable)
+          # Use the user color pallette to fill the ribbon
+          if (!is.null(color.pallette))
+            p <- p + ggplot2::scale_fill_manual(values=color.pallette)
         }
-        #--
-
-        p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x,
-                                                   ymin=lpl, ymax=upl,
-                                                   fill=split.by),
-                                      alpha=I(ribbon.opacity),
-                                      data=plot.envir$pred.df, stat="identity")
-        # Change the label
-        if (!is.null(split.variable))
-          p <- p + ggplot2::labs(fill=split.variable)
-        # Use the user color pallette to fill the ribbon
-        if (!is.null(color.pallette))
-          p <- p + ggplot2::scale_fill_manual(values=color.pallette)
-
       }
 
       # Set the axes labels
