@@ -611,10 +611,10 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       x.lab <- xlab
       y.lab <- ylab
       t.lab <- set.null.if.na(t.lab, label$main)
-      s.lab <- set.null.if.na(t.lab, NULL)
-      x.lab <- set.null.if.na(t.lab, label$xlab)
-      y.lab <- set.null.if.na(t.lab, label$ylab)
-
+      s.lab <- set.null.if.na(s.lab, NULL)
+      x.lab <- set.null.if.na(x.lab, label$xlab)
+      y.lab <- set.null.if.na(y.lab, label$ylab)
+      # browser()
       # Initialize the plot
       p <- ggplot2::ggplot()
 
