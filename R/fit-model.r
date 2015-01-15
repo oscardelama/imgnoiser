@@ -410,18 +410,25 @@ imgnoiser.model.predictions <- function(
     pred <- stats::predict(model.obj, newdata = x.df, interval='prediction',
                            se.fit=TRUE, level = conf.level)
 
-  pred.fit.df <- as.data.frame(pred$fit)
-  result <-
-      data.frame(
-         'x'         = x.df[,1L]
-        ,'y'         = pred.fit.df$fit
-        ,'split.by'  = split.value
-        ,'fit.se'    = pred$se.fit
-        ,'lpl'       = pred.fit.df$lwr
-        ,'upl'       = pred.fit.df$upr
-      )
-  data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
-
+  if (model.family == 'smooth.spline') {
+    result <- data.frame('x' = pred[['x']]
+                         ,'y' = pred[['y']]
+                         ,'split.by'  = split.value
+                         )
+    data.table::setnames(result, 1L:2L, model.src.data[['label']][['term']][1L:2L])
+  } else {
+    pred.fit.df <- as.data.frame(pred$fit)
+    result <-
+        data.frame(
+           'x'         = x.df[,1L]
+          ,'y'         = pred.fit.df$fit
+          ,'split.by'  = split.value
+          ,'fit.se'    = pred$se.fit
+          ,'lpl'       = pred.fit.df$lwr
+          ,'upl'       = pred.fit.df$upr
+        )
+    data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
+  }
   result;
 }
 
