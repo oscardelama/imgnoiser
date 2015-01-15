@@ -580,6 +580,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       fit <- vector.alike(fit, 1L, type='l')
       # Get user defaults
       if ((fit == TRUE | pred.int==TRUE) & (model.name == FALSE)) model.name <- TRUE
+      if (model.name == TRUE & pred.int != TRUE & fit != TRUE) fit <- TRUE
       if (model.name == TRUE) model.name <- imgnoiser.option('fit.model.name')
       point.size <- imgnoiser.option('plot.point.size')
       # Get the user color pallete
