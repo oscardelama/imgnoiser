@@ -659,70 +659,62 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       # browser()
       if (fit == TRUE | pred.int == TRUE) {
         # Get the model predictions
-        model.predictions.df <- as.data.frame(private$.model[[model.name]][['predictions']])
-        pred.x <- try_eval(lazy.x, model.predictions.df)
-        pred.y <- try_eval(lazy.y, model.predictions.df)
+        model.predictions.df <- as.data.frame(private$.model[[model.name]][['predictions']]);
+        # This is the data to plot
+        plot.envir$pred.df <- model.predictions.df
         # Use XY names
-        data.table::setnames(model.predictions.df, 1L:3L, names(label$term)[1:3])
+        names(plot.envir$pred.df)[1L:3L] <- names(label$term)[1:3]
 
-        plot.envir$pred.df <- data.frame('split.by' = model.predictions.df$split.by)
-
-        if (is.null(pred.x))
-          plot.envir$pred.df$x <- model.predictions.df$x
-        else {
+        # Transform the x axis
+        pred.x <- try_eval(lazy.x, model.predictions.df)
+        if (!is.null(pred.x)) {
           plot.envir$pred.df$x <- pred.x
           if (is.null(xlab)) x.lab <- lazy.x$expr
         }
+      }
 
-        if (is.null(pred.y))
-          plot.envir$pred.df$y <- model.predictions.df$y
-        else {
+      if (fit == TRUE) {
+        pred.y <- try_eval(lazy.y, model.predictions.df)
+
+        if (!is.null(pred.y)) {
           plot.envir$pred.df$y <- pred.y
           if (is.null(ylab)) y.lab <- lazy.y$expr
           if (is.null(tlab)) t.lab <- NULL
-
         }
 
-        if (fit == TRUE) {
-          # Use user line width
-          line.width <- imgnoiser.option('plot.line.width')
-          p <- p + ggplot2::geom_line(ggplot2::aes(x=x, y=y, group=split.by, colour=split.by),
-                                      data=plot.envir$pred.df, size=line.width)
+        # Use user line width
+        line.width <- imgnoiser.option('plot.line.width')
+        p <- p + ggplot2::geom_line(ggplot2::aes(x=x, y=y, group=split.by, colour=split.by),
+                                    data=plot.envir$pred.df, size=line.width)
+      }
+
+      if (pred.int == TRUE) {
+        # A temporal copy of the fitted model variables
+        plot.envir$temp.df <- model.predictions.df[,c(1:3)]
+
+        #-- Transform the upper and lower prediction limits
+        plot.envir$temp.df[,2] <- model.predictions.df$lpl
+        pred.lpl <- try_eval(lazy.y, plot.envir$temp.df)
+
+        if (!is.null(pred.lpl)) {
+          plot.envir$pred.df$lpl <- pred.lpl
+          plot.envir$temp.df[,2] <- model.predictions.df$upl
+          plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$temp.df)
         }
+        #--
 
-        if (pred.int == TRUE) {
+        p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x,
+                                                   ymin=lpl, ymax=upl,
+                                                   fill=split.by),
+                                      alpha=I(ribbon.opacity),
+                                      data=plot.envir$pred.df, stat="identity")
+        # Change the label
+        if (!is.null(split.variable))
+          p <- p + ggplot2::labs(fill=split.variable)
+        # Use the user color pallette to fill the ribbon
+        if (!is.null(color.pallette))
+          p <- p + ggplot2::scale_fill_manual(values=color.pallette)
 
-          if (!is.null(pred.y)) {
-            plot.envir$pred.df <- data.frame(
-                      'x'         = model.predictions.df$x
-                      ,'y'        = model.predictions.df$lpl
-                      ,'split.by' = model.predictions.df$split.by
-                      )
-            # Use the model names
-            data.table::setnames(plot.envir$pred.df, 1L:3L, label$term[1:3])
-            plot.envir$pred.df$lpl <- try_eval(lazy.y, plot.envir$pred.df)
-            plot.envir$pred.df[,2] = model.predictions.df$upl
-            plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$pred.df)
-            plot.envir$pred.df[,2] = model.predictions.df[,2]
-            # Set the XY names
-            data.table::setnames(plot.envir$pred.df, 1L:3L, names(label$term)[1:3])
-          }
-          else
-            plot.envir$pred.df <- model.predictions.df
-
-          p <- p + ggplot2::geom_ribbon(ggplot2::aes(x=x,
-                                                     ymin=lpl, ymax=upl,
-                                                     fill=split.by),
-                                        alpha=I(ribbon.opacity),
-                                        data=plot.envir$pred.df, stat="identity")
-          # Change the label
-          if (!is.null(split.variable))
-            p <- p + ggplot2::labs(fill=split.variable)
-          # Use the user color pallette to fill the ribbon
-          if (!is.null(color.pallette))
-            p <- p + ggplot2::scale_fill_manual(values=color.pallette)
-
-        }
       }
 
       # Set the axes labels
