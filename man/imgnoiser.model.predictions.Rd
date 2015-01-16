@@ -16,7 +16,7 @@ imgnoiser.model.predictions(
 \item{model.src.data}{The model data source as returned by
   \code{\link{imgnoiser.get.model.source.data}} with the model data source.}
 
-\item{conf.level}{Confidence level used to compute \code{lcl} and \code{ucl}
+\item{conf.level}{Confidence level used to compute \code{lpl} and \code{upl}
   in the resulting data frame.}
 
 \item{model.family}{The \code{model.family} argument used in the call to
@@ -58,13 +58,9 @@ A data.frame containing:
 
      \item \code{fit.se} The prediction standard error.
 
-     \item \code{lcl} The \emph{lower confidence limit}. It is computed as
-     the predicted value minus the confidence factor multiplied by the
-     fitting standard error.
+     \item \code{lpl} The \emph{lower prediction confidence limit}.
 
-     \item \code{ucl} The \emph{upper confidence limit}. It is computed as
-     the predicted value plus the confidence factor multiplied by the fitting
-     standard error.
+     \item \code{upl} The \emph{upper prediction confidence limit}.
    }
 }
 \description{

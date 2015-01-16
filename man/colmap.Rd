@@ -1,7 +1,6 @@
 \docType{class}
 \name{colmap}
 \alias{colmap}
-\alias{colmap-class}
 \title{Color space conversion of raw image}
 \description{
 The \code{colmap} class contains tools for the color conversion from raw

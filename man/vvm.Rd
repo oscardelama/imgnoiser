@@ -1,7 +1,6 @@
 \docType{class}
 \name{vvm}
 \alias{vvm}
-\alias{vvm-class}
 \title{Analysis of the, noise caused, variance in raw images}
 \description{
 The \code{vvm} class contains tools for the measurement, analysis and

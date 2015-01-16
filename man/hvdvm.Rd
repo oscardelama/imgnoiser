@@ -1,7 +1,6 @@
 \docType{class}
 \name{hvdvm}
 \alias{hvdvm}
-\alias{hvdvm-class}
 \title{Analysis of noise in raw images using the "hvdvm" technique}
 \description{
 The \code{hvdvm} class contains tools for the measurement, analysis and

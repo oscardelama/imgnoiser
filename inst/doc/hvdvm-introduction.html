@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-01-12" />
+<meta name="date" content="2015-01-16" />
 
 <title>hvdvm Class Introduction</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <div id="header">
 <h1 class="title"><em>hvdvm</em> Class Introduction</h1>
-<h4 class="date"><em>2015-01-12</em></h4>
+<h4 class="date"><em>2015-01-16</em></h4>
 </div>
 
 
@@ -563,10 +563,10 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 <h2><span class="header-section-number">7.1</span> new()</h2>
 <p>Create a new instance of the hvdvm class.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">new</span>(
-<span class="dt">channel.labels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;channel.labels&quot;</span>),
-<span class="dt">green.channels =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;green.channels&quot;</span>),
-<span class="dt">has.RGGB.pattern =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;has.RGGB.pattern&quot;</span>),
-<span class="dt">avg.green.label =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;avg.green.channel.label&quot;</span>)
+  <span class="dt">channel.labels   =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;channel.labels&quot;</span>),
+  <span class="dt">green.channels   =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;green.channels&quot;</span>),
+  <span class="dt">has.RGGB.pattern =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;has.RGGB.pattern&quot;</span>),
+  <span class="dt">avg.green.label  =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;avg.green.channel.label&quot;</span>)
 )</code></pre>
 </div>
 <div id="digest" class="section level2">
@@ -592,30 +592,41 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 <p>Get the distinct photographic conditions.</p>
 <pre class="sourceCode r"><code class="sourceCode r">photo.conditions.df</code></pre>
 </div>
+<div id="merged.var.cov.df" class="section level2">
+<h2><span class="header-section-number">7.6</span> merged.var.cov.df</h2>
+<p>Get the resulting noise variance and covariance merged data.</p>
+<pre class="sourceCode r"><code class="sourceCode r">merged.var.cov.df</code></pre>
+</div>
+<div id="wide.var.df" class="section level2">
+<h2><span class="header-section-number">7.7</span> wide.var.df</h2>
+<p>Get the resulting noise variance data in a wide format.</p>
+<pre class="sourceCode r"><code class="sourceCode r">wide.var.df</code></pre>
+</div>
 <div id="channel.labels" class="section level2">
-<h2><span class="header-section-number">7.6</span> channel.labels</h2>
+<h2><span class="header-section-number">7.8</span> channel.labels</h2>
 <p>Get the channel labels.</p>
 <pre class="sourceCode r"><code class="sourceCode r">channel.labels</code></pre>
 </div>
 <div id="green.channels" class="section level2">
-<h2><span class="header-section-number">7.7</span> green.channels</h2>
+<h2><span class="header-section-number">7.9</span> green.channels</h2>
 <p>Get the green channels indices.</p>
 <pre class="sourceCode r"><code class="sourceCode r">green.channels</code></pre>
 </div>
 <div id="fit.model" class="section level2">
-<h2><span class="header-section-number">7.8</span> fit.model()</h2>
+<h2><span class="header-section-number">7.10</span> fit.model()</h2>
 <p>Fit a model to the noise data.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fit.model</span>(
-  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
-  <span class="dt">model.family =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.family&quot;</span>),
-  <span class="dt">degree =</span> 1L,
-  <span class="dt">formula =</span> <span class="ot">NULL</span>,
+  <span class="dt">model.name      =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">model.family    =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.family&quot;</span>),
+  <span class="dt">degree          =</span> 1L,
+  <span class="dt">formula         =</span> <span class="ot">NULL</span>,
+  <span class="dt">conf.level      =</span> <span class="kw">imgnoiser.option</span>(<span class="st">'conf.level'</span>),
   <span class="dt">model.data.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.data&quot;</span>),
   ...
 )</code></pre>
 </div>
 <div id="print.model.summary" class="section level2">
-<h2><span class="header-section-number">7.9</span> print.model.summary()</h2>
+<h2><span class="header-section-number">7.11</span> print.model.summary()</h2>
 <p>Print a fitted model summary.</p>
 <pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">print.model.summary</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
@@ -624,14 +635,18 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 )</code></pre>
 </div>
 <div id="get.model.predictions" class="section level2">
-<h2><span class="header-section-number">7.10</span> get.model.predictions()</h2>
+<h2><span class="header-section-number">7.12</span> get.model.predictions()</h2>
 <p>Get the values predicted by a fitted model.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model.predictions</span>(
-  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
+  <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
+  <span class="dt">x          =</span> <span class="ot">NULL</span>,
+  <span class="dt">select     =</span> <span class="ot">NULL</span>,
+  <span class="dt">conf.level =</span> <span class="ot">NULL</span>,
+  ...
 )</code></pre>
 </div>
 <div id="get.model" class="section level2">
-<h2><span class="header-section-number">7.11</span> get.model()</h2>
+<h2><span class="header-section-number">7.13</span> get.model()</h2>
 <p>Get a fitted model object.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get.model</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>),
@@ -639,40 +654,42 @@ my.hvdvm$<span class="kw">plot</span>(<span class="dt">warnings=</span><span cla
 )</code></pre>
 </div>
 <div id="exists.model" class="section level2">
-<h2><span class="header-section-number">7.12</span> exists.model()</h2>
+<h2><span class="header-section-number">7.14</span> exists.model()</h2>
 <p>Find if a model with a given name has already been fitted.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">exists.model</span>(
   <span class="dt">model.name =</span> <span class="kw">imgnoiser.option</span>(<span class="st">&quot;fit.model.name&quot;</span>)
 )</code></pre>
 </div>
 <div id="model.list" class="section level2">
-<h2><span class="header-section-number">7.13</span> model.list</h2>
+<h2><span class="header-section-number">7.15</span> model.list</h2>
 <p>Get a list with the fitted models.</p>
 <pre class="sourceCode r"><code class="sourceCode r">model.list</code></pre>
 </div>
 <div id="remove.model" class="section level2">
-<h2><span class="header-section-number">7.14</span> remove.model()</h2>
+<h2><span class="header-section-number">7.16</span> remove.model()</h2>
 <p>Remove a fitted model.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">remove.model</span>(
   <span class="dt">model.name =</span> <span class="kw">stop</span>(<span class="st">&quot;A model name argument is required.&quot;</span>)
 )</code></pre>
 </div>
 <div id="plot" class="section level2">
-<h2><span class="header-section-number">7.15</span> plot()</h2>
+<h2><span class="header-section-number">7.17</span> plot()</h2>
 <p>Plot a fitted model and its source data.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(
   <span class="dt">model.name =</span> <span class="ot">FALSE</span>,
-  <span class="dt">obs =</span> <span class="ot">TRUE</span>,
-  <span class="dt">print =</span> <span class="ot">TRUE</span>,
-  <span class="dt">fit =</span> <span class="ot">TRUE</span>,
-  <span class="dt">confid =</span> <span class="ot">FALSE</span>,
-  <span class="dt">main =</span> <span class="ot">NA</span>,
-  <span class="dt">subt =</span> <span class="ot">NA</span>,
-  <span class="dt">xlab =</span> <span class="ot">NA</span>,
-  <span class="dt">ylab =</span> <span class="ot">NA</span>,
-  <span class="dt">xlim =</span> <span class="ot">NULL</span>,
-  <span class="dt">ylim =</span> <span class="ot">NULL</span>,
-  <span class="dt">warnings =</span> <span class="ot">FALSE</span>
+  <span class="dt">obs        =</span> <span class="ot">TRUE</span>,
+  <span class="dt">print      =</span> <span class="ot">TRUE</span>,
+  <span class="dt">fit        =</span> <span class="ot">FALSE</span>,
+  <span class="dt">pred.int   =</span> <span class="ot">FALSE</span>,
+  <span class="dt">x          =</span> <span class="ot">NULL</span>,
+  <span class="dt">y          =</span> <span class="ot">NULL</span>,
+  <span class="dt">tlab       =</span> <span class="ot">NULL</span>,
+  <span class="dt">slab       =</span> <span class="ot">NULL</span>,
+  <span class="dt">xlab       =</span> <span class="ot">NULL</span>,
+  <span class="dt">ylab       =</span> <span class="ot">NULL</span>,
+  <span class="dt">xlim       =</span> <span class="ot">NULL</span>,
+  <span class="dt">ylim       =</span> <span class="ot">NULL</span>,
+  <span class="dt">warnings   =</span> <span class="ot">FALSE</span>
 )</code></pre>
 <p>↵</p>
 </div>

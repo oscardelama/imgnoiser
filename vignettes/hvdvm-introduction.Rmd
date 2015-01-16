@@ -291,10 +291,10 @@ Create a new instance of the hvdvm class.
 
 ```R
 new(
-channel.labels = imgnoiser.option("channel.labels"),
-green.channels = imgnoiser.option("green.channels"),
-has.RGGB.pattern = imgnoiser.option("has.RGGB.pattern"),
-avg.green.label = imgnoiser.option("avg.green.channel.label")
+  channel.labels   = imgnoiser.option("channel.labels"),
+  green.channels   = imgnoiser.option("green.channels"),
+  has.RGGB.pattern = imgnoiser.option("has.RGGB.pattern"),
+  avg.green.label  = imgnoiser.option("avg.green.channel.label")
 )
 ```
 
@@ -333,6 +333,21 @@ Get the distinct photographic conditions.
 photo.conditions.df
 ```
 
+## merged.var.cov.df ##
+
+Get the resulting noise variance and covariance merged data.
+
+```R
+merged.var.cov.df
+```
+##  wide.var.df ## 
+
+Get the resulting noise variance data in a wide format.
+
+```R
+wide.var.df
+```
+
 ## channel.labels ##
 
 Get the channel labels.
@@ -355,10 +370,11 @@ Fit a model to the noise data.
 
 ```R
 fit.model(
-  model.name = imgnoiser.option("fit.model.name"),
-  model.family = imgnoiser.option("fit.model.family"),
-  degree = 1L,
-  formula = NULL,
+  model.name      = imgnoiser.option("fit.model.name"),
+  model.family    = imgnoiser.option("fit.model.family"),
+  degree          = 1L,
+  formula         = NULL,
+  conf.level      = imgnoiser.option('conf.level'),
   model.data.name = imgnoiser.option("fit.model.data"),
   ...
 )
@@ -382,7 +398,11 @@ Get the values predicted by a fitted model.
 
 ```R
 get.model.predictions(
-  model.name = imgnoiser.option("fit.model.name")
+  model.name = imgnoiser.option("fit.model.name"),
+  x          = NULL,
+  select     = NULL,
+  conf.level = NULL,
+  ...
 )
 ```
 
@@ -432,17 +452,19 @@ Plot a fitted model and its source data.
 ```R
 plot(
   model.name = FALSE,
-  obs = TRUE,
-  print = TRUE,
-  fit = TRUE,
-  confid = FALSE,
-  main = NA,
-  subt = NA,
-  xlab = NA,
-  ylab = NA,
-  xlim = NULL,
-  ylim = NULL,
-  warnings = FALSE
+  obs        = TRUE,
+  print      = TRUE,
+  fit        = FALSE,
+  pred.int   = FALSE,
+  x          = NULL,
+  y          = NULL,
+  tlab       = NULL,
+  slab       = NULL,
+  xlab       = NULL,
+  ylab       = NULL,
+  xlim       = NULL,
+  ylim       = NULL,
+  warnings   = FALSE
 )
 ```
 

@@ -205,8 +205,8 @@ The confidence limits are computed using as *"confidence factor"* the `confid.fa
 
 ```{r echo=TRUE, results='hide' }
 # Confidence limits using 2.5 as confidence factor
-preds$lcl <- preds$var - 2.5*preds$sderr
-preds$ucl <- preds$var + 2.5*preds$sderr
+preds$lcl <- preds$var - 2.5*preds$fit.se
+preds$ucl <- preds$var + 2.5*preds$fit.se
 head(preds)
 ```
 
@@ -424,16 +424,16 @@ my.obj <- my.hvdvm
 ```{r fig.width=7, fig.height=6, results='hold', warning=FALSE}
 # Get the OLS linear regression plot
 std.plot <- my.obj$plot(model.name=TRUE, print=FALSE, 
-                  xlab='Mean', ylab=NULL, main=NULL, xlim=c(0,300), ylim=c(0, 150))
+                  xlab='Mean', ylab=NA, tlab=NA, xlim=c(0,300), ylim=c(0, 150))
 
 # Get the weighted, robust, linear regression plot
 weighted.plot <- my.obj$plot(model.name='weighted', print=FALSE, 
-                  xlab='Mean', ylab=NULL, main=NULL, xlim=c(0,300), ylim=c(0, 150))
+                  xlab='Mean', ylab=NA, tlab=NA, xlim=c(0,300), ylim=c(0, 150))
 
 # Use both plot objects for detailed customization.
 shared.legend(std.plot
              ,weighted.plot
-             ,'Two plots sharing title, y label and legend'
+             ,'Comparison of the Standard (top) and Weighted (bottom) Models'
              ,'Variance (ADU^2)'
              )
 ```

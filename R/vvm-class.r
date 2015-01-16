@@ -166,11 +166,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,path.to.files  = './'
       ,file.name.ext  = '.pgm'
       ,is.neutral = FALSE
-      ,map.to.rgb = NULL
+      ,map.to.rgb = stop("The 'map.to.rgb' argument is missing.")
       ,rgb.scale = 255
       ,rgb.labels = imgnoiser.option('rgb.labels')
-      # This argument can be equal to 'linear' to avoid toning
-      # otherwise will expect a tone curve in the camera metadata
       ,tone.curve = imgnoiser.option('tone.curve.id')
     )
     {

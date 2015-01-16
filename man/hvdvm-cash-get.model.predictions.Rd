@@ -11,7 +11,8 @@
   argument is omitted, the predictions for selected points in the range
   of the source data used to build the model are used.}
 
-\item{select}{The channels for which we want to get the predictions.}
+\item{select}{A vector with the channels whose predictions we want. They can
+  be their labels or their indices.}
 
 \item{conf.level}{The confidence level to get the predictions interval. It
   must be in the [0,1] range}
@@ -41,13 +42,9 @@ A data frame with the predictions from the model. In the following
 
      \item \code{fit.se} The prediction standard error.
 
-     \item \code{lcl} The \emph{lower confidence limit}. It is computed as
-     the predicted value minus the confidence factor multiplied by the
-     fitting standard error.
+     \item \code{lpl} The \emph{lower prediction confidence limit}.
 
-     \item \code{ucl} The \emph{upper confidence limit}. It is computed as
-     the predicted value plus the confidence factor multiplied by the fitting
-     standard error.
+     \item \code{upl} The \emph{upper prediction confidence limit}.
    }
 }
 \description{
