@@ -159,7 +159,7 @@ imgnoiser.load <- function(
 #' @export
 #----------------------------------
 imgnoiser.save <- function(
-     obj            = stop("An 'obj' argument is required.")
+     obj            = stop("The 'obj' argument is missing.")
     ,file.name      = deparse(substitute(obj))
     ,save.options   = imgnoiser.option('obj.save.options')
     ,stop.overwrite = imgnoiser.option('stop.save.overwrite')
@@ -170,7 +170,7 @@ imgnoiser.save <- function(
   class.name <- class.name[class.name %in% c('hvdvm', 'vvm')]
   # Validate: obj is a imgnoiser class
   if (length(class.name) == 0)
-    stop("The 'obj' argument must be an imgnoiser class.")
+    stop("The 'obj' argument must be an 'hvdvm' or 'vvm' class.")
 
   # Validate other arguments
   file.name <- vector.alike(file.name, 1L)
@@ -180,7 +180,7 @@ imgnoiser.save <- function(
   file.name <- with.file.name.extension(file.name)
 
   # Check overwriting
-  if (file.exists(file.name) & stop.overwrite)
+  if (file.exists(file.name) & stop.overwrite == TRUE)
     stop('The file ', dQuote(file.name), ' already exists.')
 
   # Object name for the final message

@@ -8,3 +8,4 @@ inst/samples/*.csv
 local/*
 packrat/*
 *.lnk
+*.imn

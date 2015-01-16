@@ -56,6 +56,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,'cov.df'         = private$.cov.df
         ,'std.src.data'   = private$.std.src.data
         ,'model'          = private$.model
+        ,'rggb.indices'   = private$.RGGB.indices
         )
       bag;
     }
@@ -72,6 +73,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       private$.cov.df          <- my.bag[['cov.df']]
       private$.std.src.data    <- my.bag[['std.src.data']]
       private$.model           <- my.bag[['model']]
+      private$.RGGB.indices    <- my.bag[['rggb.indices']]
 
       bag[['noise.var.class']] <- NULL
     }
