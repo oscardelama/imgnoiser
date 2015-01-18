@@ -4,12 +4,14 @@ The :camera: `imgnoiser` R Package
 
 [![Build Status](https://travis-ci.org/oscardelama/imgnoiser.png?branch=master)](https://travis-ci.org/oscardelama/imgnoiser)
 
-The `imgnoiser` (IMaGe NOISE) R package contains tools for the measurement, analysis and characterization of raw image noise from digital CMOS sensor cameras. The focus of the package is automatize as possible most of the involved procedures so you can focus on the interpretation and analysis of its results.
+The `imgnoiser` (IMaGe NOISE) R package contains tools for the measurement, analysis and characterization of raw image noise from digital CMOS sensor cameras.
+
+The focus of `imgnoiser` is to factorize most of the software environment, configuration concepts, data definitions and conventions required for image noise analysis, in one single point, to easily share and reuse noise analysis papers without the need to deliver, define and explain repeatedly the software environment and instructions to reproduce most of the results.
 
 Installation
 ------------
 
-This package is not in CRAN yet. However, you can use the `devtools` package to install the development version from Github:
+You can use the `devtools` R package to install the current version from Github:
 
 ``` r
 devtools::install_github('oscardelama/imgnoiser')
@@ -39,7 +41,9 @@ browseVignettes('imgnoiser')
 Documentation
 -------------
 
-Most software, including `imgnoiser` is developed in an iterative way: you decide to include some functionality or service in the product, you design the interface, develop the service, and during the tests you find some rough edges to polish and unhandled situations, so you iterate all over again until you are satisfied. Then you start to document the new functionality. In this context, most of the package documentation is complete and accurate, but recently added features are not complete or does not exists yet.
+Most software, including `imgnoiser` is developed in an iterative way: you decide to include some functionality or service in the product, you design the interface, develop the service, and during the tests you find some rough edges to polish and unhandled situations, so you iterate all over again until you are satisfied. Then you start to document the new functionality.
+
+In this context, most of the package documentation is complete and accurate, but recently added features may not be complete or exists yet.
 
 I have found an Issue
 ---------------------
