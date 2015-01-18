@@ -282,7 +282,8 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
   #--
 
   # Evaluate the 3dots argument with the model data as environment
-  model.call.params <- lazyeval::lazy_eval(lazyeval::lazy_dots(...), dom.data)
+  # browser()
+  model.call.params <- lazyeval::lazy_eval(lazyeval::lazy_dots(...), data = dom.data)
   # Get the model fitter function
   model.fitter.func <- imgnoiser.option('fit.model')
   # fit.model(model.family, model.formula, dom.data, model.call.params)
