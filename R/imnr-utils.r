@@ -20,19 +20,32 @@
 #-------------------------------------
 # valid.option
 #-------------------------------------
-channelVar <- function(.v) {
-  return (var(c(.v)))
+channelVar <- function(v) {
+  if (is.null(v))
+    NA
+  else
+    var(c(v))
 }
 
 #-------------------------------------
 # valid.option
 #-------------------------------------
-channelMean <- function(v) mean(c(v));
+channelMean <- function(v) {
+  if (is.null(v))
+    NA
+  else
+    mean(c(v));
+}
 
 #-------------------------------------
 # valid.option
 #-------------------------------------
-channelCov <- function(v1, v2) cov(c(v1), c(v2));
+channelCov <- function(v1, v2) {
+  if (is.null(v1) || is.null(v2))
+    NA
+  else
+    cov(c(v1), c(v2));
+}
 
 #-------------------------------------
 # valid.option

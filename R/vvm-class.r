@@ -46,6 +46,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         ,file.name.to   = stop("The 'file.name.to' argument is missing.")
         ,path.to.files  = './'
         ,file.name.ext  = '.pgm'
+        ,min.raw        = NULL
+        ,max.raw        = NULL
     )
     {
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
@@ -60,6 +62,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.cov.df <- data.frame()
       private$.std.src.data <- list()
       private$.model <- list()
+      sqrt2 <- sqrt(2)
 
       known.greens <- (!is.null(private$.green.channels) & length(private$.green.channels) == 2)
 
@@ -80,43 +83,61 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
         cfa <- split_channels(file.name, path.to.files)
 
-        # Build a sythetic channel with the average of both green channels
-        if (known.greens) {
+        #-- Validate channel values are in [min, max] range
+        if (!is.null(min.raw) && !is.null(max.raw)) {
+
+          channel.is.valid <- function(ch, min, max, idx) {
+            rng <- range(c(ch[[idx]]))
+            (rng[1L] >= min[idx] && rng[2L] <= max[idx]);
+          }
+
+          if (!channel.is.valid(cfa, min.raw, max.raw, 1L)) cfa$ch1 <- NULL
+          if (!channel.is.valid(cfa, min.raw, max.raw, 2L)) cfa$ch2 <- NULL
+          if (!channel.is.valid(cfa, min.raw, max.raw, 3L)) cfa$ch3 <- NULL
+          if (!channel.is.valid(cfa, min.raw, max.raw, 4L)) cfa$ch4 <- NULL
+        }
+        #--
+
+        valid.greens <- (known.greens &&
+                        !is.null(cfa[[private$.green.channels[1L]]]) &&
+                        !is.null(cfa[[private$.green.channels[2L]]]) )
+
+        # Build a synthetic channel with the average pixel value in both green channels
+        if (valid.greens) {
           chA <- array(0, dim = c(dim(cfa$ch4),2L))
           chA[,,1L] <- cfa[[private$.green.channels[1L]]]
           chA[,,2L] <- cfa[[private$.green.channels[2L]]]
           cfa$chA <- apply(chA, c(1L,2L), mean)
+          chA <- NULL
         }
-
-        cov.green.avg <- function(ch1, ch2) {
-          if (known.greens) channelCov(ch1, ch2) else NA
-        }
+        else
+          cfa$chA <-  NULL
 
         mean.ch1 <- channelMean(cfa$ch1)
         mean.ch2 <- channelMean(cfa$ch2)
         mean.ch3 <- channelMean(cfa$ch3)
         mean.ch4 <- channelMean(cfa$ch4)
-        mean.chA <- if (known.greens) channelMean(cfa$chA) else NA
+        mean.chA <- channelMean(cfa$chA)
 
         var.ch1 <- channelVar(cfa$ch1)
         var.ch2 <- channelVar(cfa$ch2)
         var.ch3 <- channelVar(cfa$ch3)
         var.ch4 <- channelVar(cfa$ch4)
-        var.chA <- if (known.greens) channelVar(cfa$chA)*2 else NA
+        var.chA <- channelVar(cfa$chA)*2
 
         cov.ch12 <- channelCov(cfa$ch1, cfa$ch2)
         cov.ch13 <- channelCov(cfa$ch1, cfa$ch3)
         cov.ch14 <- channelCov(cfa$ch1, cfa$ch4)
-        cov.ch1A <- cov.green.avg(cfa$ch1, cfa$chA)
+        cov.ch1A <- channelCov(cfa$ch1, cfa$chA)*sqrt2
 
         cov.ch23 <- channelCov(cfa$ch2, cfa$ch3)
         cov.ch24 <- channelCov(cfa$ch2, cfa$ch4)
-        cov.ch2A <- cov.green.avg(cfa$ch2, cfa$chA)
+        cov.ch2A <- channelCov(cfa$ch2, cfa$chA)*sqrt2
 
         cov.ch34 <- channelCov(cfa$ch3, cfa$ch4)
-        cov.ch3A <- cov.green.avg(cfa$ch3, cfa$chA)
+        cov.ch3A <- channelCov(cfa$ch3, cfa$chA)*sqrt2
 
-        cov.ch4A <- cov.green.avg(cfa$ch4, cfa$chA)
+        cov.ch4A <- channelCov(cfa$ch4, cfa$chA)*sqrt2
 
         var.df <- data.table::rbindlist(list(
           var.df,
