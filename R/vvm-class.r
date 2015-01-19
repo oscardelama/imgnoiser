@@ -87,6 +87,12 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
       }
 
+      # Validate if channel values are in the desired range
+      channel.is.valid <- function(ch, idx) {
+        rng <- range(c(ch[[idx]]))
+        (rng[1L] > min.raw[idx] && rng[2L] < max.raw[idx]);
+      }
+
       for (file.ix in seq_along(file.names)) {
 
         file.name <- file.names[file.ix]
@@ -96,13 +102,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
         cfa <- split_channels(file.name, path.to.files)
 
+        # browser()
         #-- Validate channel values are in [min, max] range
         if (!is.null(max.raw)) {
-
-          channel.is.valid <- function(ch, idx) {
-            rng <- range(c(ch[[idx]]))
-            (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
-          }
 
           if (!channel.is.valid(cfa, 1L)) cfa$ch1 <- NA
           if (!channel.is.valid(cfa, 2L)) cfa$ch2 <- NA
@@ -111,9 +113,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         }
         #--
 
-        valid.greens <- (known.greens &&
-                        is.channel(cfa[[private$.green.channels[1L]]]) &&
-                        is.channel(cfa[[private$.green.channels[2L]]]) )
+        valid.greens <- ( known.greens &&
+                          is.channel(cfa[[private$.green.channels[1L]]]) &&
+                          is.channel(cfa[[private$.green.channels[2L]]]) )
 
         # Build a synthetic channel with the average pixel value in both green channels
         if (valid.greens) {
