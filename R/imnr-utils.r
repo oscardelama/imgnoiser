@@ -17,11 +17,16 @@
 #     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #-----------------------------------------------------------------------------
 
+is.channel <- function(ch) {
+  if (length(ch) == 1 && is.logical(ch) && is.na(c(ch)[1])) FALSE
+  else TRUE
+}
+
 #-------------------------------------
 # valid.option
 #-------------------------------------
 channelVar <- function(v) {
-  if (is.null(v))
+  if (!is.channel(v))
     NA
   else
     var(c(v))
@@ -31,7 +36,7 @@ channelVar <- function(v) {
 # valid.option
 #-------------------------------------
 channelMean <- function(v) {
-  if (is.null(v))
+  if (!is.channel(v))
     NA
   else
     mean(c(v));
@@ -41,7 +46,7 @@ channelMean <- function(v) {
 # valid.option
 #-------------------------------------
 channelCov <- function(v1, v2) {
-  if (is.null(v1) || is.null(v2))
+  if (!is.channel(v1) || !is.channel(v2))
     NA
   else
     cov(c(v1), c(v2));

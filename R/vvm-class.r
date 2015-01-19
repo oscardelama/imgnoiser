@@ -46,12 +46,25 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         ,file.name.to   = stop("The 'file.name.to' argument is missing.")
         ,path.to.files  = './'
         ,file.name.ext  = '.pgm'
-        ,min.raw        = NULL
+        ,min.raw        = 0
         ,max.raw        = NULL
     )
     {
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
       file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
+
+      # Validate min and max
+      vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
+      vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
+
+      force.four.values <- function(v) {
+        if (length(v) == 4)
+          v
+        else
+          rep(v[1], 4)
+      }
+      min.raw <- force.four.values(min.raw)
+      max.raw <- force.four.values(max.raw)
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -84,34 +97,34 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         cfa <- split_channels(file.name, path.to.files)
 
         #-- Validate channel values are in [min, max] range
-        if (!is.null(min.raw) && !is.null(max.raw)) {
+        if (!is.null(max.raw)) {
 
-          channel.is.valid <- function(ch, min, max, idx) {
+          channel.is.valid <- function(ch, idx) {
             rng <- range(c(ch[[idx]]))
-            (rng[1L] >= min[idx] && rng[2L] <= max[idx]);
+            (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
           }
 
-          if (!channel.is.valid(cfa, min.raw, max.raw, 1L)) cfa$ch1 <- NULL
-          if (!channel.is.valid(cfa, min.raw, max.raw, 2L)) cfa$ch2 <- NULL
-          if (!channel.is.valid(cfa, min.raw, max.raw, 3L)) cfa$ch3 <- NULL
-          if (!channel.is.valid(cfa, min.raw, max.raw, 4L)) cfa$ch4 <- NULL
+          if (!channel.is.valid(cfa, 1L)) cfa$ch1 <- NA
+          if (!channel.is.valid(cfa, 2L)) cfa$ch2 <- NA
+          if (!channel.is.valid(cfa, 3L)) cfa$ch3 <- NA
+          if (!channel.is.valid(cfa, 4L)) cfa$ch4 <- NA
         }
         #--
 
         valid.greens <- (known.greens &&
-                        !is.null(cfa[[private$.green.channels[1L]]]) &&
-                        !is.null(cfa[[private$.green.channels[2L]]]) )
+                        is.channel(cfa[[private$.green.channels[1L]]]) &&
+                        is.channel(cfa[[private$.green.channels[2L]]]) )
 
         # Build a synthetic channel with the average pixel value in both green channels
         if (valid.greens) {
-          chA <- array(0, dim = c(dim(cfa$ch4),2L))
+          chA <- array(0, dim = c(dim(cfa[[private$.green.channels[1L]]]), 2L))
           chA[,,1L] <- cfa[[private$.green.channels[1L]]]
           chA[,,2L] <- cfa[[private$.green.channels[2L]]]
           cfa$chA <- apply(chA, c(1L,2L), mean)
           chA <- NULL
         }
         else
-          cfa$chA <-  NULL
+          cfa$chA <-  NA
 
         mean.ch1 <- channelMean(cfa$ch1)
         mean.ch2 <- channelMean(cfa$ch2)
