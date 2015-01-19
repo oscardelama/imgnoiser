@@ -575,6 +575,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,ylab = NULL
         ,xlim = NULL
         ,ylim = NULL
+        ,select = NULL
         ,warnings = FALSE
     ) {
 
@@ -637,16 +638,21 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
       if (obs == TRUE) {
         model.df <- model.src[['data']]
-        # Merge the model source data
-        plot.envir$data.df <- data.frame('split.by' = model.df$split.by)
-
         # Use the model names
         data.table::setnames(model.df, 1L:3L, label$term[1:3])
+
+        # Get the selected data
+        selected.rows <- try_eval(select, model.df)
+        if (!is.null(selected.rows) && is.logical(selected.rows))
+          model.df <- model.df[selected.rows,]
+
         plot.x <- try_eval(lazy.x, model.df)
         plot.y <- try_eval(lazy.y, model.df)
 
         # Reset the original XY names
         data.table::setnames(model.df, 1L:3L, names(label$term)[1:3])
+        # Merge the model source data
+        plot.envir$data.df <- data.frame('split.by' = model.df$split.by)
 
         if (is.null(plot.x))
           plot.envir$data.df$x <- model.df$x
@@ -676,6 +682,12 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         model.family <- model.str[['model.family']]
         # Get the model predictions
         model.predictions.df <- as.data.frame(private$.model[[model.name]][['predictions']]);
+
+        # Get the selected data
+        selected.rows <- try_eval(select, model.predictions.df)
+        if (!is.null(selected.rows) && is.logical(selected.rows))
+          model.predictions.df <- model.predictions.df[selected.rows,]
+
         # This is the data to plot
         plot.envir$pred.df <- model.predictions.df
         # Use XY names

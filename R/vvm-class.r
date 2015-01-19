@@ -112,7 +112,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
           if (!channel.is.valid(cfa, 4L)) cfa$ch4 <- NA
         }
         #--
-
+        # browser()
         valid.greens <- ( known.greens &&
                           is.channel(cfa[[private$.green.channels[1L]]]) &&
                           is.channel(cfa[[private$.green.channels[2L]]]) )
