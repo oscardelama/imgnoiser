@@ -331,13 +331,13 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         # Ignore the split if it has not enough data to fit a model
         # if (length(splitted.x[[split.value]]) <= 1L) next
         # @TODO: Handle cases when the data make crash the fitting function
+        # browser()
         fitted.model <- util.fit.model(model.src.data, split.value, formula, model.family, degree, ...)
         model.call.txt <- fitted.model[['call']]
         model.obj <- fitted.model[['model']]
         lazy.dots <- fitted.model[['lazy.dots']]
 
         grid <- build.model.grid(splitted.x[[split.value]])
-        # browser()
         predictions <- model.predictor.func(model.src.data, model.obj, conf.level,
                                             model.family, split.value, grid, lazy.dots)
         predict.df <- data.table::rbindlist(list(
