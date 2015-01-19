@@ -23,6 +23,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom data.table rbindlist
 #' @importFrom data.table setnames
+#' @importFrom lazyeval lazy
 #-----------------------------------------------------------------------------
 noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
@@ -311,7 +312,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       # Get the model value predictor function
       model.predictor.func <- imgnoiser.option('get.model.predictions')
       # Prepare the model formula
-      if (!is.null(formula)) formula <- lazy(formula)
+      # browser()
+      # if (!is.null(formula)) formula <- lazyeval::lazy(formula)
       formula <- get.model.formula(model.src.data, formula, degree, model.family)
 
       # Placeholder for the model(s)

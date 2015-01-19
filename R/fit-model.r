@@ -277,8 +277,12 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
     model.call.txt <- paste0(model.family,'(formula = ',formula.txt,', data = model.src(<%MODEL%>)', model.call.params.txt,')')
     # Build the formula with bindings to the model data
     model.formula <- lazyeval::lazy_eval(lazy.formula, dom.data)
-  } else
-    model.call.txt <- paste0(model.family,'(data = model.src(<%MODEL%>)', model.call.params.txt,')')
+  } else {
+    formula.txt <- as.character(lazy.formula)
+    formula.txt <- paste(formula.txt[2],formula.txt[1],formula.txt[3])
+    model.formula <- lazy.formula
+    model.call.txt <- paste0(model.family,'(formula = ', formula.txt,', data = model.src(<%MODEL%>)',  model.call.params.txt,')')
+  }
   #--
 
   # Evaluate the 3dots argument with the model data as environment
@@ -491,7 +495,7 @@ get.param.list <- function(lazy.dots) {
 #   the argument lazy.formula is expected to be NULL or NA and the degree will
 #   be ignored. In this case this function will just return NULL.
 #-----------------------------
-get.model.formula <- function(model.src.data, lazy.formula, degree, model.family) {
+get.model.formula <- function(model.src.data, lazy.formula=NULL, degree, model.family) {
 
   linear.models <- imgnoiser.option('is.linear.model')
   result <- NULL
@@ -501,7 +505,7 @@ get.model.formula <- function(model.src.data, lazy.formula, degree, model.family
       stop('The given model family does not accept formulas.')
   } else {
 
-    if (is.given(lazy.formula))
+    if (!is.null(lazy.formula))
       result <- lazy.formula
     else {
 
