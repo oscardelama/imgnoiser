@@ -1382,6 +1382,7 @@ noise.var.doc$remove.model = function(
 #'      ylab = NULL,
 #'      xlim = NULL,
 #'      ylim = NULL,
+#'      with = NULL,
 #'      warnings = FALSE
 #'      )
 #'
@@ -1399,6 +1400,7 @@ noise.var.doc$remove.model = function(
 #'      ylab = NULL,
 #'      xlim = NULL,
 #'      ylim = NULL,
+#'      with = NULL,
 #'      warnings = FALSE
 #'      )
 #'  }
@@ -1448,6 +1450,12 @@ noise.var.doc$remove.model = function(
 #' @param ylim A vector with two values, where the second is greater than the
 #'   first. The limits for the y axis. See \code{warnings} to avoid the warnings
 #'   when using this parameter.
+#'
+#' @param with A formula to filter the data to show in the plot. You can use a
+#' an expression or a function. The formula and the function must return a vector
+#' of logical values selecting the the desired rows from \code{var.df}.
+#' For example the argument \code{with = ~ channel != 'Green Avg'} will
+#' exclude the channels with the \code{'Green Avg'} label.
 #'
 #' @param warnings If TRUE, suppress the warnings when printing the plot.
 #'

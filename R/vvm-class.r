@@ -44,27 +44,29 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     ,digest = function(
         file.name.from  = stop("The 'file.name.from' argument is missing.")
         ,file.name.to   = stop("The 'file.name.to' argument is missing.")
-        ,path.to.files  = './'
+        ,file.path  = './'
         ,file.name.ext  = '.pgm'
         ,min.raw        = 0
         ,max.raw        = NULL
     )
     {
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
-      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
+      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
 
-      # Validate min and max
-      vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
-      vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
+      # Validate min and max limits
+      if (!is.null(max.raw)) {
+        vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
+        vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
 
-      force.four.values <- function(v) {
-        if (length(v) == 4)
-          v
-        else
-          rep(v[1], 4)
+        force.four.values <- function(v) {
+          if (length(v) == 4)
+            v
+          else
+            rep(v[1], 4)
+        }
+        min.raw <- force.four.values(min.raw)
+        max.raw <- force.four.values(max.raw)
       }
-      min.raw <- force.four.values(min.raw)
-      max.raw <- force.four.values(max.raw)
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -88,9 +90,10 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       }
 
       # Validate if channel values are in the desired range
+      valid.limits <- (!is.null(min.raw) && !is.null(max.raw))
       channel.is.valid <- function(ch, idx) {
         rng <- range(c(ch[[idx]]))
-        (rng[1L] > min.raw[idx] && rng[2L] < max.raw[idx]);
+        (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
       }
 
       for (file.ix in seq_along(file.names)) {
@@ -100,12 +103,11 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
 
-        cfa <- split_channels(file.name, path.to.files)
+        cfa <- split_channels(file.name, file.path)
 
         # browser()
         #-- Validate channel values are in [min, max] range
-        if (!is.null(max.raw)) {
-
+        if (valid.limits) {
           if (!channel.is.valid(cfa, 1L)) cfa$ch1 <- NA
           if (!channel.is.valid(cfa, 2L)) cfa$ch2 <- NA
           if (!channel.is.valid(cfa, 3L)) cfa$ch3 <- NA
@@ -199,13 +201,15 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     ,digest.to.rgb = function(
       file.name.from  = stop("The 'file.name.from' argument is missing.")
       ,file.name.to   = stop("The 'file.name.to' argument is missing.")
-      ,path.to.files  = './'
+      ,file.path      = './'
       ,file.name.ext  = '.pgm'
-      ,is.neutral = FALSE
-      ,map.to.rgb = stop("The 'map.to.rgb' argument is missing.")
-      ,rgb.scale = 255
-      ,rgb.labels = imgnoiser.option('rgb.labels')
-      ,tone.curve = imgnoiser.option('tone.curve.id')
+      ,min.raw        = 0
+      ,max.raw        = NULL
+      ,is.neutral     = FALSE
+      ,map.to.rgb     = stop("The 'map.to.rgb' argument is missing.")
+      ,rgb.scale      = 255
+      ,rgb.labels     = imgnoiser.option('rgb.labels')
+      ,tone.curve     = imgnoiser.option('tone.curve.id')
     )
     {
 
@@ -224,7 +228,20 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       vector.alike(rgb.labels, 3L)
 
       # Validate and get file names of samples
-      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
+      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
+
+      # Validate min and max limits
+      if (!is.null(max.raw)) {
+        vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
+        vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
+
+        force.four.values <- function(v) {
+          if (length(v) == 4) v
+          else rep(v[1], 4)
+        }
+        min.raw <- force.four.values(min.raw)
+        max.raw <- force.four.values(max.raw)
+      }
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -247,6 +264,13 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
       }
 
+      # Validate if channel values are in the desired range
+      valid.limits <- (!is.null(min.raw) && !is.null(max.raw))
+      channel.is.valid <- function(ch, idx) {
+        rng <- range(c(ch[[idx]]))
+        (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
+      }
+
       for (file.ix in seq_along(file.names)) {
 
         file.name <- file.names[file.ix]
@@ -254,7 +278,17 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
         # browser()
-        cfa <- split_channels(file.name, path.to.files)
+        cfa <- split_channels(file.name, file.path)
+
+        #-- Validate all channel values are in range
+        if (valid.limits == TRUE) {
+          if (!channel.is.valid(cfa, 1L) ||
+              !channel.is.valid(cfa, 2L) ||
+              !channel.is.valid(cfa, 3L) ||
+              !channel.is.valid(cfa, 4L)) next
+        }
+        #--
+
         rgb <- map.to.rgb$convert.raw.to.rgb(cfa, is.neutral)
 
         mean.r <- channelMean(rgb$r)
@@ -340,12 +374,12 @@ vvm.doc <- list()
 #' processed. The image samples file names are expected to have the following
 #' pattern:
 #'
-#' \emph{\code{path.to.files}/\code{<img.file.base>}.\code{<file.name.ext>}}
+#' \emph{\code{file.path}/\code{<img.file.base>}.\code{<file.name.ext>}}
 #'
 #' Where \code{<img.file.base>} is alfabetically between the
 #' \code{file.name.from} and \code{file.name.to} arguments.
 #'
-#' In other words, the folder given in \code{path.to.files} is scanned looking
+#' In other words, the folder given in \code{file.path} is scanned looking
 #' for files with base name between (and including) \code{file.name.from} and
 #' \code{file.name.to}, having all of them the extension \code{file.name.ext}.
 #'
@@ -360,18 +394,20 @@ vvm.doc <- list()
 #'   vvm$digest(
 #'      file.name.from = stop("The 'file.name.from' argument is missing."),
 #'      file.name.to   = stop("The 'file.name.to' argument is missing."),
-#'      path.to.files  = './',
+#'      file.path      = './',
 #'      file.name.ext  = '.pgm'
+#'      min.raw        = 0
+#'      max.raw        = NULL
 #'      )
 #'  }
 #'
 #' @param file.name.from
 #' @param file.name.to The \code{file.name.from} and \code{file.name.to} are the
 #'   alphabetical range of the desired files from the folder given in
-#'   \code{path.to.files}. These names should not include the file name
+#'   \code{file.path}. These names should not include the file name
 #'   extension, which is specified with \code{file.name.ext}.
 #'
-#' @param path.to.files The file path where the raw image file samples are located.
+#' @param file.path The file path where the raw image file samples are located.
 #'
 #' @param file.name.ext The file name extension of the raw image file samples.
 #'   It can be 'fit', 'fits' or 'pgm'. This file name extension may start or not
@@ -380,6 +416,21 @@ vvm.doc <- list()
 #'   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
 #'   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
 #'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.
+#'
+#' @param min.raw
+#' @param max.raw These are the the expected pixel values range. If one or more
+#'   pixel values in an image channel sample is outside this range, the channel
+#'   sample is discarded. Notice this is done on a per channel sample basis, not
+#'   per image basis, this means it is possible to have an image with one or
+#'   more discarded channel but not all of them.
+#'
+#'   Both \code{min.raw} and \code{max.raw} must be supplied, otherwise they
+#'   are ignored.
+#'
+#'   Each parameter can be a single value or a vector of four values. For the
+#'   one value case, the same value is used as limit for the four channels,
+#'   otherwise there must be four values, one per channel and in the image sample
+#'   channels order.
 #'
 #' @return A \code{invisible} instance of the calling object.
 #'
@@ -399,13 +450,7 @@ vvm.doc <- list()
 #'
 #' @name vvm$digest
 #----------------------------------------------
-vvm.doc$digest <- function(
-  file.name.from  = stop("The 'file.name.from' argument is missing.")
-  ,file.name.to   = stop("The 'file.name.to' argument is missing.")
-  ,path.to.files  = './'
-  ,file.name.ext  = '.pgm'
-)
-  NULL
+vvm.doc$digest <- function() NULL
 
 #----------------------------------------------
 #' Process the raw image samples after their conversion to RGB.
@@ -417,12 +462,12 @@ vvm.doc$digest <- function(
 #' processed in the same way as in the \code{digest} function. The image samples
 #' file names are expected to have the following pattern:
 #'
-#' \emph{\code{path.to.files}/\code{<img.file.base>}.\code{<file.name.ext>}}
+#' \emph{\code{file.path}/\code{<img.file.base>}.\code{<file.name.ext>}}
 #'
 #' Where \code{<img.file.base>} is alfabetically between the
 #' \code{file.name.from} and \code{file.name.to} arguments.
 #'
-#' In other words, the folder given in \code{path.to.files} is scanned looking
+#' In other words, the folder given in \code{file.path} is scanned looking
 #' for files with base name between (and including) \code{file.name.from} and
 #' \code{file.name.to}, having all of them the extension \code{file.name.ext}.
 #'
@@ -437,18 +482,25 @@ vvm.doc$digest <- function(
 #'   vvm$digest(
 #'      file.name.from = stop("The 'file.name.from' argument is missing."),
 #'      file.name.to   = stop("The 'file.name.to' argument is missing."),
-#'      path.to.files  = './',
-#'      file.name.ext  = '.pgm'
+#'      file.path      = './',
+#'      file.name.ext  = '.pgm',
+#'      min.raw        = 0,
+#'      max.raw        = NULL,
+#'      is.neutral     = FALSE,
+#'      map.to.rgb     = stop("The 'map.to.rgb' argument is missing."),
+#'      rgb.scale      = 255,
+#'      rgb.labels     = imgnoiser.option('rgb.labels'),
+#'      tone.curve     = imgnoiser.option('tone.curve.id')
 #'      )
 #'  }
 #'
 #' @param file.name.from
 #' @param file.name.to The \code{file.name.from} and \code{file.name.to} are the
 #'   alphabetical range of the desired files from the folder given in
-#'   \code{path.to.files}. These names should not include the file name
+#'   \code{file.path}. These names should not include the file name
 #'   extension, which is specified with \code{file.name.ext}.
 #'
-#' @param path.to.files The file path where the raw image file samples are located.
+#' @param file.path The file path where the raw image file samples are located.
 #'
 #' @param file.name.ext The file name extension of the raw image file samples.
 #'   It can be 'fit', 'fits' or 'pgm'. This file name extension may start or not
@@ -457,6 +509,20 @@ vvm.doc$digest <- function(
 #'   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
 #'   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
 #'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.
+#'
+#' @param min.raw
+#' @param max.raw These are the the expected pixel values range. If one or more
+#'   pixel values in an image channel sample is outside this range, the whole
+#'   image is discarded. This is because the RGB processing requires all image
+#'   channels.
+#'
+#'   Both \code{min.raw} and \code{max.raw} must be supplied, otherwise they
+#'   are ignored.
+#'
+#'   Each parameter can be a single value or a vector of four values. For the
+#'   former case, the same value is used as limit for the four channels,
+#'   otherwise there must be four values, one per channel and in the image sample
+#'   channels order.
 #'
 #' @param is.neutral A logical value indicating if the target of the samples is
 #'   a neutral surface. When that is the case additional raw white-balance is
@@ -535,28 +601,17 @@ vvm.doc$digest <- function(
 #' rgb.vvm$digest.to.rgb( file.name.from = '_ODL5695',
 #'                        file.name.to   = '_ODL5767',
 #'                        file.name.ext  = '.pgm',
-#'                        path.to.files  = img.path,
-#'                        is.neutral = TRUE,
-#'                        map.to.rgb = cm.obj,
-#'                        rgb.scale = 255,
-#'                        tone.curve = 'camera.metadata')
+#'                        file.path   = img.path,
+#'                        is.neutral  = TRUE,
+#'                        map.to.rgb  = cm.obj,
+#'                        rgb.scale   = 255,
+#'                        tone.curve  = 'camera.metadata')
 #' #> 70 image samples were successfully processed as RGBs.
 #' }
 #'
 #' @name vvm$digest.to.rgb
 #----------------------------------------------
-vvm.doc$digest.to.rgb <- function(
-  file.name.from  = stop("The 'file.name.from' argument is missing.")
-  ,file.name.to   = stop("The 'file.name.to' argument is missing.")
-  ,path.to.files  = './'
-  ,file.name.ext  = '.pgm'
-  ,is.neutral = FALSE
-  ,map.to.rgb = NULL
-  ,rgb.scale = 255
-  ,rgb.labels = imgnoiser.option('rgb.labels')
-  ,tone.curve = imgnoiser.option('tone.curve.id')
-  )
-  NULL
+vvm.doc$digest.to.rgb <- function() NULL
 
 #----------------------------------------------
 #' Get the resulting noise variance data.

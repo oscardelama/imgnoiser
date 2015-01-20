@@ -135,7 +135,9 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
     ,digest = function(
          photo.conds.file = stop("The 'photo.conds.file' argument is required.")
         ,crop.files.path = './'
-      ) {
+        ,min.raw        = 0
+        ,max.raw        = NULL
+    ) {
 
       # browser()
       # Check photo.conds.file is the name of an existing file
@@ -225,6 +227,21 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         pict1 <- list()
         pict2 <- list()
 
+        # Validate if channel values are in the desired range
+        channel.is.valid <- function(ch, idx) {
+          rng <- range(c(ch[[idx]]))
+          (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
+        }
+
+        # Validate if channel values are in the desired range
+        valid.limits <- (!is.null(min.raw) && !is.null(max.raw))
+        get.channel.delta <- function(pic1, pic2, idx) {
+          if ((valid.limits == TRUE) && (!channel.is.valid(pic1, idx) || !channel.is.valid(pic2, idx)))
+            NA
+          else
+            c(pic1[[idx]] - pic2[[idx]])
+        }
+
         # For each pair of pictures combination
         for(ix.comb in 1L:nrow(combin)) {
 
@@ -239,24 +256,24 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           pict2 <- split.channels(picts[combin[ix.comb, "pic2"], "crop.file.name"], crop.files.path)
 
           # Subtract corresponding channels
-          delta.ch1 <- c(pict1$ch1 - pict2$ch1)
-          delta.ch2 <- c(pict1$ch2 - pict2$ch2)
-          delta.ch3 <- c(pict1$ch3 - pict2$ch3)
-          delta.ch4 <- c(pict1$ch4 - pict2$ch4)
+          delta.ch1 <- get.channel.delta(pict1, pict2, 1L)
+          delta.ch2 <- get.channel.delta(pict1, pict2, 2L)
+          delta.ch3 <- get.channel.delta(pict1, pict2, 3L)
+          delta.ch4 <- get.channel.delta(pict1, pict2, 4L)
 
           # Compute the half variance of delta channels
-          halfVar.delta.ch1 <- var(delta.ch1)/2
-          halfVar.delta.ch2 <- var(delta.ch2)/2
-          halfVar.delta.ch3 <- var(delta.ch3)/2
-          halfVar.delta.ch4 <- var(delta.ch4)/2
+          halfVar.delta.ch1 <- channelVar(delta.ch1)/2
+          halfVar.delta.ch2 <- channelVar(delta.ch2)/2
+          halfVar.delta.ch3 <- channelVar(delta.ch3)/2
+          halfVar.delta.ch4 <- channelVar(delta.ch4)/2
 
           # Compute half covariances of delta channels
-          halfCov.ch12 <- cov(delta.ch1, delta.ch2)/2
-          halfCov.ch13 <- cov(delta.ch1, delta.ch3)/2
-          halfCov.ch14 <- cov(delta.ch1, delta.ch4)/2
-          halfCov.ch23 <- cov(delta.ch2, delta.ch3)/2
-          halfCov.ch24 <- cov(delta.ch2, delta.ch4)/2
-          halfCov.ch34 <- cov(delta.ch3, delta.ch4)/2
+          halfCov.ch12 <- channelCov(delta.ch1, delta.ch2)/2
+          halfCov.ch13 <- channelCov(delta.ch1, delta.ch3)/2
+          halfCov.ch14 <- channelCov(delta.ch1, delta.ch4)/2
+          halfCov.ch23 <- channelCov(delta.ch2, delta.ch3)/2
+          halfCov.ch24 <- channelCov(delta.ch2, delta.ch4)/2
+          halfCov.ch34 <- channelCov(delta.ch3, delta.ch4)/2
 
           # Get the mean of each channels averaging the same channel
           # on each picture
@@ -348,7 +365,9 @@ hvdvm.doc <- list()
 #'  \preformatted{
 #'   hvdvm$digest(
 #'      photo.conds.file,
-#'      crop.files.path = './'
+#'      crop.files.path = './',
+#'      min.raw        = 0,
+#'      max.raw        = NULL
 #'      )
 #'  }
 #'
@@ -390,6 +409,20 @@ hvdvm.doc <- list()
 #'   sample file. Those files are expected to be in one same folder. This
 #'   argument must contain the path to that folder, which should not be part of
 #'   the \code{crop.file.name} values.
+#'
+#' @param min.raw
+#' @param max.raw These are the the expected pixel values range. If one or more
+#'   pixel values in an image channel sample is outside this range, the whole
+#'   image is discarded. This is because the RGB processing requires all image
+#'   channels.
+#'
+#'   Both \code{min.raw} and \code{max.raw} must be supplied, otherwise they
+#'   are ignored.
+#'
+#'   Each parameter can be a single value or a vector of four values. For the
+#'   former case, the same value is used as limit for the four channels,
+#'   otherwise there must be four values, one per channel and in the image sample
+#'   channels order.
 #'
 #' @return The data resulting from this process can be seen using the functions
 #'   \code{\link{hvdvm$var.df}}, \code{\link{hvdvm$cov.df}} and
