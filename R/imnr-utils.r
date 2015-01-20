@@ -180,10 +180,14 @@ get.test.data.folder <- function() {
   if (file.path == '')
     stop("'samples' folder not found.")
 
-  if (!grepl('.*/$', file.path))
-    file.path <- paste0(file.path, '/')
+  path.with.ending.slah(file.path);
+}
 
-  file.path;
+path.with.ending.slah <- function(file.path) {
+  if (!grepl('.*/$', file.path))
+    paste0(file.path, '/')
+  else
+    file.path
 }
 
 #-----------------------------

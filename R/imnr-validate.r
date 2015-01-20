@@ -161,10 +161,7 @@ valid.file.path <- function(file.path) {
 
   file.path <- vector.alike(file.path, 1L)
 
-  if (!grepl('.*/$', file.path))
-    file.path <- paste0(file.path, '/')
-
-  file.path
+  path.with.ending.slah(file.path);
 }
 
 #-------------------------------------

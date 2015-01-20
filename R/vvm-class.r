@@ -51,6 +51,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     )
     {
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
+      file.path <- valid.file.path(file.path)
       file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
 
       # Validate min and max limits
@@ -227,6 +228,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       # Validate the RGB labels
       vector.alike(rgb.labels, 3L)
 
+      file.path <- valid.file.path(file.path)
       # Validate and get file names of samples
       file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
 
