@@ -575,7 +575,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,ylab = NULL
         ,xlim = NULL
         ,ylim = NULL
-        ,select = NULL
+        ,with = NULL
         ,warnings = FALSE
     ) {
 
@@ -642,7 +642,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         data.table::setnames(model.df, 1L:3L, label$term[1:3])
 
         # Get the selected data
-        selected.rows <- try_eval(select, model.df)
+        selected.rows <- try_eval(with, model.df)
         if (!is.null(selected.rows) && is.logical(selected.rows))
           model.df <- model.df[selected.rows,]
 
@@ -684,7 +684,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         model.predictions.df <- as.data.frame(private$.model[[model.name]][['predictions']]);
 
         # Get the selected data
-        selected.rows <- try_eval(select, model.predictions.df)
+        selected.rows <- try_eval(with, model.predictions.df)
         if (!is.null(selected.rows) && is.logical(selected.rows))
           model.predictions.df <- model.predictions.df[selected.rows,]
 
