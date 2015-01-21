@@ -151,6 +151,22 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         else
           meta.df <- photo.conds.file
       }
+
+      # Validate min and max arguments
+      if (!is.null(min.raw) && !is.null(max.raw)) {
+        vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
+        vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
+
+        force.four.values <- function(v) {
+          if (length(v) == 4) v
+          else rep(v[1], 4)
+        }
+        min.raw <- force.four.values(min.raw)
+        max.raw <- force.four.values(max.raw)
+        valid.limits <- TRUE
+      } else
+        valid.limits <- FALSE
+
       # Reset the variables depending on the result of this function
       private$.merged.var.cov.df <- NULL
       private$.var.df <- data.frame()
@@ -234,7 +250,6 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         }
 
         # Validate if channel values are in the desired range
-        valid.limits <- (!is.null(min.raw) && !is.null(max.raw))
         get.channel.delta <- function(pic1, pic2, idx) {
           if ((valid.limits == TRUE) && (!channel.is.valid(pic1, idx) || !channel.is.valid(pic2, idx)))
             NA

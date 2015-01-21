@@ -54,20 +54,20 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       file.path <- valid.file.path(file.path)
       file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
 
-      # Validate min and max limits
-      if (!is.null(max.raw)) {
+      # Validate min and max arguments
+      if (!is.null(min.raw) && !is.null(max.raw)) {
         vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
         vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
 
         force.four.values <- function(v) {
-          if (length(v) == 4)
-            v
-          else
-            rep(v[1], 4)
+          if (length(v) == 4) v
+          else rep(v[1], 4)
         }
         min.raw <- force.four.values(min.raw)
         max.raw <- force.four.values(max.raw)
-      }
+        valid.limits <- TRUE
+      } else
+        valid.limits <- FALSE
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -91,7 +91,6 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       }
 
       # Validate if channel values are in the desired range
-      valid.limits <- (!is.null(min.raw) && !is.null(max.raw))
       channel.is.valid <- function(ch, idx) {
         rng <- range(c(ch[[idx]]))
         (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
@@ -232,8 +231,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       # Validate and get file names of samples
       file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
 
-      # Validate min and max limits
-      if (!is.null(max.raw)) {
+      # Validate min and max arguments
+      if (!is.null(min.raw) && !is.null(max.raw)) {
         vector.alike(min.raw, c(1,4), type='n', all.unique=FALSE)
         vector.alike(max.raw, c(1,4), type='n', all.unique=FALSE)
 
@@ -243,7 +242,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         }
         min.raw <- force.four.values(min.raw)
         max.raw <- force.four.values(max.raw)
-      }
+        valid.limits <- TRUE
+      } else
+        valid.limits <- FALSE
 
       # Placeholders for the resulting data
       cov.df <- data.frame()
@@ -267,7 +268,6 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       }
 
       # Validate if channel values are in the desired range
-      valid.limits <- (!is.null(min.raw) && !is.null(max.raw))
       channel.is.valid <- function(ch, idx) {
         rng <- range(c(ch[[idx]]))
         (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
