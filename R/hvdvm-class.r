@@ -259,7 +259,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
             ch.mean <<- NA
           } else {
             delta.ch <<- c(pic1[[idx]] - pic2[[idx]])
-            ch.mean <<- mean(c(mean(ch1), mean(ch2)))
+            ch.mean <<- mean(c(mean(pic1[[idx]]), mean(pic2[[idx]])))
           }
         }
 
@@ -276,7 +276,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           pict1 <- split.channels(picts[combin[ix.comb, "pic1"], "crop.file.name"], crop.files.path)
           pict2 <- split.channels(picts[combin[ix.comb, "pic2"], "crop.file.name"], crop.files.path)
 
-          if (picts[combin[ix.comb, "pic1"], "crop.file.name"] == '_ODL1280.pgm') browser()
+          # if (picts[combin[ix.comb, "pic1"], "crop.file.name"] == '_ODL1280.pgm') browser()
 
           # Get delta channel and channel mean
           get.channel.delta.and.mean(pict1, pict2, 1L)
