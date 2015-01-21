@@ -249,12 +249,18 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
         }
 
-        # Validate if channel values are in the desired range
-        get.channel.delta <- function(pic1, pic2, idx) {
-          if ((valid.limits == TRUE) && (!channel.is.valid(pic1, idx) || !channel.is.valid(pic2, idx)))
-            NA
-          else
-            c(pic1[[idx]] - pic2[[idx]])
+        #@TODO: enhance this ugly code
+        delta.ch <- NA
+        ch.mean <- NA
+        get.channel.delta.and.mean <- function(pic1, pic2, idx) {
+          # Validate if channel values are in the desired range
+          if ((valid.limits == TRUE) && (!channel.is.valid(pic1, idx) || !channel.is.valid(pic2, idx))) {
+            delta.ch <<- NA
+            ch.mean <<- NA
+          } else {
+            delta.ch <<- c(pic1[[idx]] - pic2[[idx]])
+            ch.mean <<- mean(c(mean(ch1), mean(ch2)))
+          }
         }
 
         # For each pair of pictures combination
@@ -270,11 +276,24 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           pict1 <- split.channels(picts[combin[ix.comb, "pic1"], "crop.file.name"], crop.files.path)
           pict2 <- split.channels(picts[combin[ix.comb, "pic2"], "crop.file.name"], crop.files.path)
 
-          # Subtract corresponding channels
-          delta.ch1 <- get.channel.delta(pict1, pict2, 1L)
-          delta.ch2 <- get.channel.delta(pict1, pict2, 2L)
-          delta.ch3 <- get.channel.delta(pict1, pict2, 3L)
-          delta.ch4 <- get.channel.delta(pict1, pict2, 4L)
+          if (picts[combin[ix.comb, "pic1"], "crop.file.name"] == '_ODL1280.pgm') browser()
+
+          # Get delta channel and channel mean
+          get.channel.delta.and.mean(pict1, pict2, 1L)
+          delta.ch1 <- delta.ch
+          mean.ch1 <- ch.mean
+
+          get.channel.delta.and.mean(pict1, pict2, 2L)
+          delta.ch2 <- delta.ch
+          mean.ch2 <- ch.mean
+
+          get.channel.delta.and.mean(pict1, pict2, 3L)
+          delta.ch3 <- delta.ch
+          mean.ch3 <- ch.mean
+
+          get.channel.delta.and.mean(pict1, pict2, 4L)
+          delta.ch4 <- delta.ch
+          mean.ch4 <- ch.mean
 
           # Compute the half variance of delta channels
           halfVar.delta.ch1 <- channelVar(delta.ch1)/2
@@ -290,12 +309,12 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           halfCov.ch24 <- channelCov(delta.ch2, delta.ch4)/2
           halfCov.ch34 <- channelCov(delta.ch3, delta.ch4)/2
 
-          # Get the mean of each channels averaging the same channel
-          # on each picture
-          mean.ch1 <- channelMean(pict1$ch1 + pict2$ch1)/2
-          mean.ch2 <- channelMean(pict1$ch2 + pict2$ch2)/2
-          mean.ch3 <- channelMean(pict1$ch3 + pict2$ch3)/2
-          mean.ch4 <- channelMean(pict1$ch4 + pict2$ch4)/2
+#           # Get the mean of each channels averaging the same channel
+#           # on each picture
+#           mean.ch1 <- channelMean(pict1$ch1 + pict2$ch1)/2
+#           mean.ch2 <- channelMean(pict1$ch2 + pict2$ch2)/2
+#           mean.ch3 <- channelMean(pict1$ch3 + pict2$ch3)/2
+#           mean.ch4 <- channelMean(pict1$ch4 + pict2$ch4)/2
 
           # Save half variance versus mean
           hvdvm.df <- data.table::rbindlist(list(
