@@ -56,6 +56,7 @@ split_channels <- function(file.name, file.path) {
   result;
 }
 
+#' @importFrom FITSio readFITS
 split.cfa.fit <- function(file.name) {
 
   if (!requireNamespace("FITSio", quietly = TRUE)) {
@@ -109,4 +110,22 @@ split.cfa.pgm <- function(file.name) {
   ch4 <- img.matrix[even.row.idx, even.col.idx]
 
   return (list("ch1"= ch1, "ch2"= ch2, "ch3"= ch3, "ch4"= ch4))
+}
+
+#' @importFrom tiff readTIFF
+split_rgb_channels <- function(file.name, file.path, scale) {
+
+  file.name <-
+    if (missing(file.path))
+      file.name
+  else
+    paste0(file.path, file.name)
+
+  img.tiff <- tiff::readTIFF(file.name)*scale
+
+  list(
+       'r' = img.tiff[,,1]
+      ,'g' = img.tiff[,,2]
+      ,'b' = img.tiff[,,3]
+      );
 }

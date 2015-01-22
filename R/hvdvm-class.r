@@ -277,6 +277,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
           pict2 <- split.channels(picts[combin[ix.comb, "pic2"], "crop.file.name"], crop.files.path)
 
           # if (picts[combin[ix.comb, "pic1"], "crop.file.name"] == '_ODL1280.pgm') browser()
+          # browser()
 
           # Get delta channel and channel mean
           get.channel.delta.and.mean(pict1, pict2, 1L)

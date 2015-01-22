@@ -341,6 +341,100 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         msg(paste(length(file.names), "image samples were successfully processed as RGBs."))
     }
 
+
+    ,digest.from.rgb = function(
+      file.name.from  = stop("The 'file.name.from' argument is missing.")
+      ,file.name.to   = stop("The 'file.name.to' argument is missing.")
+      ,file.path      = './'
+      ,file.name.ext  = '.tif'
+      ,rgb.labels     = imgnoiser.option('rgb.labels')
+      ,file.scale     = 1
+      ,rgb.scale      = 255
+    )
+    {
+
+      # Validate the RGB labels
+      vector.alike(rgb.labels, 3L)
+      # Validate and complete the path (will always end with backslash)
+      file.path <- valid.file.path(file.path)
+      # Validate and get file names of samples
+      file.names <- select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
+
+      # Placeholders for the resulting data
+      cov.df <- data.frame()
+      var.df <- data.frame()
+      # Reset the variables depending on the result of this function
+      private$.merged.var.cov.df <- NULL
+      private$.var.df <- data.frame()
+      private$.cov.df <- data.frame()
+      private$.std.src.data <- list()
+      private$.model <- list()
+
+      # Get show.progress option
+      show.progress <- package.option('show.progress')
+      # Show progress bar
+      if (show.progress) {
+        message(paste("Processing", length(file.names), "image files:"))
+        prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
+      }
+
+      for (file.ix in seq_along(file.names)) {
+
+        file.name <- file.names[file.ix]
+
+        # Show progress bar
+        if (show.progress) setTxtProgressBar(prog.bar, file.ix)
+        # browser()
+        rgb <- split_rgb_channels(file.name, file.path, rgb.scale/file.scale)
+
+        mean.r <- channelMean(rgb$r)
+        mean.g <- channelMean(rgb$g)
+        mean.b <- channelMean(rgb$b)
+
+        var.r <- channelVar(rgb$r)
+        var.g <- channelVar(rgb$g)
+        var.b <- channelVar(rgb$b)
+
+        cov.rg <- channelCov(rgb$r, rgb$g)
+        cov.rb <- channelCov(rgb$r, rgb$b)
+        cov.gb <- channelCov(rgb$g, rgb$b)
+
+        var.df <- data.table::rbindlist(list(
+          var.df,
+          data.frame(
+            "pict" = file.name
+            ,"channel" = factor(c(1L,2L,3L), levels=c(1L,2L,3L), labels=rgb.labels)
+            ,"mean" = c(mean.r, mean.g, mean.b)
+            ,"var" = c(var.r, var.g, var.b)
+            ,row.names = NULL
+          )
+        ))
+
+        cov.df <- data.table::rbindlist(list(
+          cov.df,
+          data.frame(
+            "pict" = file.name
+            ,"chan.a" = factor(c(1L,1L,2L), levels=c(1L,2L,3L), labels=rgb.labels)
+            ,"chan.b" = factor(c(2L,3L,3L), levels=c(1L,2L,3L), labels=rgb.labels)
+            ,"cov" = c(cov.rg, cov.rb, cov.gb)
+            ,row.names = NULL
+          )
+        ))
+      }
+
+      # Save the results
+      private$.var.df <- var.df
+      private$.cov.df <- cov.df
+
+      # Get and save the standard model
+      get.model.src.data.func <- imgnoiser.option('get.model.src.data')
+      model.src.data <- get.model.src.data.func('std.var', self)
+      private$.std.src.data <- model.src.data
+
+      if (!show.progress)
+        msg(paste(length(file.names), "image samples were successfully processed as RGBs."))
+    }
+
     ##------------------------------
     ## fit.model (documented here)
     ##------------------------------
