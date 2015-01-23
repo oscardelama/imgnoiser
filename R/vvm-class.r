@@ -209,7 +209,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,map.to.rgb     = stop("The 'map.to.rgb' argument is missing.")
       ,rgb.scale      = 255
       ,rgb.labels     = imgnoiser.option('rgb.labels')
-      ,tone.curve     = imgnoiser.option('tone.curve.id')
+      ,use.camera.tc  = TRUE
+      ,conv.tone.curve = imgnoiser.option('tone.curve.id')
     )
     {
 
@@ -257,7 +258,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.model <- list()
 
       # Initialize the RGB conversion (there are some additional validations)
-      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, tone.curve)
+      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, use.camera.tc, conv.tone.curve)
 
       # Get show.progress option
       show.progress <- package.option('show.progress')

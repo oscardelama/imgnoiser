@@ -441,10 +441,12 @@ get.imgnoiser.default.options <- function() {
     ,'obj.load.options'     = TRUE
     ,'stop.save.overwrite'  = TRUE
     ,'rgb.labels'           = c('red', 'green', 'blue')
-    ,'tone.curve.id'        = "camera.metadata"
+    ,'tone.curve.id'        = "sRGB"
     ,'mute'                 = FALSE
     ,'conf.level'           = 0.95
     ,'plot.ribbon.opacity'  = 0.2
     ,'plot.point.opacity'   = 0.75
+    ,'target.rgb.space'     = 'sRGB'
+    ,'conv.to.rgb.tc'       = 'target.space.tc'
   )
 }

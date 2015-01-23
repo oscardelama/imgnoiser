@@ -62,6 +62,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     #-- Temporary variables for RGB conversions (performance)
     # Without raw white balance
     .raw.to.rgb.mtx        = NULL,
+    .space.tone.curve.id   = NULL,
     .scaled.raw.to.rgb.mtx = NULL,
     # Including raw white balance
     .forward.mtx           = NULL,
@@ -416,7 +417,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
     get.conv.matrix.from.raw = function(
       from.neutral.raw = stop("The 'white.linear' argument is missing."),
-      to.space='sRGB'
+      to.space = imgnoiser.option('target.rgb.space')
     ) {
       # browser()
       private$.linear.rgb.from.raw <- NULL
@@ -465,10 +466,26 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       space.convert.mtx <-
         switch(
           to.space,
-          'sRGB' = private$.sRGB_D65.from.XYZ.D50,
-          'Adobe RGB' = private$.adobe_RGB_D65.from.XYZ.D50,
-          'ProPhoto RGB' = private$.prophoto_RGB_D50.from.XYZ.D50,
-          'CIE RGB' = private$.cie_RGB_E.from.XYZ.D50,
+          'sRGB' = {
+            private$.space.tone.curve.id <- 'sRGB'
+            private$.sRGB_D65.from.XYZ.D50;
+          },
+
+          'Adobe RGB' = {
+            private$.space.tone.curve.id <- 'Gamma.2.2'
+            private$.adobe_RGB_D65.from.XYZ.D50;
+          },
+
+          'ProPhoto RGB' = {
+            private$.space.tone.curve.id <- 'ProPhoto'
+            private$.prophoto_RGB_D50.from.XYZ.D50
+          },
+
+          'CIE RGB' = {
+            private$.space.tone.curve.id <- 'Gamma.2.2'
+            private$.cie_RGB_E.from.XYZ.D50
+          },
+
           stop(paste0("Cannot convert to the space '", to.space, "'."))
         )
 
@@ -482,8 +499,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     prepare.to.rgb.conversions = function(
       rgb.scale = 255,
       RGGB.indices = c(1,2,3,4),
-      use.camera.tone.curve = TRUE,
-      conv.tone.curve = 'linear'
+      use.camera.tc = TRUE,
+      conv.tone.curve = imgnoiser.option('conv.to.rgb.tc')
     ) {
       # browser()
       # Validate the matrices are ready
@@ -507,18 +524,27 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       private$.rggb.indices <- RGGB.indices
 
       #-- Prepare a smooth spline through the scaled camera and conversion tone curves
+      # browser()
       cam.tc <-
-        if (use.camera.tone.curve == TRUE) private$.tone.curve
+        if (use.camera.tc == TRUE) private$.tone.curve
         else NULL
 
       conv.tc <-
         if (is.a.valid.tone.curve(conv.tone.curve))
           as.data.frame(conv.tone.curve[,c(1:2)])
         else {
+
+          conv.tone.curve <-
+            if (conv.tone.curve == 'target.space.tc')
+              private$.space.tone.curve.id
+            else
+              vector.alike(conv.tone.curve, 1L)
+
           switch(
-            vector.alike(conv.tone.curve, 1L),
+            conv.tone.curve,
             'linear'    = NULL,
             'sRGB'      = prepare.sRGB.gamma.curve(),
+            'ProPhoto'  = prepare.ProPhoto.gamma.curve(),
             'BT.709'    = prepare.BT.709.gamma.curve(),
             'Gamma.2.2' = prepare.std.2.2.gamma.curve(),
             'Gamma.1.8' = prepare.std.1.8.gamma.curve(),

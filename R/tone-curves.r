@@ -1,66 +1,102 @@
+# Force linear interpolation from 0 to max
+linear.interpolation <- function(slope, input.max.linear, num.of.linear.points) {
+
+  segment.count <- num.of.linear.points -1
+  x <- (0:segment.count)/segment.count * input.max.linear
+  data.frame('src' = x, 'dst' = x * slope)
+
+}
+
+#----------------------------
+#'
+#' @importFrom data.table rbindlist
+#----------------------------
+build.generic.gamma.curve <- function(gamma, gamma.slope, gamma.intercept, linear.slope, input.max.linear, num.of.linear.points, num.of.points) {
+
+  num.of.points <- num.of.points - 1L
+  start.point <- ceiling(input.max.linear*num.of.points)
+  gamma.curve <- data.frame('src' = (start.point:num.of.points)/num.of.points, 'dst' = 0)
+
+  power <- 1/gamma
+  for (ix in 1L:nrow(gamma.curve)) {
+    x <- gamma.curve[ix,1L]
+    gamma.curve[ix,2L] <- gamma.slope*x^power + gamma.intercept
+  }
+
+  if (input.max.linear > 0) {
+    # Build the initial linear segment
+    num.of.linear.points <- max(num.of.linear.points, start.point - 1L)
+    linear.segment <- linear.interpolation(linear.slope, input.max.linear, num.of.linear.points)
+
+    # Result: merge linear and gamma segments
+    data.table::rbindlist(list(linear.segment, gamma.curve));
+  } else
+    gamma.curve
+}
 
 prepare.sRGB.gamma.curve <- function() {
-  n <- 39L
-  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
-  power <- 1/2.4
 
-  for (ix in 1L:nrow(gamma.curve)) {
-    x <- gamma.curve[ix,1]
-    if (x < 0.0031308)
-      gamma.curve[ix,2] <- 12.92*x
-    else
-      gamma.curve[ix,2] <- 1.055*x^power - 0.055
-  }
-  # result
-  gamma.curve;
+  build.generic.gamma.curve(
+    gamma = 2.4,
+    gamma.slope = 1.055,
+    gamma.intercept = -0.055,
+    linear.slope = 12.92,
+    input.max.linear = 0.0031308,
+    num.of.linear.points = 5L,
+    num.of.points = 41L
+  )
+}
+
+prepare.ProPhoto.gamma.curve <- function() {
+
+  build.generic.gamma.curve(
+    gamma = 1.8,
+    gamma.slope = 1,
+    gamma.intercept = 0,
+    linear.slope = 16,
+    input.max.linear = 0.001953,
+    num.of.linear.points = 5L,
+    num.of.points = 41L
+  )
 }
 
 prepare.BT.709.gamma.curve <- function() {
 
-  n <- 39L
-  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
-  power <- 0.45
-
-  for (ix in 1L:nrow(gamma.curve)) {
-    x <- gamma.curve[ix,1]
-    if (x < 0.018)
-      gamma.curve[ix,2] <- 4.5*x
-    else
-      gamma.curve[ix,2] <- 1.099*x^power - 0.099
-  }
-  # result
-  gamma.curve;
-
+  build.generic.gamma.curve(
+    gamma = 1/0.45,
+    gamma.slope = 1.099,
+    gamma.intercept = -0.099,
+    linear.slope = 4.5,
+    input.max.linear = 0.018,
+    num.of.linear.points = 5,
+    num.of.points = 41
+  )
 }
 
 prepare.std.2.2.gamma.curve <- function() {
 
-  n <- 39L
-  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
-  power <- 1/2.2
-
-  for (ix in 1L:nrow(gamma.curve)) {
-    x <- gamma.curve[ix,1]
-    gamma.curve[ix,2] <- x^power
-  }
-  # result
-  gamma.curve;
-
+  build.generic.gamma.curve(
+    gamma = 2.2,
+    gamma.slope = 1,
+    gamma.intercept = 0,
+    linear.slope = 1,
+    input.max.linear = 0,
+    num.of.linear.points = 0,
+    num.of.points = 41
+  )
 }
 
 prepare.std.1.8.gamma.curve <- function() {
 
-  n <- 39L
-  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
-  power <- 1/1.8
-
-  for (ix in 1L:nrow(gamma.curve)) {
-    x <- gamma.curve[ix,1]
-    gamma.curve[ix,2] <- x^power
-  }
-  # result
-  gamma.curve;
-
+  build.generic.gamma.curve(
+    gamma = 1.8,
+    gamma.slope = 1,
+    gamma.intercept = 0,
+    linear.slope = 1,
+    input.max.linear = 0,
+    num.of.linear.points = 0,
+    num.of.points = 41
+  )
 }
 
 prepare.and.save.gamma.curves <- function() {
@@ -68,6 +104,10 @@ prepare.and.save.gamma.curves <- function() {
   sRGB.gamma.curve <- prepare.sRGB.gamma.curve()
   save(sRGB.gamma.curve, file = './data/sRGB-gamma-curve.rdata')
   sRGB.gamma.curve <- NULL
+
+  ProPhoto.gamma.curve <- prepare.ProPhoto.gamma.curve()
+  save(ProPhoto.gamma.curve, file = './data/ProPhoto-gamma-curve.rdata')
+  ProPhoto.gamma.curve <- NULL
 
   BT.709.gamma.curve <- prepare.BT.709.gamma.curve()
   save(BT.709.gamma.curve, file = './data/BT-709-gamma-curve.rdata')
