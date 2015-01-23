@@ -36,7 +36,7 @@ Collate:
     'color-utils.r'
     'doc-vvm.r'
     'fit-model.r'
-    'gamma-curves.r'
+    'tone-curves.r'
     'noise-class.r'
     'hvdvm-class.r'
     'imgnoiser.r'

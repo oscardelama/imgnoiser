@@ -168,7 +168,7 @@ check.all.whole.numbers <- function(x, name=deparse(substitute(x))) {
 #-----------------------------
 # coalesce NULLs
 #-----------------------------
-"%||%" <- function(x, y) if(is.null(x) | is.na(x)) y else x
+"%||%" <- function(x, y) if (is.null(x)) y else x
 
 #-----------------------------
 # coalesce NAs

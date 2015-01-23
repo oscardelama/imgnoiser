@@ -482,7 +482,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     prepare.to.rgb.conversions = function(
       rgb.scale = 255,
       RGGB.indices = c(1,2,3,4),
-      tone.curve = 'linear'
+      use.camera.tone.curve = TRUE,
+      conv.tone.curve = 'linear'
     ) {
       # browser()
       # Validate the matrices are ready
@@ -505,35 +506,31 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       private$.rggb.white.level <- private$.rggb.white.level[RGGB.indices] - private$.rggb.black.level
       private$.rggb.indices <- RGGB.indices
 
-      #-- Prepare a smooth spline through the scaled tone curve
-      prepare.tone.curve <- function(tone.curve) {
-        tone.curve <- tone.curve * rgb.scale
-        # Compute and save the spline
-        private$.spline.tone.curve <<- smooth.spline(x=tone.curve$x, y=tone.curve$y, df=nrow(tone.curve)-1)
-      }
+      #-- Prepare a smooth spline through the scaled camera and conversion tone curves
+      cam.tc <-
+        if (use.camera.tone.curve == TRUE) private$.tone.curve
+        else NULL
 
-      if (is.a.valid.tone.curve(tone.curve)) {
-        tc <- as.data.frame(tone.curve[,c(1:2)])
-        data.table::setnames(tc, c('x','y'))
-        prepare.tone.curve(tc)
-      } else if (tone.curve == 'linear')
-        private$.spline.tone.curve <- NULL
-      else if (tone.curve == 'camera.metadata') {
-        prepare.tone.curve(private$.tone.curve)
-      } else if (tone.curve == 'sRGB') {
-        prepare.tone.curve(prepare.sRGB.gamma.curve())
-      } else if (tone.curve == 'BT.709') {
-        prepare.tone.curve(prepare.BT.709.gamma.curve())
-      } else if (tone.curve == 'Gamma.2.2') {
-        prepare.tone.curve(prepare.std.2.2.gamma.curve())
-      } else if (tone.curve == 'Gamma.1.8') {
-        prepare.tone.curve(prepare.std.1.8.gamma.curve())
-      } else
-        stop("Unknown tone curve.")
+      conv.tc <-
+        if (is.a.valid.tone.curve(conv.tone.curve))
+          as.data.frame(conv.tone.curve[,c(1:2)])
+        else {
+          switch(
+            vector.alike(conv.tone.curve, 1L),
+            'linear'    = NULL,
+            'sRGB'      = prepare.sRGB.gamma.curve(),
+            'BT.709'    = prepare.BT.709.gamma.curve(),
+            'Gamma.2.2' = prepare.std.2.2.gamma.curve(),
+            'Gamma.1.8' = prepare.std.1.8.gamma.curve(),
+            stop("Invalid 'conv.tone.curve' argument.")
+          )
+        }
+
+      private$.spline.tone.curve <- prepare.merged.tone.curve(cam.tc, conv.tc, rgb.scale)
     },
 
     convert.raw.to.rgb = function(
-      cfa = stop("The 'white.linear' argument is missing."),
+      cfa = stop("The 'cfa' argument is missing."),
       is.neutral = FALSE
     ) {
 

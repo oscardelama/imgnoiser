@@ -1,7 +1,7 @@
 
 prepare.sRGB.gamma.curve <- function() {
   n <- 39L
-  gamma.curve <- data.frame('x' = (0:n)/n, 'y' = 0)
+  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
   power <- 1/2.4
 
   for (ix in 1L:nrow(gamma.curve)) {
@@ -18,7 +18,7 @@ prepare.sRGB.gamma.curve <- function() {
 prepare.BT.709.gamma.curve <- function() {
 
   n <- 39L
-  gamma.curve <- data.frame('x' = (0:n)/n, 'y' = 0)
+  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
   power <- 0.45
 
   for (ix in 1L:nrow(gamma.curve)) {
@@ -36,7 +36,7 @@ prepare.BT.709.gamma.curve <- function() {
 prepare.std.2.2.gamma.curve <- function() {
 
   n <- 39L
-  gamma.curve <- data.frame('x' = (0:n)/n, 'y' = 0)
+  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
   power <- 1/2.2
 
   for (ix in 1L:nrow(gamma.curve)) {
@@ -51,7 +51,7 @@ prepare.std.2.2.gamma.curve <- function() {
 prepare.std.1.8.gamma.curve <- function() {
 
   n <- 39L
-  gamma.curve <- data.frame('x' = (0:n)/n, 'y' = 0)
+  gamma.curve <- data.frame('src' = (0:n)/n, 'dst' = 0)
   power <- 1/1.8
 
   for (ix in 1L:nrow(gamma.curve)) {
@@ -80,4 +80,36 @@ prepare.and.save.gamma.curves <- function() {
   std.1.8.gamma.curve <- prepare.std.1.8.gamma.curve()
   save(std.1.8.gamma.curve, file = './data/std-1.8-gamma-curve.rdata')
   std.1.8.gamma.curve <- NULL
+}
+
+
+#-- Prepare a smooth spline multiplying both tone curves
+# They must have the same scale
+# returns a spline object
+#
+#' @importFrom data.table setnames
+prepare.merged.tone.curve <- function(tc1, tc2, scale) {
+
+#   tone.curve <- tone.curve * rgb.scale
+  spline.of <- function(tc) {
+    if (is.null(tc)) return(NULL)
+    data.table::setnames(tc, c('x', 'y'))
+    smooth.spline(x = tc$x, y = tc$y, all.knots = TRUE)
+  }
+
+  sp2 <- spline.of(tc2*scale)
+
+  if (is.null(tc1)) {
+    sp2
+  } else if (is.null(tc2)) {
+    spline.of(tc1*scale)
+  } else {
+
+    tc <- data.frame(
+          'x' = tc1$x*scale
+          ,'y' = predict(sp2, tc1$y)[['y']]
+      )
+
+    spline.of(tc);
+  }
 }

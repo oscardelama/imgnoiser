@@ -35,6 +35,7 @@ create.nikon.d7000.ISO100.metadata <- function() {
 
   #print(getwd())
   tone.curve <- read.csv('./data-raw/dng-tone-conversion.csv')
+  data.table::setnames(tone.curve, c('src', 'dst')
 
   nikon.d7000.ISO100.colmap <- list(
         'cam.matrices.1'   = nikon.d7000.cam.matrix.1
