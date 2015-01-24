@@ -131,18 +131,19 @@ prepare.and.save.gamma.curves <- function() {
 prepare.merged.tone.curve <- function(tc1, tc2, scale) {
 
 #   tone.curve <- tone.curve * rgb.scale
-  spline.of <- function(tc) {
+  spline.of <- function(tc, scale) {
     if (is.null(tc)) return(NULL)
+    tc <- tc*scale
     data.table::setnames(tc, c('x', 'y'))
     smooth.spline(x = tc$x, y = tc$y, all.knots = TRUE);
   }
 
-  sp2 <- spline.of(tc2*scale)
+  sp2 <- spline.of(tc2, scale)
 
   if (is.null(tc1)) {
     sp2
   } else if (is.null(tc2)) {
-    spline.of(tc1*scale)
+    spline.of(tc1, scale)
   } else {
 
     tc1 <- tc1 * scale
@@ -151,6 +152,6 @@ prepare.merged.tone.curve <- function(tc1, tc2, scale) {
           ,'y' = predict(sp2, tc1$y)[['y']]
       )
 
-    spline.of(tc);
+    spline.of(tc, 1);
   }
 }
