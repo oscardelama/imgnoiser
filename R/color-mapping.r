@@ -461,7 +461,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       # Get the 'base' XYZ.to.raw matrix from which we can get other
       # color transformation matrices
       # browser()
-      XYZ.D50.from.raw <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
+#       XYZ.D50.from.raw <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
 
       space.convert.mtx <-
         switch(
@@ -491,8 +491,18 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
       # Results
       private$.AB.CC.inverse <- if (any(AB.CC.inverse != diag(1,3,3))) AB.CC.inverse else NULL
-      private$.forward.mtx <- space.convert.mtx %*% forward.mtx
-      private$.raw.to.rgb.mtx <- space.convert.mtx %*% XYZ.D50.from.raw
+
+      # Normalize forward matrix
+      forward.mtx <- space.convert.mtx %*% forward.mtx
+      row.sum <- apply(forward.mtx, 1, sum)
+      forward.mtx[1,] <- forward.mtx[1,] / row.sum[1]
+      forward.mtx[2,] <- forward.mtx[2,] / row.sum[2]
+      forward.mtx[3,] <- forward.mtx[3,] / row.sum[3]
+      private$.forward.mtx <- forward.mtx
+
+#       private$.raw.to.rgb.mtx <- space.convert.mtx %*% XYZ.D50.from.raw
+      private$.raw.to.rgb.mtx <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
+
       invisible(private$.raw.to.rgb.mtx);
     },
 
