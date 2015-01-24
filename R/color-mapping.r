@@ -551,7 +551,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
             stop("Invalid 'conv.tone.curve' argument.")
           )
         }
-
+      # browser()
       private$.spline.tone.curve <- prepare.merged.tone.curve(cam.tc, conv.tc, rgb.scale)
     },
 

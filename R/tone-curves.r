@@ -134,7 +134,7 @@ prepare.merged.tone.curve <- function(tc1, tc2, scale) {
   spline.of <- function(tc) {
     if (is.null(tc)) return(NULL)
     data.table::setnames(tc, c('x', 'y'))
-    smooth.spline(x = tc$x, y = tc$y, all.knots = TRUE)
+    smooth.spline(x = tc$x, y = tc$y, all.knots = TRUE);
   }
 
   sp2 <- spline.of(tc2*scale)
@@ -145,8 +145,9 @@ prepare.merged.tone.curve <- function(tc1, tc2, scale) {
     spline.of(tc1*scale)
   } else {
 
+    tc1 <- tc1 * scale
     tc <- data.frame(
-          'x' = tc1$x*scale
+          'x' = tc1$x
           ,'y' = predict(sp2, tc1$y)[['y']]
       )
 
