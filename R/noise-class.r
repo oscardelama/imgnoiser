@@ -194,6 +194,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       wide.df.names <- sub("_", ".", wide.df.names)
       wide.df.names <- make.names(wide.df.names, unique=TRUE)
       data.table::setnames(wide.df, wide.df.names)
+      # Remove the factor attribute
+      wide.df$pict <- as.character(wide.df$pict)
       # result
       wide.df;
     }
