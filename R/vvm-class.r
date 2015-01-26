@@ -210,7 +210,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,rgb.scale      = 255
       ,rgb.labels     = imgnoiser.option('rgb.labels')
       ,use.camera.tc  = TRUE
-      ,conv.tone.curve = imgnoiser.option('tone.curve.id')
+      ,target.tc      = imgnoiser.option('tone.curve.id')
     )
     {
 
@@ -258,7 +258,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.model <- list()
 
       # Initialize the RGB conversion (there are some additional validations)
-      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, use.camera.tc, conv.tone.curve)
+      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, use.camera.tc, target.tc)
 
       # Get show.progress option
       show.progress <- package.option('show.progress')
@@ -277,6 +277,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       for (file.ix in seq_along(file.names)) {
 
         file.name <- file.names[file.ix]
+        # if (file.name == '_ODL1092s3.pgm') browser()
 
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
