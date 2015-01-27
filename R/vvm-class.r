@@ -38,6 +38,31 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
     ##------------------------------
     ,.unpack = function(bag) super$.unpack(bag)
 
+    ,append.from = function(
+      vvm.obj = stop("Missing 'vvm.obj' argument.")
+    )
+    {
+      if ('vvm' %nin% class(vvm.obj))
+        stop("The 'vvm.obj' argument must have the 'vvm' class.")
+
+      # If this object is empty clone the other object here
+      if (nrow(private$.var.df) == 0) {
+        bag <- vvm.obj$.pack
+        self$.unpack(bag)
+      }
+      else {
+        private$.var.df <- data.table::rbindlist(list(
+                              private$.var.df,
+                              vvm.obj$var.df
+                            ))
+
+        private$.cov.df <- data.table::rbindlist(list(
+                              private$.cov.df,
+                              vvm.obj$cov.df
+                            ))
+      }
+    }
+
     ##------------------------------
     ## load
     ##------------------------------
