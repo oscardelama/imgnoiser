@@ -11,21 +11,26 @@ linear.interpolation <- function(slope, input.max.linear, num.of.linear.points) 
 #'
 #' @importFrom data.table rbindlist
 #----------------------------
-build.generic.gamma.curve <- function(gamma, gamma.slope, gamma.intercept, linear.slope, input.max.linear, num.of.linear.points, num.of.points) {
-
-  num.of.points <- num.of.points - 1L
-  start.point <- ceiling(input.max.linear*num.of.points)
-  gamma.curve <- data.frame('src' = (start.point:num.of.points)/num.of.points, 'dst' = 0)
+build.generic.gamma.curve <- function(gamma, gamma.slope, gamma.intercept, linear.slope, input.max.linear, num.of.linear.points, step) {
 
   power <- 1/gamma
-  for (ix in 1L:nrow(gamma.curve)) {
-    x <- gamma.curve[ix,1L]
-    gamma.curve[ix,2L] <- gamma.slope*x^power + gamma.intercept
+
+  derivative <- function(x) {
+    gamma.slope*power*x^(power-1)
+  }
+
+  gamma.curve <- data.frame()
+  current.value <- input.max.linear
+
+  while ((1 - current.value)  > 1E-08) {
+    deriv <- derivative(current.value)
+    dx <- step / sqrt(1+deriv*deriv)
+    current.value <- current.value + dx
+    x <- if (current.value > 1) 1 else current.value
+    gamma.curve <- rbind(gamma.curve, data.frame('src' = x, 'dst'= gamma.slope*x^power + gamma.intercept))
   }
 
   if (input.max.linear > 0) {
-    # Build the initial linear segment
-    num.of.linear.points <- max(num.of.linear.points, start.point - 1L)
     linear.segment <- linear.interpolation(linear.slope, input.max.linear, num.of.linear.points)
 
     # Result: merge linear and gamma segments
@@ -43,7 +48,7 @@ prepare.sRGB.gamma.curve <- function() {
     linear.slope = 12.92,
     input.max.linear = 0.0031308,
     num.of.linear.points = 5L,
-    num.of.points = 41L
+    step = 1/50
   )
 }
 
@@ -56,7 +61,7 @@ prepare.ProPhoto.gamma.curve <- function() {
     linear.slope = 16,
     input.max.linear = 0.001953,
     num.of.linear.points = 5L,
-    num.of.points = 41L
+    step = 1/50
   )
 }
 
@@ -69,7 +74,7 @@ prepare.BT.709.gamma.curve <- function() {
     linear.slope = 4.5,
     input.max.linear = 0.018,
     num.of.linear.points = 5,
-    num.of.points = 41
+    step = 1/50
   )
 }
 
@@ -82,7 +87,7 @@ prepare.std.2.2.gamma.curve <- function() {
     linear.slope = 1,
     input.max.linear = 0,
     num.of.linear.points = 0,
-    num.of.points = 41
+    step = 1/50
   )
 }
 
@@ -95,7 +100,7 @@ prepare.std.1.8.gamma.curve <- function() {
     linear.slope = 1,
     input.max.linear = 0,
     num.of.linear.points = 0,
-    num.of.points = 41
+    step = 1/50
   )
 }
 
@@ -130,7 +135,7 @@ prepare.and.save.gamma.curves <- function() {
 #' @importFrom data.table setnames
 prepare.merged.tone.curve <- function(tc1, tc2, scale) {
 
-#   tone.curve <- tone.curve * rgb.scale
+  #   tone.curve <- tone.curve * rgb.scale
   spline.of <- function(tc, scale) {
     if (is.null(tc)) return(NULL)
     tc <- tc*scale
@@ -148,9 +153,9 @@ prepare.merged.tone.curve <- function(tc1, tc2, scale) {
 
     tc1 <- tc1 * scale
     tc <- data.frame(
-          'x' = tc1$x
-          ,'y' = predict(sp2, tc1$y)[['y']]
-      )
+      'x' = tc1$x
+      ,'y' = predict(sp2, tc1$y)[['y']]
+    )
 
     spline.of(tc, 1);
   }
