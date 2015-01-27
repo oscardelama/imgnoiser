@@ -340,6 +340,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
         # Keep the first two columns
         tone.curve <- tone.curve[,1L:2L]
+        data.table::setnames(tone.curve, c('x','y'))
 
         if (dim(tone.curve)[1] < 8)
           stop("The tone curve must have at least eight rows.")
@@ -348,14 +349,19 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
           stop("The tone curve range and domain must be in [0,1]")
 
         # The first point must be (0,0)
-        if (any(tone.curve[1,] != c(0,0)))
-            tone.curve <- data.table::rbindlist(list(as.data.frame(c(0,0)), tone.curve))
+        if (tone.curve[1,1] > 0)
+            tone.curve <- data.table::rbindlist(list(data.frame('x'=0, 'y'=0),
+                                                     tone.curve
+                                                     )
+                                                )
 
         # The last point must be (1,1)
-        if (any(tail(tone.curve, 1) != c(1, 1)))
-          tone.curve <- data.table::rbindlist(list(tone.curve, as.data.frame(c(1,1))))
+        if (tone.curve[nrow(tone.curve),1] < 1)
+          tone.curve <- data.table::rbindlist(list(tone.curve,
+                                                   data.frame('x'=1, 'y'=1)
+                                                  )
+                                              )
 
-        data.table::setnames(tone.curve, c('x','y'))
         private$.tone.curve <- tone.curve
       }
     },
