@@ -50,6 +50,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         bag <- list()
         bag <- vvm.obj$.pack(bag)
         self$.unpack(bag)
+        # Make sure pict is not a factor
+        private$.var.df$pict <- as.character(private$.var.df$pict)
+        private$.cov.df$pict <- as.character(private$.cov.df$pict)
       }
       else {
         private$.var.df <- data.table::rbindlist(list(
@@ -207,9 +210,11 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       }
 
       # remove NAs
-      # browser()
       var.df <- var.df[!is.na(var.df$mean),]
       cov.df <- cov.df[!is.na(cov.df$cov),]
+      # Make sure pict is not a factor
+      var.df$pict <- as.character(var.df$pict)
+      cov.df$pict <- as.character(cov.df$pict)
 
       # Save the results
       private$.var.df <- var.df
