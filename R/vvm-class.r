@@ -47,7 +47,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
       # If this object is empty clone the other object here
       if (nrow(private$.var.df) == 0) {
-        bag <- vvm.obj$.pack
+        bag <- list()
+        bag <- vvm.obj$.pack(bag)
         self$.unpack(bag)
       }
       else {
