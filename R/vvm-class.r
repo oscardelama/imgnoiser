@@ -72,7 +72,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         ,file.path  = './'
         ,file.name.ext  = '.pgm'
         ,min.raw        = 0
-        ,max.raw        = NULL
+        ,max.raw        = Inf
     )
     {
       # file.names <- get.img.file.names(img.file.name, img.file.count, img.file.name.ext)
@@ -229,7 +229,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,file.path      = './'
       ,file.name.ext  = '.pgm'
       ,min.raw        = 0
-      ,max.raw        = NULL
+      ,max.raw        = Inf
       ,is.neutral     = FALSE
       ,map.to.rgb     = stop("The 'map.to.rgb' argument is missing.")
       ,rgb.scale      = 255
