@@ -15,28 +15,38 @@ build.generic.gamma.curve <- function(gamma, gamma.slope, gamma.intercept, linea
 
   power <- 1/gamma
 
-  derivative <- function(x) {
-    gamma.slope*power*x^(power-1)
+  first.deriv <- function(x) {
+    x <- if (x == 0) 1E-06 else x
+    gamma.slope*power*x^(power-1);
   }
 
-  gamma.curve <- data.frame()
+  gamma <- function(x) {
+    gamma.slope*x^power + gamma.intercept;
+  }
+
   current.value <- input.max.linear
+  tone.curve <-
+    if (input.max.linear > 0)
+      data.frame()
+    else
+      data.frame('src' = current.value, 'dst'= gamma(current.value))
 
   while ((1 - current.value)  > 1E-08) {
-    deriv <- derivative(current.value)
+    deriv <- first.deriv(current.value)
     dx <- step / sqrt(1+deriv*deriv)
     current.value <- current.value + dx
     x <- if (current.value > 1) 1 else current.value
-    gamma.curve <- rbind(gamma.curve, data.frame('src' = x, 'dst'= gamma.slope*x^power + gamma.intercept))
+    tone.curve <- rbind(tone.curve, data.frame('src' = x, 'dst'= gamma(x)))
+
   }
 
   if (input.max.linear > 0) {
     linear.segment <- linear.interpolation(linear.slope, input.max.linear, num.of.linear.points)
 
     # Result: merge linear and gamma segments
-    data.table::rbindlist(list(linear.segment, gamma.curve));
+    data.table::rbindlist(list(linear.segment, tone.curve));
   } else
-    gamma.curve
+    tone.curve
 }
 
 prepare.sRGB.gamma.curve <- function() {
