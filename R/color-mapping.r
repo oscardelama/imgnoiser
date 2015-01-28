@@ -332,37 +332,14 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       if (is.null(tone.curve))
         private$.tone.curve <- NULL
       else {
-        # Right now the tone curve must be explicit. In the future
-        # it would be a gamma correction
+        # The tone curve must be explicit. In the future
         tone.curve <- as.data.frame(tone.curve)
-        if (dim(tone.curve)[2] < 2)
-          stop("The tone curve must have at least two columns.")
-
-        # Keep the first two columns
-        tone.curve <- tone.curve[,1L:2L]
-        data.table::setnames(tone.curve, c('x','y'))
-
-        if (dim(tone.curve)[1] < 8)
-          stop("The tone curve must have at least eight rows.")
-
-        if (!between(c(tone.curve[,1L], tone.curve[,2L]), 0, 1))
-          stop("The tone curve range and domain must be in [0,1]")
-
-        # The first point must be (0,0)
-        if (tone.curve[1,1] > 0)
-            tone.curve <- data.table::rbindlist(list(data.frame('x'=0, 'y'=0),
-                                                     tone.curve
-                                                     )
-                                                )
-
-        # The last point must be (1,1)
-        if (tone.curve[nrow(tone.curve),1] < 1)
-          tone.curve <- data.table::rbindlist(list(tone.curve,
-                                                   data.frame('x'=1, 'y'=1)
-                                                  )
-                                              )
-
-        private$.tone.curve <- tone.curve
+        if (is.a.valid.tone.curve(tone.curve)) {
+          # Keep the first two columns as (x,y)
+          tone.curve <- tone.curve[,1L:2L]
+          data.table::setnames(tone.curve, c('x','y'))
+          private$.tone.curve <- tone.curve
+        }
       }
     },
 

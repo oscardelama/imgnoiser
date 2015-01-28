@@ -263,14 +263,25 @@ select.file.range <- function(
 
 is.a.valid.tone.curve <- function(tc) {
   if (!is.atomic(tc) && !is.null(dim(tc)) && length(dim(tc)) == 2 && dim(tc)[2] == 2) {
+
     if (is.numeric(tc[,1]) & is.numeric(tc[,2])) {
       tc.src.rng <- range(tc[,1])
       tc.dst.rng <- range(tc[,2])
-      if (tc.src.rng[1] <= 0 && tc.src.rng[2] >= 1 && tc.dst.rng[1] >= 0 && tc.dst.rng[2] <= 1) {
-        if (nrow(tc) > 8) return (TRUE)
+      if (tc.src.rng[1] <= 0 && tc.src.rng[2] >= 1) {
+        if (tc.dst.rng[1] >= 0 && tc.dst.rng[2] <= 1) {
+          if (nrow(tc) > 8)
+            return (TRUE)
+          else
+            stop("Illegal tone curve: there must be at least 8 rows.")
+        }
+        else
+          stop("Illegal tone curve: the second column must be in the [0,1] range.")
       }
+      else
+        stop("Illegal tone curve: the first column must contain the [0,1] range.")
     }
-    stop("Illegal tone curve.")
+    else
+      stop("Illegal tone curve: the first two columns must be numeric.")
   }
   else
     FALSE
