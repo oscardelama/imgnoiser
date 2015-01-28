@@ -66,8 +66,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
                             ))
 
         private$.std.src.data <- data.table::rbindlist(list(
-                              private$.std.src.data,
-                              vvm.obj$private$.std.src.data
+                              private$.std.src.data$data,
+                              vvm.obj$private$.std.src.data$data
                             ))
       }
     }
