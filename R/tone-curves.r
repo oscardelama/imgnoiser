@@ -3,7 +3,7 @@ linear.interpolation <- function(slope, input.max.linear, num.of.linear.points) 
 
   segment.count <- num.of.linear.points -1
   x <- (0:segment.count)/segment.count * input.max.linear
-  data.frame('src' = x, 'dst' = x * slope)
+  data.frame('x' = x, 'y' = x * slope)
 
 }
 
@@ -29,14 +29,14 @@ build.generic.gamma.curve <- function(gamma, gamma.slope, gamma.intercept, linea
     if (input.max.linear > 0)
       data.frame()
     else
-      data.frame('src' = current.value, 'dst'= gamma(current.value))
+      data.frame('x' = current.value, 'y'= gamma(current.value))
 
   while ((1 - current.value)  > 1E-08) {
     deriv <- first.deriv(current.value)
     dx <- step / sqrt(1+deriv*deriv)
     current.value <- current.value + dx
     x <- if (current.value > 1) 1 else current.value
-    tone.curve <- rbind(tone.curve, data.frame('src' = x, 'dst'= gamma(x)))
+    tone.curve <- rbind(tone.curve, data.frame('x' = x, 'y'= gamma(x)))
 
   }
 
@@ -143,9 +143,9 @@ prepare.and.save.gamma.curves <- function() {
 # returns a spline object
 #
 #' @importFrom data.table setnames
+#' @export
 prepare.merged.tone.curve <- function(tc1, tc2, scale) {
 
-  #   tone.curve <- tone.curve * rgb.scale
   spline.of <- function(tc, scale) {
     if (is.null(tc)) return(NULL)
     tc <- tc*scale
@@ -161,10 +161,13 @@ prepare.merged.tone.curve <- function(tc1, tc2, scale) {
     spline.of(tc1, scale)
   } else {
 
-    tc1 <- tc1 * scale
+    sp1 <- spline.of(tc1, scale)
+    tc.base <- data.frame('x' = intersect(tc1$x, tc2$x))
+    tc.base$y <- predict(sp1, tc.base$x)[['y']]
+
     tc <- data.frame(
-      'x' = tc1$x
-      ,'y' = predict(sp2, tc1$y)[['y']]
+      'x' = tc.base$x
+      ,'y' = predict(sp2, tc.base$y)[['y']]
     )
 
     spline.of(tc, 1);
