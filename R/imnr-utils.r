@@ -264,11 +264,13 @@ select.file.range <- function(
 is.a.valid.tone.curve <- function(tc) {
   if (!is.atomic(tc) && !is.null(dim(tc)) && length(dim(tc)) == 2 && dim(tc)[2] == 2) {
 
+    tol <- 1E-07
+
     if (is.numeric(tc[,1]) & is.numeric(tc[,2])) {
       tc.src.rng <- range(tc[,1])
       tc.dst.rng <- range(tc[,2])
-      if (tc.src.rng[1] <= 0 && tc.src.rng[2] >= 1) {
-        if (tc.dst.rng[1] >= 0 && tc.dst.rng[2] <= 1) {
+      if (tc.src.rng[1] <= tol && (tc.src.rng[2] - 1) >= -tol) {
+        if (tc.dst.rng[1] >= -tol && (tc.dst.rng[2] - 1) <= tol) {
           if (nrow(tc) > 8)
             return (TRUE)
           else
