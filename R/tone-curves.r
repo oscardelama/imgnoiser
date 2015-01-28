@@ -162,7 +162,7 @@ prepare.merged.tone.curve <- function(tc1, tc2, scale) {
   } else {
 
     sp1 <- spline.of(tc1, scale)
-    tc.base <- data.frame('x' = intersect(tc1$x, tc2$x))
+    tc.base <- data.frame('x' = sort(union(tc1$x, tc2$x)))
     tc.base$y <- predict(sp1, tc.base$x)[['y']]
 
     tc <- data.frame(
