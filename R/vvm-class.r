@@ -50,11 +50,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         bag <- list()
         bag <- vvm.obj$.pack(bag)
         self$.unpack(bag)
-        # Make sure pict is not a factor
-        private$.var.df$pict <- as.character(private$.var.df$pict)
-        private$.cov.df$pict <- as.character(private$.cov.df$pict)
-      }
-      else {
+      } else {
         private$.var.df <- data.table::rbindlist(list(
                               private$.var.df,
                               vvm.obj$var.df
@@ -64,12 +60,17 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
                               private$.cov.df,
                               vvm.obj$cov.df
                             ))
+        bag <- list()
+        bag <- vvm.obj$.pack(bag)
 
         private$.std.src.data$data <- data.table::rbindlist(list(
                               private$.std.src.data$data,
-                              vvm.obj$private$.std.src.data$data
+                              bag[['noise.var.class']][['std.src.data']][['data']]
                             ))
       }
+      # Make sure pict is not a factor
+      private$.var.df$pict <- as.character(private$.var.df$pict)
+      private$.cov.df$pict <- as.character(private$.cov.df$pict)
     }
 
     ##------------------------------
