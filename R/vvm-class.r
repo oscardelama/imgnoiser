@@ -117,18 +117,23 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
       known.greens <- (!is.null(private$.green.channels) & length(private$.green.channels) == 2)
 
+      # Check there is not clipping above 2%
+      bad.pixel.count.limit <- 0
+      channel.is.valid <- function(channels, channel.idx) {
+        if (bad.pixel.count.limit == 0) bad.pixel.count.limit <<- 0.02 * length(channels[[channel.idx]])
+        (out.of.range.pixel.count(
+                          channels[[channel.idx]],
+                          min.raw[channel.idx],
+                          max.raw[channel.idx]
+                          ) < bad.pixel.count.limit);
+      }
+
       # Get show.progress option
       show.progress <- package.option('show.progress')
       # Show progress bar
       if (show.progress) {
         message(paste("Processing", length(file.names), "image files:"))
         prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
-      }
-
-      # Validate if channel values are in the desired range
-      channel.is.valid <- function(ch, idx) {
-        rng <- range(c(ch[[idx]]))
-        (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
       }
 
       for (file.ix in seq_along(file.names)) {
