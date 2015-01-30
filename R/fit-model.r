@@ -417,20 +417,37 @@ imgnoiser.model.predictions <- function(
   # Use the model weights also in the predictions
   if ('weights' %in% names(lazy.dots)) {
     pred.weights <- lazyeval::lazy_eval(lazy.dots[['weights']], x.df)
-    pred <- stats::predict(model.obj, newdata = x.df, interval='prediction',
-                           weights=pred.weights, se.fit=TRUE, level = conf.level)
+    pred <- stats::predict(model.obj,
+                           newdata = x.df,
+                           interval='prediction',
+                           weights=pred.weights,
+                           se.fit=TRUE,
+                           level = conf.level)
   }
-  else
-    pred <- stats::predict(model.obj, newdata = x.df, interval='prediction',
-                           se.fit=TRUE, level = conf.level, ...)
 
   if (model.family == 'smooth.spline') {
+
+    pred <- stats::predict(model.obj,
+                           x = as.numeric(x.df[,1L]),
+                           interval = 'prediction',
+                           se.fit = TRUE,
+                           level = conf.level,
+                           ...)
+
     result <- data.frame('x' = pred[['x']]
                          ,'y' = pred[['y']]
                          ,'split.by'  = split.value
                          )
     data.table::setnames(result, 1L:2L, model.src.data[['label']][['term']][1L:2L])
   } else {
+
+    pred <- stats::predict(model.obj,
+                           newdata = x.df,
+                           interval = 'prediction',
+                           se.fit = TRUE,
+                           level = conf.level,
+                           ...)
+
     pred.fit.df <- as.data.frame(pred$fit)
     result <-
         data.frame(

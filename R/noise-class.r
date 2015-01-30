@@ -385,22 +385,27 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,...
       ) {
 
-      # browser()
+      browser()
       # Validate the model name
       private$check.model.name(model.name)
 
-      if (is.null(x))
-        private$.model[[model.name]][['predictions']]
-      else {
+      # Get the model structure
+      model.str <- private$.model[[model.name]]
+      # Get the model data source
+      model.src.data <- model.str[['source']]
+      # Get the model objects
+      model.objs <-  model.str[['fit']]
+      # pick the selected models
+      if (!is.null(select))
+        model.objs <- private$select.model(model.objs, select)
+
+      if (is.null(x)) {
+        predictions <- private$.model[[model.name]][['predictions']]
+        predictions <- predictions[predictions[,3L] %in% names(model.objs)]
+      } else {
         # Validate x is a numeric vector
         x <- vector.alike(x, 1L, Inf, type='n')
 
-        # Get the model structure
-        model.str <- private$.model[[model.name]]
-        # Get the model data source
-        model.src.data <- model.str[['source']]
-        # Get the model objects
-        model.objs <-  model.str[['fit']]
         # Lazy dots
         lazy.dots <- model.str[['lazy.dots']]
         # Get the model family
@@ -411,11 +416,6 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         else
           # Validate the confidence level
           vector.alike(conf.level, 1, type='n', valid.range=c(0,1))
-
-
-        # pick the selected models
-        if (!is.null(select))
-          model.objs <- private$select.model(model.objs, select)
 
         # Get the model value predictor function
         model.predictor.func <- imgnoiser.option('get.model.predictions')
@@ -439,9 +439,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
                               preds
                           ))
         }
-        predictions;
       }
-
+      predictions;
     }
 
     ##------------------------------
