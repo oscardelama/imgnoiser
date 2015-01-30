@@ -325,8 +325,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       # Placeholder for the model fitted data
       predict.df <- data.frame()
 
-      splitted.x <- split(x, split.by)
-      splitted.y <- split(y, split.by)
+      splitted.x <- split(x, split.by, drop = TRUE)
+      splitted.y <- split(y, split.by, drop = TRUE)
 
       ix_model <- 0L
       for (split.value in names(splitted.y)) {
@@ -385,7 +385,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,...
       ) {
 
-      # browser()
+      browser()
       # Validate the model name
       private$check.model.name(model.name)
 
