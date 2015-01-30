@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="date" content="2015-01-20" />
+<meta name="date" content="2015-01-30" />
 
 <title>vvm Class Introduction</title>
 
@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 <div id="header">
 <h1 class="title"><em>vvm</em> Class Introduction</h1>
-<h4 class="date"><em>2015-01-20</em></h4>
+<h4 class="date"><em>2015-01-30</em></h4>
 </div>
 
 
@@ -110,7 +110,9 @@ my.vvm$<span class="kw">digest</span>(<span class="st">'crop_1'</span>, <span cl
 <pre class="sourceCode r"><code class="sourceCode r">my.vvm
 <span class="co">#&gt; &lt;vvm&gt;</span>
 <span class="co">#&gt;   function:</span>
+<span class="co">#&gt;     append.from()</span>
 <span class="co">#&gt;     digest()</span>
+<span class="co">#&gt;     digest.from.rgb()</span>
 <span class="co">#&gt;     digest.to.rgb()</span>
 <span class="co">#&gt;     exists.model()</span>
 <span class="co">#&gt;     fit.model()</span>
@@ -300,10 +302,10 @@ my.vvm$<span class="kw">plot</span>()</code></pre>
   <span class="dt">file.name.ext  =</span> <span class="st">'.pgm'</span>
 )</code></pre>
 </div>
-<div id="digest.to.rgb" class="section level2">
-<h2><span class="header-section-number">7.3</span> digest.to.rgb()</h2>
+<div id="digest.as.rgb" class="section level2">
+<h2><span class="header-section-number">7.3</span> digest.as.rgb()</h2>
 <p>Compute and collect statistics from RGB images obtained converting the raw image samples.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">digest.to.rgb</span>(
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">digest.as.rgb</span>(
   <span class="dt">file.name.from =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'file.name.from' argument is missing.&quot;</span>),
   <span class="dt">file.name.to   =</span> <span class="kw">stop</span>(<span class="st">&quot;The 'file.name.to' argument is missing.&quot;</span>),
   <span class="dt">path.to.files  =</span> <span class="st">'./'</span>,

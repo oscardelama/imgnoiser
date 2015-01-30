@@ -259,12 +259,12 @@ digest(
 )
 ```
 
-## digest.to.rgb() ##
+## digest.as.rgb() ##
 
 Compute and collect statistics from RGB images obtained converting the raw image samples.
 
 ```R
-digest.to.rgb(
+digest.as.rgb(
   file.name.from = stop("The 'file.name.from' argument is missing."),
   file.name.to   = stop("The 'file.name.to' argument is missing."),
   path.to.files  = './',

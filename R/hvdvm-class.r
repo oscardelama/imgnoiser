@@ -136,7 +136,7 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
          photo.conds.file = stop("The 'photo.conds.file' argument is required.")
         ,crop.files.path = './'
         ,min.raw        = 0
-        ,max.raw        = NULL
+        ,max.raw        = Inf
     ) {
 
       # browser()

@@ -240,7 +240,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         msg(paste(length(file.names), "image samples were successfully processed."))
     }
 
-    ,digest.to.rgb = function(
+    ,digest.as.rgb = function(
       file.name.from  = stop("The 'file.name.from' argument is missing.")
       ,file.name.to   = stop("The 'file.name.to' argument is missing.")
       ,file.path      = './'
@@ -542,7 +542,7 @@ vvm.doc <- list()
 #'      file.path      = './',
 #'      file.name.ext  = '.pgm'
 #'      min.raw        = 0
-#'      max.raw        = NULL
+#'      max.raw        = Inf
 #'      )
 #'  }
 #'
@@ -563,17 +563,12 @@ vvm.doc <- list()
 #'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.
 #'
 #' @param min.raw
-#' @param max.raw These are the the expected pixel values range. If one or more
-#'   pixel values in an image channel sample is outside this range, the channel
-#'   sample is discarded. Notice this is done on a per channel sample basis, not
-#'   per image basis, this means it is possible to have an image with one or
-#'   more discarded channel but not all of them.
-#'
-#'   Both \code{min.raw} and \code{max.raw} must be supplied, otherwise they
-#'   are ignored.
+#' @param max.raw These are the the expected pixel values range. If more than
+#'   the 2% of pixel values in an image channel sample is outside this range,
+#'   the channel is discarded.
 #'
 #'   Each parameter can be a single value or a vector of four values. For the
-#'   one value case, the same value is used as limit for the four channels,
+#'   single value case, the same value is used as limit for the four channels,
 #'   otherwise there must be four values, one per channel and in the image sample
 #'   channels order.
 #'
@@ -624,13 +619,13 @@ vvm.doc$digest <- function() NULL
 #'
 #' @section Usage:
 #'  \preformatted{
-#'   vvm$digest(
+#'   vvm$digest.as.rgb(
 #'      file.name.from = stop("The 'file.name.from' argument is missing."),
 #'      file.name.to   = stop("The 'file.name.to' argument is missing."),
 #'      file.path      = './',
 #'      file.name.ext  = '.pgm',
 #'      min.raw        = 0,
-#'      max.raw        = NULL,
+#'      max.raw        = Inf,
 #'      is.neutral     = FALSE,
 #'      map.to.rgb     = stop("The 'map.to.rgb' argument is missing."),
 #'      rgb.scale      = 255,
@@ -656,13 +651,10 @@ vvm.doc$digest <- function() NULL
 #'   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.
 #'
 #' @param min.raw
-#' @param max.raw These are the the expected pixel values range. If one or more
-#'   pixel values in an image channel sample is outside this range, the whole
-#'   image is discarded. This is because the RGB processing requires all image
-#'   channels.
-#'
-#'   Both \code{min.raw} and \code{max.raw} must be supplied, otherwise they
-#'   are ignored.
+#' @param max.raw These are the the expected pixel values range. If more than
+#'   the 2% of pixel values in an image channel sample is outside this range,
+#'   the whole image is discarded. This is because the RGB processing requires
+#'   all the channels be valid.
 #'
 #'   Each parameter can be a single value or a vector of four values. For the
 #'   former case, the same value is used as limit for the four channels,
@@ -743,7 +735,7 @@ vvm.doc$digest <- function() NULL
 #' img.path <- 'H:/Noise-Study/Nikon-D700/ISO-100/'
 #'
 #' # Process the images
-#' rgb.vvm$digest.to.rgb( file.name.from = '_ODL5695',
+#' rgb.vvm$digest.as.rgb( file.name.from = '_ODL5695',
 #'                        file.name.to   = '_ODL5767',
 #'                        file.name.ext  = '.pgm',
 #'                        file.path   = img.path,
@@ -754,9 +746,9 @@ vvm.doc$digest <- function() NULL
 #' #> 70 image samples were successfully processed as RGBs.
 #' }
 #'
-#' @name vvm$digest.to.rgb
+#' @name vvm$digest.as.rgb
 #----------------------------------------------
-vvm.doc$digest.to.rgb <- function() NULL
+vvm.doc$digest.as.rgb <- function() NULL
 
 #----------------------------------------------
 #' Get the resulting noise variance data.
