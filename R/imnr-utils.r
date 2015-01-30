@@ -301,6 +301,6 @@ out.of.range.pixel.count <- function(ch, minl, maxl) {
   rng <- range(c(ch))
   all.ok <- (rng[1L] >= minl && rng[2L] <= maxl);
   if (all.ok) 0
-  else sum(c(ch) < minl) + sum(c(ch) > maxl))
+  else (sum(c(ch) < minl) + sum(c(ch) > maxl))
 }
 
