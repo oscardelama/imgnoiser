@@ -255,8 +255,9 @@ digest(
   file.name.from = stop("The 'file.name.from' argument is missing."),
   file.name.to   = stop("The 'file.name.to' argument is missing."),
   path.to.files  = './',
-  file.name.ext  = '.pgm'
-)
+  file.name.ext  = '.pgm',
+  min.raw        = 0,
+  max.raw        = Inf)
 ```
 
 ## digest.as.rgb() ##
@@ -265,15 +266,44 @@ Compute and collect statistics from RGB images obtained converting the raw image
 
 ```R
 digest.as.rgb(
-  file.name.from = stop("The 'file.name.from' argument is missing."),
-  file.name.to   = stop("The 'file.name.to' argument is missing."),
-  path.to.files  = './',
-  file.name.ext  = '.pgm',
-  is.neutral     = FALSE,
-  map.to.rgb     = stop("The 'map.to.rgb' argument is missing."),
-  rgb.scale      = 255,
-  rgb.labels     = imgnoiser.option('rgb.labels'),
-  tone.curve     = imgnoiser.option('tone.curve.id'),
+  file.name.from  = stop("The 'file.name.from' argument is missing."),
+  file.name.to    = stop("The 'file.name.to' argument is missing."),
+  file.path       = './',
+  file.name.ext   = '.pgm',
+  min.raw         = 0,
+  max.raw         = Inf,
+  is.neutral      = FALSE,
+  map.to.rgb      = stop("The 'map.to.rgb' argument is missing."),
+  rgb.scale       = 255,
+  rgb.labels      = imgnoiser.option('rgb.labels'),
+  use.camera.tc   = TRUE,
+  conv.tone.curve = imgnoiser.option('tone.curve.id')
+)
+```
+
+## digest.from.rgb() ##
+
+Compute and collect statistics from images in a RGB space.
+
+```R
+digest.from.rgb(
+  file.name.from  = stop("The 'file.name.from' argument is missing."),
+  file.name.to    = stop("The 'file.name.to' argument is missing."),
+  file.path       = './',
+  file.name.ext   = '.tif',
+  rgb.labels      = imgnoiser.option('rgb.labels'),
+  file.scale      = 1,
+  rgb.scale       = 255
+)
+```
+
+## append.from() ##
+
+Append the data collected with other `vvm` instance object.
+
+```R
+append.from = function(
+  vvm.obj = stop("Missing 'vvm.obj' argument.")
 )
 ```
 

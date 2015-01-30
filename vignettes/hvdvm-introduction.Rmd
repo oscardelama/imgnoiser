@@ -305,7 +305,9 @@ Compute and collect statistics from the raw images files.
 ```R
 digest(
   photo.conds.file = stop("The 'photo.conds.file' argument is required."),
-  crop.files.path = './'
+  crop.files.path  = './',
+  min.raw          = 0,
+  max.raw          = Inf
 )
 ```
 
