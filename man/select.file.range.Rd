@@ -4,19 +4,19 @@
 \alias{select.file.range}
 \title{Query the files in a given folder within a given range.}
 \usage{
-select.file.range(file.name.from, file.name.to, file.name.ext, path.to.files)
+select.file.range(file.name.from, file.name.to, file.name.ext, file.path)
 }
 \arguments{
 \item{file.name.from}{}
 
 \item{file.name.to}{The \code{file.name.from} and \code{file.name.to} are the
   alphabetical range of the desired files from the folder given in
-  \code{path.to.files}. These names should not include the file name
+  \code{file.path}. These names should not include the file name
   extension, which is specified with \code{file.name.ext}.}
 
 \item{file.name.ext}{The file name extension common to the desired files.}
 
-\item{path.to.files}{Folder or directory with files with the name extension
+\item{file.path}{Folder or directory with files with the name extension
   \code{file.name.ext} from which those with names between
   \code{file.name.from} and \code{file.name.to} will be returned.}
 }
@@ -27,7 +27,7 @@ A character vector with the file names satisfying the selection.
 Return a vector with the names of the files in the folder
 \code{path.to.files}, whose names are alphabetically between
 \code{file.name.from} and \code{file.name.to} and have the name extension
-given in \code{path.to.files}.
+given in \code{file.path}.
 }
 \examples{
 \dontrun{

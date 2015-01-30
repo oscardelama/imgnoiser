@@ -52,6 +52,12 @@
   first. The limits for the y axis. See \code{warnings} to avoid the warnings
   when using this parameter.}
 
+\item{with}{A formula to filter the data to show in the plot. You can use a
+an expression or a function. The formula and the function must return a vector
+of logical values selecting the the desired rows from \code{var.df}.
+For example the argument \code{with = ~ channel != 'Green Avg'} will
+exclude the channels with the \code{'Green Avg'} label.}
+
 \item{warnings}{If TRUE, suppress the warnings when printing the plot.
 
 When using the \code{xlim} or \code{ylim} argument, ggplot2 throws some
@@ -84,6 +90,7 @@ Plot a fitted model and its source data
      ylab = NULL,
      xlim = NULL,
      ylim = NULL,
+     with = NULL,
      warnings = FALSE
      )
 
@@ -101,6 +108,7 @@ Plot a fitted model and its source data
      ylab = NULL,
      xlim = NULL,
      ylim = NULL,
+     with = NULL,
      warnings = FALSE
      )
  }

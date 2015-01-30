@@ -42,6 +42,21 @@
   sample file. Those files are expected to be in one same folder. This
   argument must contain the path to that folder, which should not be part of
   the \code{crop.file.name} values.}
+
+\item{min.raw}{}
+
+\item{max.raw}{These are the the expected pixel values range. If one or more
+  pixel values in an image channel sample is outside this range, the whole
+  image is discarded. This is because the RGB processing requires all image
+  channels.
+
+  Both \code{min.raw} and \code{max.raw} must be supplied, otherwise they
+  are ignored.
+
+  Each parameter can be a single value or a vector of four values. For the
+  former case, the same value is used as limit for the four channels,
+  otherwise there must be four values, one per channel and in the image sample
+  channels order.}
 }
 \value{
 The data resulting from this process can be seen using the functions
@@ -61,7 +76,9 @@ You can find more details about the input for this process in the
  \preformatted{
   hvdvm$digest(
      photo.conds.file,
-     crop.files.path = './'
+     crop.files.path = './',
+     min.raw        = 0,
+     max.raw        = NULL
      )
  }
 }

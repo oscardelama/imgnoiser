@@ -95,6 +95,7 @@ options with \code{\link{imgnoiser.option}()} function.
      model.family = imgnoiser.option('fit.model.family'),
      degree = 1L,
      formula = NULL,
+     conf.level = imgnoiser.option('conf.level'),
      model.data.name = imgnoiser.option('fit.model.data'),
      ...
      )
@@ -104,6 +105,7 @@ options with \code{\link{imgnoiser.option}()} function.
      model.family = imgnoiser.option('fit.model.family'),
      degree = 2L,
      formula = NULL,
+     conf.level = imgnoiser.option('conf.level'),
      model.data.name = imgnoiser.option('fit.model.data'),
      ...
      )

@@ -8,10 +8,10 @@
 
 \item{file.name.to}{The \code{file.name.from} and \code{file.name.to} are the
   alphabetical range of the desired files from the folder given in
-  \code{path.to.files}. These names should not include the file name
+  \code{file.path}. These names should not include the file name
   extension, which is specified with \code{file.name.ext}.}
 
-\item{path.to.files}{The file path where the raw image file samples are located.}
+\item{file.path}{The file path where the raw image file samples are located.}
 
 \item{file.name.ext}{The file name extension of the raw image file samples.
   It can be 'fit', 'fits' or 'pgm'. This file name extension may start or not
@@ -20,6 +20,17 @@
   The supported values for the \code{img.file.name.ext} are '.fit' or '.fits'
   for the \href{http://fits.gsfc.nasa.gov/}{'FITS'} format or '.pgm' for the
   \href{http://netpbm.sourceforge.net/doc/pgm.html}{'PGM'} format.}
+
+\item{min.raw}{}
+
+\item{max.raw}{These are the the expected pixel values range. If more than
+  the 2% of pixel values in an image channel sample is outside this range,
+  the channel is discarded.
+
+  Each parameter can be a single value or a vector of four values. For the
+  single value case, the same value is used as limit for the four channels,
+  otherwise there must be four values, one per channel and in the image sample
+  channels order.}
 }
 \value{
 A \code{invisible} instance of the calling object.
@@ -33,12 +44,12 @@ The calling arguments describe the list of raw image files that will be
 processed. The image samples file names are expected to have the following
 pattern:
 
-\emph{\code{path.to.files}/\code{<img.file.base>}.\code{<file.name.ext>}}
+\emph{\code{file.path}/\code{<img.file.base>}.\code{<file.name.ext>}}
 
 Where \code{<img.file.base>} is alfabetically between the
 \code{file.name.from} and \code{file.name.to} arguments.
 
-In other words, the folder given in \code{path.to.files} is scanned looking
+In other words, the folder given in \code{file.path} is scanned looking
 for files with base name between (and including) \code{file.name.from} and
 \code{file.name.to}, having all of them the extension \code{file.name.ext}.
 
@@ -54,8 +65,10 @@ the files you want to get processed by this function.
   vvm$digest(
      file.name.from = stop("The 'file.name.from' argument is missing."),
      file.name.to   = stop("The 'file.name.to' argument is missing."),
-     path.to.files  = './',
+     file.path      = './',
      file.name.ext  = '.pgm'
+     min.raw        = 0
+     max.raw        = Inf
      )
  }
 }

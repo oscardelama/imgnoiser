@@ -398,6 +398,7 @@ imgnoiser.options.init <- function() {
 
 #------------------------------------
 # imgnoiser.options.force.reset()
+#' @export
 #------------------------------------
 imgnoiser.options.force.reset <- function() {
   options('imgnoiser' =  NULL)
