@@ -278,10 +278,13 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
     # Build the formula with bindings to the model data
     model.formula <- lazyeval::lazy_eval(lazy.formula, dom.data)
   } else {
-    formula.txt <- as.character(lazy.formula)
-    formula.txt <- paste(formula.txt[2],formula.txt[1],formula.txt[3])
     model.formula <- lazy.formula
-    model.call.txt <- paste0(model.family,'(formula = ', formula.txt,', data = model.src(<%MODEL%>)',  model.call.params.txt,')')
+    formula.member <- as.character(lazy.formula)
+    if (length(formula.member) > 0) {
+      formula.txt <- paste(formula.member[2], formula.member[1], formula.member[3])
+      model.call.txt <- paste0(model.family,'(formula = ', formula.txt,', data = model.src(<%MODEL%>)',  model.call.params.txt,')')
+    } else
+      model.call.txt <- paste0(model.family,'(data = model.src(<%MODEL%>)',  model.call.params.txt,')')
   }
   #--
 
