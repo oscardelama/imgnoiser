@@ -397,9 +397,15 @@ imgnoiser.options.init <- function() {
 }
 
 #------------------------------------
-# imgnoiser.options.force.reset()
+#' Force the reset of options
+#'
+#' Reset all options to their default values.
+#'
+#' By default, the package installation only set the package options missing in
+#' the current set of R options. However sometimes is required to reset all
+#' options.
+#'
 #' @export
-#------------------------------------
 imgnoiser.options.force.reset <- function() {
   options('imgnoiser' =  NULL)
   options('imgnoiser' =  get.imgnoiser.default.options())
