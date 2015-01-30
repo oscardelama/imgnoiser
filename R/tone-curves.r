@@ -8,8 +8,7 @@ linear.interpolation <- function(slope, input.max.linear, num.of.linear.points) 
 }
 
 #----------------------------
-#'
-#' @importFrom data.table rbindlist
+# build.generic.gamma.curve
 #----------------------------
 build.generic.gamma.curve <- function(gamma, gamma.slope, gamma.intercept, linear.slope, input.max.linear, num.of.linear.points, step) {
 
