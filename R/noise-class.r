@@ -385,7 +385,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,...
       ) {
 
-      browser()
+      # browser()
       # Validate the model name
       private$check.model.name(model.name)
 

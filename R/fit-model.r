@@ -426,9 +426,9 @@ imgnoiser.model.predictions <- function(
   }
 
   if (model.family == 'smooth.spline') {
-
+    # browser()
     pred <- stats::predict(model.obj,
-                           x = as.numeric(x.df[,1L]),
+                           x = as.numeric(unlist(x.df[,1L])),
                            interval = 'prediction',
                            se.fit = TRUE,
                            level = conf.level,
