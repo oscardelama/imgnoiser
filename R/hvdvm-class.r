@@ -243,10 +243,15 @@ hvdvm <- R6::R6Class('hvdvm', inherit = noise.var,
         pict1 <- list()
         pict2 <- list()
 
-        # Validate if channel values are in the desired range
-        channel.is.valid <- function(ch, idx) {
-          rng <- range(c(ch[[idx]]))
-          (rng[1L] >= min.raw[idx] && rng[2L] <= max.raw[idx]);
+        # Check there is not clipping above 2%
+        bad.pixel.count.limit <- 0
+        channel.is.valid <- function(channels, channel.idx) {
+          if (bad.pixel.count.limit == 0) bad.pixel.count.limit <<- 0.02 * length(channels[[channel.idx]])
+          (out.of.range.pixel.count(
+            channels[[channel.idx]],
+            min.raw[channel.idx],
+            max.raw[channel.idx]
+          ) < bad.pixel.count.limit);
         }
 
         #@TODO: enhance this ugly code
