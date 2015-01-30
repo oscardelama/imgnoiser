@@ -385,7 +385,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,...
       ) {
 
-      browser()
+      # browser()
       # Validate the model name
       private$check.model.name(model.name)
 
@@ -425,8 +425,14 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         predictions <- data.frame();
 
         for (split.value in names(model.objs)) {
-          preds <- model.predictor.func(model.src.data, model.objs[[split.value]],
-                                 conf.level, model.family, split.value, grid, lazy.dots)
+          preds <- model.predictor.func(model.src.data,
+                                        model.objs[[split.value]],
+                                        conf.level,
+                                        model.family,
+                                        split.value,
+                                        grid,
+                                        lazy.dots,
+                                        ...)
           # Collect the predictions
           predictions <- data.table::rbindlist(list(
                               predictions,

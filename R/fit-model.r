@@ -408,6 +408,7 @@ imgnoiser.model.predictions <- function(
         ,split.value
         ,x.df
         ,lazy.dots
+        ,...
 ) {
 
   # Use domain names
@@ -421,7 +422,7 @@ imgnoiser.model.predictions <- function(
   }
   else
     pred <- stats::predict(model.obj, newdata = x.df, interval='prediction',
-                           se.fit=TRUE, level = conf.level)
+                           se.fit=TRUE, level = conf.level, ...)
 
   if (model.family == 'smooth.spline') {
     result <- data.frame('x' = pred[['x']]
