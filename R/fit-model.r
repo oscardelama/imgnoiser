@@ -265,27 +265,32 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
   if (!is.null(split.value))
     dom.data <- subset(dom.data, dom.data$split.by == split.value)
   # Use the model names
-  # names(dom.data) <- model.src.data[['label']][['term']]
-  data.table::setnames(dom.data,  model.src.data[['label']][['term']])
+  label <- model.src.data[['label']][['term']]
+  data.table::setnames(dom.data, label)
 
   dots.lazy <- lazyeval::lazy_dots(...)
 
   #-- Prepare the model call in text form
   model.call.params.txt <- get.param.list(dots.lazy)
   if ('lazy' %in% class(lazy.formula)) {
-    formula.txt <- deparse(lazy.formula[['expr']])
-    model.call.txt <- paste0(model.family,'(formula = ',formula.txt,', data = model.src(<%MODEL%>)', model.call.params.txt,')')
-    # Build the formula with bindings to the model data
+    formula.txt <- paste0('formula = ', deparse(lazy.formula[['expr']]))
     model.formula <- lazyeval::lazy_eval(lazy.formula, dom.data)
   } else {
     model.formula <- lazy.formula
     formula.member <- as.character(lazy.formula)
     if (length(formula.member) > 0) {
-      formula.txt <- paste(formula.member[2], formula.member[1], formula.member[3])
-      model.call.txt <- paste0(model.family,'(formula = ', formula.txt,', data = model.src(<%MODEL%>)',  model.call.params.txt,')')
-    } else
-      model.call.txt <- paste0(model.family,'(data = model.src(<%MODEL%>)',  model.call.params.txt,')')
+      formula.txt <- paste0('formula = ', paste(formula.member[2], formula.member[1], formula.member[3]))
+    } else {
+      if (model.family == 'smooth.spline') {
+        names(label) <- NULL
+        formula.txt <- paste0('x = ', label[1], ', y = ', label[2])
+      }
+    }
   }
+  model.call.txt <- paste0(model.family,'(', formula.txt,
+                           ', data = model.src(<%MODEL%>)',
+                           model.call.params.txt,')')
+
   #--
 
   # Evaluate the 3dots argument with the model data as environment
