@@ -411,19 +411,9 @@ imgnoiser.model.predictions <- function(
         ,...
 ) {
 
+  # browser()
   # Use domain names
   data.table::setnames(x.df, model.src.data[['label']][['term']]['x'])
-
-  # Use the model weights also in the predictions
-  if ('weights' %in% names(lazy.dots)) {
-    pred.weights <- lazyeval::lazy_eval(lazy.dots[['weights']], x.df)
-    pred <- stats::predict(model.obj,
-                           newdata = x.df,
-                           interval='prediction',
-                           weights=pred.weights,
-                           se.fit=TRUE,
-                           level = conf.level)
-  }
 
   if (model.family == 'smooth.spline') {
     # browser()
@@ -437,16 +427,29 @@ imgnoiser.model.predictions <- function(
     result <- data.frame('x' = pred[['x']]
                          ,'y' = pred[['y']]
                          ,'split.by'  = split.value
-                         )
+    )
     data.table::setnames(result, 1L:2L, model.src.data[['label']][['term']][1L:2L])
+
   } else {
 
-    pred <- stats::predict(model.obj,
-                           newdata = x.df,
-                           interval = 'prediction',
-                           se.fit = TRUE,
-                           level = conf.level,
-                           ...)
+    # Use the model weights also in the predictions
+    if ('weights' %in% names(lazy.dots)) {
+      pred.weights <- lazyeval::lazy_eval(lazy.dots[['weights']], x.df)
+      pred <- stats::predict(model.obj,
+                             newdata = x.df,
+                             interval='prediction',
+                             weights=pred.weights,
+                             se.fit=TRUE,
+                             level = conf.level)
+
+    } else {
+      pred <- stats::predict(model.obj,
+                             newdata = x.df,
+                             interval = 'prediction',
+                             se.fit = TRUE,
+                             level = conf.level,
+                             ...)
+    }
 
     pred.fit.df <- as.data.frame(pred$fit)
     result <-
@@ -460,6 +463,7 @@ imgnoiser.model.predictions <- function(
         )
     data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
   }
+
   result;
 }
 
