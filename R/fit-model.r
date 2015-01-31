@@ -428,7 +428,7 @@ imgnoiser.model.predictions <- function(
                          ,'y' = pred[['y']]
                          ,'split.by'  = split.value
     )
-    data.table::setnames(result, 1L:2L, model.src.data[['label']][['term']][1L:2L])
+    data.table::setnames(result, 1L:3L, model.src.data[['label']][['term']][1L:3L])
 
   } else {
 
