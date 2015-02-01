@@ -583,6 +583,7 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         ,xlim = NULL
         ,ylim = NULL
         ,with = NULL
+        ,transform.model = TRUE
         ,warnings = FALSE
     ) {
 
@@ -701,20 +702,24 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
         names(plot.envir$pred.df)[1L:3L] <- names(label$term)[1L:3L]
 
         # Transform the x axis
-        pred.x <- try_eval(lazy.x, model.predictions.df)
-        if (!is.null(pred.x)) {
-          plot.envir$pred.df$x <- pred.x
-          if (is.null(xlab)) x.lab <- lazy.x$expr
+        if (transform.model == TRUE) {
+          pred.x <- try_eval(lazy.x, model.predictions.df)
+          if (!is.null(pred.x)) {
+            plot.envir$pred.df$x <- pred.x
+            if (is.null(xlab)) x.lab <- lazy.x$expr
+          }
         }
       }
 
       if (fit == TRUE) {
-        pred.y <- try_eval(lazy.y, model.predictions.df)
+        if (transform.model == TRUE) {
+            pred.y <- try_eval(lazy.y, model.predictions.df)
 
-        if (!is.null(pred.y)) {
-          plot.envir$pred.df$y <- pred.y
-          if (is.null(ylab)) y.lab <- lazy.y$expr
-          if (is.null(tlab)) t.lab <- NULL
+          if (!is.null(pred.y)) {
+            plot.envir$pred.df$y <- pred.y
+            if (is.null(ylab)) y.lab <- lazy.y$expr
+            if (is.null(tlab)) t.lab <- NULL
+          }
         }
 
         # Use user line width
@@ -729,17 +734,19 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
           warning("The 'smooth.spline' model doesn't allow prediction intervals.")
         else {
 
-          # A temporal copy of the fitted model variables
-          plot.envir$temp.df <- model.predictions.df[,c(1:3)]
+          if (transform.model == TRUE) {
+            # A temporal copy of the fitted model variables
+            plot.envir$temp.df <- model.predictions.df[,c(1:3)]
 
-          #-- Transform the upper and lower prediction limits
-          plot.envir$temp.df[,2] <- model.predictions.df$lpl
-          pred.lpl <- try_eval(lazy.y, plot.envir$temp.df)
+            #-- Transform the upper and lower prediction limits
+            plot.envir$temp.df[,2] <- model.predictions.df$lpl
+            pred.lpl <- try_eval(lazy.y, plot.envir$temp.df)
 
-          if (!is.null(pred.lpl)) {
-            plot.envir$pred.df$lpl <- pred.lpl
-            plot.envir$temp.df[,2] <- model.predictions.df$upl
-            plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$temp.df)
+            if (!is.null(pred.lpl)) {
+              plot.envir$pred.df$lpl <- pred.lpl
+              plot.envir$temp.df[,2] <- model.predictions.df$upl
+              plot.envir$pred.df$upl <- try_eval(lazy.y, plot.envir$temp.df)
+            }
           }
           #--
 
