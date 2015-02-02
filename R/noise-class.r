@@ -644,6 +644,8 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
       lazy.x <- lazyeval::lazy(x)
       lazy.y <- lazyeval::lazy(y)
 
+      # browser()
+
       if (obs == TRUE) {
         model.df <- model.src[['data']]
         # Use the model names

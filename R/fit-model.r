@@ -264,6 +264,9 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
   dom.data <- model.src.data[['data']]
   if (!is.null(split.value))
     dom.data <- subset(dom.data, dom.data$split.by == split.value)
+  # Remove NAs
+  dom.data <- na.omit(dom.data)
+
   # Use the model names
   label <- model.src.data[['label']][['term']]
   data.table::setnames(dom.data, label)
@@ -284,6 +287,8 @@ util.fit.model <- function(model.src.data, split.value, lazy.formula = NULL, mod
       if (model.family == 'smooth.spline') {
         names(label) <- NULL
         formula.txt <- paste0('x = ', label[1], ', y = ', label[2])
+        #sort data by x order
+        dom.data <- dom.data[with(dom.data, order(dom.data[,1])), ]
       }
     }
   }
