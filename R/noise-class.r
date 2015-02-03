@@ -401,7 +401,9 @@ noise.var <- R6::R6Class('noise.var', inherit = R6.base,
 
       if (is.null(x)) {
         predictions <- private$.model[[model.name]][['predictions']]
-        predictions <- predictions[predictions[,3L] %in% names(model.objs)]
+        predictions <- data.frame(predictions)
+        if (!is.null(select))
+          predictions <- predictions[predictions[,3L] %in% names(model.objs)]
       } else {
         # Validate x is a numeric vector
         x <- vector.alike(x, 1L, Inf, type='n')
