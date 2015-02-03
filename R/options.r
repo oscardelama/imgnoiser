@@ -430,7 +430,7 @@ get.imgnoiser.default.options <- function() {
     ,'fit.model.data'       = 'std.var'
     ,'fit.model.name'       = 'standard'
     ,'plot.line.width'      = 1
-    ,'plot.point.size'      = 1.75
+    ,'plot.point.size'      = 1.5
     ,'show.progress'        = TRUE
     ,'show.signif.stars'    = FALSE
     ,'color.pallette'       = c('#E41A1C','#307AB8','#2C972E','#984EA3', '#E17E25')
