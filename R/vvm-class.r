@@ -132,7 +132,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       show.progress <- package.option('show.progress')
       # Show progress bar
       if (show.progress) {
-        message(paste("Processing", length(file.names), "image files:"))
+        message(paste0("Processing ", length(file.names), " image files:"))
         prog.bar <- txtProgressBar(min = 1L, max = length(file.names), style = 3L)
       }
 
@@ -687,7 +687,7 @@ vvm.doc$digest <- function() NULL
 #'
 #' \itemize{
 #'
-#'  \item \code{'camera.metadata'}: For the use of the tone curve in the data used
+#'  \item \code{'camera.coldata'}: For the use of the tone curve in the data used
 #'  to initialize the colmap object given in the \code{map.to.rgb} argument.
 #'
 #'  \item \code{'linear'}: To keep convert the raw values to the target RGB
@@ -742,7 +742,7 @@ vvm.doc$digest <- function() NULL
 #'                        is.neutral  = TRUE,
 #'                        map.to.rgb  = cm.obj,
 #'                        rgb.scale   = 255,
-#'                        tone.curve  = 'camera.metadata')
+#'                        tone.curve  = 'camera.coldata')
 #' #> 70 image samples were successfully processed as RGBs.
 #' }
 #'

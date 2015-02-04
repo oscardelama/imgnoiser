@@ -294,18 +294,18 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
   public = list(
 
     initialize = function (
-        camera.metadata = stop("The 'camera.metadata' argument is missing.")
+        camera.coldata = stop("The 'camera.coldata' argument is missing.")
     ){
 
       # The illuminant 1 is the one with lower illuminant CCT
       # browser()
-      if (camera.metadata[['cam.matrices.1']][['illum.cct.k']] <
-          camera.metadata[['cam.matrices.2']][['illum.cct.k']]) {
-        cam.matrices.1 <- camera.metadata[['cam.matrices.1']]
-        cam.matrices.2 <- camera.metadata[['cam.matrices.2']]
+      if (camera.coldata[['cam.matrices.1']][['illum.cct.k']] <
+          camera.coldata[['cam.matrices.2']][['illum.cct.k']]) {
+        cam.matrices.1 <- camera.coldata[['cam.matrices.1']]
+        cam.matrices.2 <- camera.coldata[['cam.matrices.2']]
       } else {
-        cam.matrices.2 <- camera.metadata[['cam.matrices.1']]
-        cam.matrices.1 <- camera.metadata[['cam.matrices.2']]
+        cam.matrices.2 <- camera.coldata[['cam.matrices.1']]
+        cam.matrices.1 <- camera.coldata[['cam.matrices.2']]
       }
 
       private$.set.cam.matrices.1(
@@ -316,7 +316,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         cam.matrices.1[['reduct.matrix']]
       )
 
-      cam.matrices <- camera.metadata[['cam.matrices.2']]
+      cam.matrices <- camera.coldata[['cam.matrices.2']]
       private$.set.cam.matrices.2(
         cam.matrices.2[['illum.cct.k']],
         cam.matrices.2[['color.matrix']],
@@ -325,10 +325,10 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         cam.matrices.2[['reduct.matrix']]
       )
 
-      private$.set.raw.levels(camera.metadata[['black.raw.level']], camera.metadata[['white.raw.level']])
-      private$.set.analog.balance(camera.metadata[['analog.balance']])
+      private$.set.raw.levels(camera.coldata[['black.raw.level']], camera.coldata[['white.raw.level']])
+      private$.set.analog.balance(camera.coldata[['analog.balance']])
 
-      tone.curve <- camera.metadata[['tone.curve']]
+      tone.curve <- camera.coldata[['tone.curve']]
       if (is.null(tone.curve))
         private$.tone.curve <- NULL
       else {
