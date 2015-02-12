@@ -31,11 +31,13 @@ create.nikon.d7000.ISO100.metadata <- function() {
 
   analog.balance <- c(1,1,1)
   black.raw.level <- 0
-  white.raw.level <- 15892
+  # For iso 100 this camera clips the green highlights at this level, despite the
+  # 15892 ADU value the .DNG files show
+  white.raw.level <- 15779
 
   #print(getwd())
   tone.curve <- read.csv('./data-raw/dng-tone-conversion.csv')
-  data.table::setnames(tone.curve, c('x', 'y')
+  data.table::setnames(tone.curve, c('x', 'y'))
 
   nikon.d7000.ISO100.colmap <- list(
         'cam.matrices.1'   = nikon.d7000.cam.matrix.1
