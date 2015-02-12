@@ -304,3 +304,21 @@ out.of.range.pixel.count <- function(ch, minl, maxl) {
   else (sum(c(ch) < minl) + sum(c(ch) > maxl))
 }
 
+#' Draw SNR reference limits
+#'
+#' Draw in a SNR ggplot with the SNR in dB in the y axis
+#' reference quality limits.
+#'
+#' The red limit marks the 'acceptable' limit
+#' the yellow limit marks the 'excelent' limit
+#' the yellow limit marks the 'excelent' limit
+#'
+#' @param p A valid ggplot object
+#' @export
+#'
+add.snr.ref.limits <- function(p) {
+  p +
+    geom_hline(aes(yintercept=20), colour='darkred', linetype = 6, alpha = 0.4) +
+    geom_hline(aes(yintercept=32), colour='yellow', linetype = 6, alpha = 0.8) +
+    geom_hline(aes(yintercept=38), colour='green', linetype = 6, alpha = 0.8)
+}
