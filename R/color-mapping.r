@@ -56,14 +56,19 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     .black.raw.level  = NULL,
     .white.raw.level  = NULL,
 
+    # Lab conversion constants
+    .lab.eps          = 216/24389,
+    .lab.k            = 24389/27,
+
     # Tone curve in [0,1]
     .tone.curve        = NULL,
 
     #-- Temporary variables for RGB conversions (performance)
     # Without raw white balance
-    .raw.to.rgb.mtx        = NULL,
-    .space.tone.curve.id   = NULL,
-    .scaled.raw.to.rgb.mtx = NULL,
+    .raw.to.dest.mtx        = NULL,
+    .target.space.id        = NULL,
+    .space.tone.curve.id    = NULL,
+    .scaled.raw.to.dest.mtx = NULL,
     # Including raw white balance
     .forward.mtx           = NULL,
     .scaled.forward.mtx    = NULL,
@@ -75,10 +80,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     # A spline over the up-scaled tone curve
     .spline.tone.curve     = NULL,
     .rggb.indices          = NULL,
+    .dest.scale            = NULL,
     #--
-
-    # Computed by get.conv.matrix.from.raw
-    .linear.rgb.from.raw = NULL,
 
     # Specified by Bruce Lindbloom (2015-jan)
     # http://www.brucelindbloom.com/Eqn_ChromAdapt.html
@@ -284,9 +287,29 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       private$.analog.bal.matx;
     },
 
-    linear.rgb.from.raw = function(value) {
+    target.space.id = function(value) {
       if (!missing(value)) stop('This is a read-only variable.')
-      private$.linear.rgb.from.raw;
+      private$.target.space.id;
+    },
+
+    dest.from.raw.mtx = function(value) {
+      if (!missing(value)) stop('This is a read-only variable.')
+      private$.raw.to.dest.mtx
+    },
+
+    AB.CC.inverse = function(value) {
+      if (!missing(value)) stop('This is a read-only variable.')
+      private$.AB.CC.inverse;
+    },
+
+    total.tc.sp = function(value) {
+      if (!missing(value)) stop('This is a read-only variable.')
+      private$.spline.tone.curve;
+    },
+
+    XYZ.D50.from.raw.mtx = function(value) {
+      if (!missing(value)) stop('This is a read-only variable.')
+      private$.forward.mtx;
     }
 
   ),
@@ -402,8 +425,6 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       from.neutral.raw = stop("The 'white.linear' argument is missing."),
       to.space = imgnoiser.option('target.rgb.space')
     ) {
-      # browser()
-      private$.linear.rgb.from.raw <- NULL
       # Computing white linear (in [0,1])
       white.linear <- private$.raw.to.linear(from.neutral.raw)
       white.linear <- white.linear/max(white.linear)
@@ -443,9 +464,6 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
       # Get the 'base' XYZ.to.raw matrix from which we can get other
       # color transformation matrices
-      # browser()
-#       XYZ.D50.from.raw <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
-
       space.convert.mtx <-
         switch(
           to.space,
@@ -461,51 +479,68 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
           'ProPhoto RGB' = {
             private$.space.tone.curve.id <- 'ProPhoto'
-            private$.prophoto_RGB_D50.from.XYZ.D50
+            private$.prophoto_RGB_D50.from.XYZ.D50;
           },
 
           'CIE RGB' = {
             private$.space.tone.curve.id <- 'Gamma.2.2'
-            private$.cie_RGB_E.from.XYZ.D50
+            private$.cie_RGB_E.from.XYZ.D50;
+          },
+
+          'Lab' = {
+            private$.space.tone.curve.id <- 'Lab'
+            diag(1,3,3);
           },
 
           stop(paste0("Cannot convert to the space '", to.space, "'."))
         )
 
       # Results
+      private$.target.space.id <- to.space
       private$.AB.CC.inverse <- if (any(AB.CC.inverse != diag(1,3,3))) AB.CC.inverse else NULL
 
       # Normalize forward matrix
       forward.mtx <- space.convert.mtx %*% forward.mtx
-      row.sum <- apply(forward.mtx, 1, sum)
-      forward.mtx[1,] <- forward.mtx[1,] / row.sum[1]
-      forward.mtx[2,] <- forward.mtx[2,] / row.sum[2]
-      forward.mtx[3,] <- forward.mtx[3,] / row.sum[3]
+      if (to.space != 'Lab') {
+        row.sum <- apply(forward.mtx, 1, sum)
+        forward.mtx[1,] <- forward.mtx[1,] / row.sum[1]
+        forward.mtx[2,] <- forward.mtx[2,] / row.sum[2]
+        forward.mtx[3,] <- forward.mtx[3,] / row.sum[3]
+      }
+
+      # Dest.from.raw matrix without raw white balance
       private$.forward.mtx <- forward.mtx
+      # Dest.from.raw matrix with raw white balance
+      private$.raw.to.dest.mtx <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
 
-#       private$.raw.to.rgb.mtx <- space.convert.mtx %*% XYZ.D50.from.raw
-      private$.raw.to.rgb.mtx <- forward.mtx %*% raw.wbal %*% AB.CC.inverse
-
-      invisible(private$.raw.to.rgb.mtx);
+      invisible(private$.raw.to.dest.mtx);
     },
 
-    prepare.to.rgb.conversions = function(
-      rgb.scale = 255,
+    prepare.to.dest.conversions = function(
+      dest.scale = 255,
       RGGB.indices = c(1,2,3,4),
       use.camera.tc = TRUE,
-      conv.tone.curve = imgnoiser.option('conv.to.rgb.tc')
+      conv.tone.curve = imgnoiser.option('conv.to.rgb.tc'),
+      white.ref.XYZ
     ) {
       # browser()
       # Validate the matrices are ready
-      if (is.null(private$.forward.mtx) | is.null(private$.raw.to.rgb.mtx))
+      if (is.null(private$.forward.mtx) | is.null(private$.raw.to.dest.mtx))
         stop("The color conversion matrix is NULL.")
 
       # compute the scale
-      scale <- rgb.scale / (private$.white.raw.level - private$.black.raw.level)
-      # Apply the scale to the conversion matrix (for performance reasons)
+      if (self$target.space.id != 'Lab') {
+        scale <- dest.scale / (private$.white.raw.level - private$.black.raw.level)
+        private$.dest.scale <- NULL
+      } else {
+        scale <- (1/white.ref.XYZ) / (private$.white.raw.level - private$.black.raw.level)
+        private$.dest.scale <- dest.scale
+      }
 
-      private$.scaled.forward.mtx <- t(apply(private$.forward.mtx, 1, function(x) x*scale ))
-      private$.scaled.raw.to.rgb.mtx <- t(apply(private$.raw.to.rgb.mtx, 1, function(x) x*scale ))
+      # Apply the scale to the conversion matrix (for performance reasons)
+      upscale <- function(x) x*scale;
+      private$.scaled.forward.mtx <- apply(private$.forward.mtx, 2, upscale)
+      private$.scaled.raw.to.dest.mtx <- apply(private$.raw.to.dest.mtx, 2, upscale)
 
       # Black & white level according to RGGB.indices
       private$.rggb.black.level <- private$.black.raw.level[c(1,2,2,3)]
@@ -541,14 +576,15 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
             'BT.709'    = prepare.BT.709.gamma.curve(),
             'Gamma.2.2' = prepare.std.2.2.gamma.curve(),
             'Gamma.1.8' = prepare.std.1.8.gamma.curve(),
+            'Lab'       = NULL,
             stop("Invalid 'conv.tone.curve' argument.")
           )
         }
       # browser()
-      private$.spline.tone.curve <- prepare.merged.tone.curve(cam.tc, conv.tc, rgb.scale)
+      private$.spline.tone.curve <- prepare.merged.tone.curve(cam.tc, conv.tc, dest.scale)
     },
 
-    convert.raw.to.rgb = function(
+    convert.raw.to.dest = function(
       cfa = stop("The 'cfa' argument is missing."),
       is.neutral = FALSE
     ) {
@@ -586,7 +622,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         #---
         raw.to.rgb <- private$.scaled.forward.mtx %*% raw.white.bal
       } else {
-        raw.to.rgb <- private$.scaled.raw.to.rgb.mtx
+        raw.to.rgb <- private$.scaled.raw.to.dest.mtx
       }
 
       # Hold the green channels in an array
@@ -601,22 +637,47 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       rgb.green <- raw.red*raw.to.rgb[2,1] + raw.greens[,,green.indices[2]]*raw.to.rgb[2,2] + raw.blue*raw.to.rgb[2,3]
       rgb.blue  <- raw.red*raw.to.rgb[3,1] + raw.greens[,,green.indices[3]]*raw.to.rgb[3,2] + raw.blue*raw.to.rgb[3,3]
 
-      #-- Apply tone curve
-      # This is a "naive" tone curve application. i.e there is no hue chroma compensations,
-      # this means some color shifting may occurr.
-      if (!is.null(private$.spline.tone.curve)) {
-        sp <- private$.spline.tone.curve
-        rgb.red   <- predict(sp, rgb.red)[['y']]
-        rgb.green <- predict(sp, rgb.green)[['y']]
-        rgb.blue  <- predict(sp, rgb.blue)[['y']]
-      }
+      if (private$.target.space.id != 'Lab') {
 
-      # Result
-      list(
-        'r' = rgb.red,
-        'g' = rgb.green,
-        'b' = rgb.blue
-      )
+        #-- Apply tone curve
+        # This is a "naive" tone curve application. i.e there is no hue chroma compensations,
+        # this means some color shifting may occurr.
+        if (!is.null(private$.spline.tone.curve)) {
+          sp <- private$.spline.tone.curve
+          rgb.red   <- predict(sp, rgb.red)[['y']]
+          rgb.green <- predict(sp, rgb.green)[['y']]
+          rgb.blue  <- predict(sp, rgb.blue)[['y']]
+        }
+
+        # Result
+        list(
+          'r' = rgb.red,
+          'g' = rgb.green,
+          'b' = rgb.blue
+          )
+      }
+      else {
+        eps <- private$.lab.eps
+        k <- private$.lab.k
+        cubic.root <- 1/3
+
+        f <- function(x) {
+          x[x > eps] <- x[x > eps]^cubic.root
+          x[x <= eps] <- (x[x <= eps]*k + 16) / 116
+          # Result
+          x;
+        }
+
+        L <- 116*f(rgb.green) - 16
+        a <- 500*(f(rgb.red) - f(rgb.green))
+        b <- 200*(f(rgb.green) - f(rgb.blue))
+
+        list(
+          'r' = rgb.red,
+          'g' = rgb.green,
+          'b' = rgb.blue
+        )
+      }
     }
 
   )

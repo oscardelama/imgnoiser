@@ -240,11 +240,42 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         msg(paste(length(file.names), "image samples were successfully processed."))
     }
 
-    ,digest.as.rgb = function(
+    ,digest.as.lab = function(
       file.name.from  = stop("The 'file.name.from' argument is missing.")
       ,file.name.to   = stop("The 'file.name.to' argument is missing.")
       ,file.path      = './'
-      ,file.name.ext  = '.pgm'
+      ,file.name.ext  = 'pgm'
+      ,min.raw        = 0
+      ,max.raw        = Inf
+      ,is.neutral     = FALSE
+      ,map.to.lab     = stop("The 'map.to.lab' argument is missing.")
+      ,lab.scale      = 100
+    )
+    {
+      lab.labels <- c('L', 'a', 'b')
+
+      self$digest.as.rgb (
+        file.name.from
+        ,file.name.to
+        ,file.path
+        ,file.name.ext
+        ,min.raw
+        ,max.raw
+        ,is.neutral
+        ,map.to.lab
+        ,lab.scale
+        ,lab.labels
+        ,FALSE
+        ,'linear'
+        ,XYZ.of.illuminant('D50')
+      )
+    }
+
+    ,digest.as.rgb = function(
+      file.name.from  = stop("The 'file.name.from' argument is missing.")
+      ,file.name.to   = file.name.from
+      ,file.path      = './'
+      ,file.name.ext  = 'pgm'
       ,min.raw        = 0
       ,max.raw        = Inf
       ,is.neutral     = FALSE
@@ -253,6 +284,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,rgb.labels     = imgnoiser.option('rgb.labels')
       ,use.camera.tc  = TRUE
       ,target.tc      = imgnoiser.option('tone.curve.id')
+      ,white.ref.XYZ  = XYZ.of.illuminant('D50')
     )
     {
 
@@ -265,7 +297,10 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         stop("The green channels indices are not known, set the 'green.channels' argument at the object creation.")
 
       # Validate rgb.scale
-      vector.alike(rgb.scale, 1L, type='n', valid.range=c(1, 2L^16L))
+      if (map.to.rgb$target.space.id != 'Lab')
+        vector.alike(rgb.scale, 1L, type='n', valid.range=c(1, 2L^16L))
+      else
+        vector.alike(rgb.scale, c(1L, 3L), type='n', valid.range=c(1, 2L^16L))
 
       # Validate the RGB labels
       vector.alike(rgb.labels, 3L)
@@ -300,10 +335,11 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       private$.model <- list()
 
       # Initialize the RGB conversion (there are some additional validations)
-      map.to.rgb$prepare.to.rgb.conversions(rgb.scale, self$RGGB.indices, use.camera.tc, target.tc)
+      map.to.rgb$prepare.to.dest.conversions(rgb.scale, self$RGGB.indices,
+                                             use.camera.tc, target.tc, white.ref.XYZ)
 
       # Get show.progress option
-      show.progress <- package.option('show.progress')
+      show.progress <- (package.option('show.progress') == TRUE) && (length(file.names) > 1)
       # Show progress bar
       if (show.progress) {
         message(paste("Processing", length(file.names), "image files:"))
@@ -340,7 +376,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         }
         #--
 
-        rgb <- map.to.rgb$convert.raw.to.rgb(cfa, is.neutral)
+        rgb <- map.to.rgb$convert.raw.to.dest(cfa, is.neutral)
 
         mean.r <- channelMean(rgb$r)
         mean.g <- channelMean(rgb$g)
@@ -389,7 +425,6 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       if (!show.progress)
         msg(paste(length(file.names), "image samples were successfully processed as RGBs."))
     }
-
 
     ,digest.from.rgb = function(
       file.name.from  = stop("The 'file.name.from' argument is missing.")

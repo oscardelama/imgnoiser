@@ -230,3 +230,18 @@ uv.distance.from.xy.1931 <- function(xy.1, xy.2) {
   sqrt(sum((uv.1 - uv.2)^2L));
 }
 
+#' @export
+XYZ.of.illuminant <- function (illuminant) {
+
+  switch(
+    illuminant,
+
+    'A' = c(1.09850,  1.00000,	0.35585),
+    'D50' = c(0.96422,  1.00000,	0.82521),
+    'D65' = c(0.95047,  1.00000,	1.08883),
+    'D55' = c(0.95682,  1.00000,	0.92149),
+    'E'   = c(1.00000,  1.00000,	1.00000),
+
+    stop("Unknown Illuminant.")
+  )
+}
