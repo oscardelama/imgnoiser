@@ -649,14 +649,15 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
           rgb.blue  <- predict(sp, rgb.blue)[['y']]
         }
 
-        # Result
-        list(
-          'r' = rgb.red,
-          'g' = rgb.green,
-          'b' = rgb.blue
-          )
-      }
-      else {
+        result <-
+          list(
+            'r' = rgb.red,
+            'g' = rgb.green,
+            'b' = rgb.blue
+            )
+
+        } else {
+
         eps <- private$.lab.eps
         k <- private$.lab.k
         cubic.root <- 1/3
@@ -672,12 +673,15 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         a <- 500*(f(rgb.red) - f(rgb.green))
         b <- 200*(f(rgb.green) - f(rgb.blue))
 
-        list(
-          'r' = rgb.red,
-          'g' = rgb.green,
-          'b' = rgb.blue
-        )
+        result <-
+          list(
+            'r' = L,
+            'g' = a,
+            'b' = b
+          )
       }
+      # Return result
+      result;
     }
 
   )
