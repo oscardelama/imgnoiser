@@ -60,8 +60,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 #     .lab.eps          = 216/24389,
 #     .lab.k            = 24389/27,
     .lab.eps          = NULL,
-    .lab.a            = NULL,
-    .lab.b            = 4/29,
+    .lab.slope        = NULL,
+    .lab.intercept    = 4/29,
     .lab.gamma        = NULL,
 
     # Tone curve in [0,1]
@@ -549,8 +549,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         if ((gamma >= 1) || (gamma < 1/4)) stop ("Invalid gamma.")
         private$.lab.gamma <- gamma
         # Compute the joint point
-        private$.lab.a <- (private$.lab.b/((1/gamma)^(gamma/(gamma-1))-(1/gamma)^(1/(gamma-1))))^((gamma-1)/gamma)
-        private$.lab.eps <- (private$.lab.a/gamma)^(1/(gamma-1))
+        private$.lab.slope <- (private$.lab.intercept/((1/gamma)^(gamma/(gamma-1))-(1/gamma)^(1/(gamma-1))))^((gamma-1)/gamma)
+        private$.lab.eps <- (private$.lab.slope/gamma)^(1/(gamma-1))
       }
 
       # Apply the scale to the conversion matrix (for performance reasons)
@@ -674,21 +674,22 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
         } else {
 
-        eps   <- private$.lab.eps
-        a     <- private$.lab.a
-        b     <- private$.lab.b
-        gamma <- private$.lab.gamma
+        eps       <- private$.lab.eps
+        slope     <- private$.lab.slope
+        intercept <- private$.lab.intercept
+        gamma     <- private$.lab.gamma
 
         f <- function(x) {
           x[x > eps] <- x[x > eps]^gamma
-          x[x <= eps] <- x[x <= eps]*a + b
+          x[x <= eps] <- x[x <= eps]*slope + intercept
           # Result
           x;
         }
 
-        L <- 116*f(rgb.green) - 16
-        a <- 500*(f(rgb.red) - f(rgb.green))
-        b <- 200*(f(rgb.green) - f(rgb.blue))
+        f.green <- f(rgb.green)
+        L <- 116*f.green - 16
+        a <- 500*(f(rgb.red) - f.green)
+        b <- 200*(f.green - f(rgb.blue))
 
         result <-
           list(
