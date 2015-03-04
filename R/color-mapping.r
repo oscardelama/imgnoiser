@@ -57,8 +57,12 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     .white.raw.level  = NULL,
 
     # Lab conversion constants
-    .lab.eps          = 216/24389,
-    .lab.k            = 24389/27,
+#     .lab.eps          = 216/24389,
+#     .lab.k            = 24389/27,
+    .lab.eps          = NULL,
+    .lab.a            = NULL,
+    .lab.b            = 4/29,
+    .lab.gamma        = NULL,
 
     # Tone curve in [0,1]
     .tone.curve        = NULL,
@@ -521,12 +525,18 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       RGGB.indices = c(1,2,3,4),
       use.camera.tc = TRUE,
       conv.tone.curve = imgnoiser.option('conv.to.rgb.tc'),
-      white.ref.XYZ
+      white.ref.XYZ,
+      gamma = 1/3
     ) {
       # browser()
       # Validate the matrices are ready
       if (is.null(private$.forward.mtx) | is.null(private$.raw.to.dest.mtx))
         stop("The color conversion matrix is NULL.")
+
+      # Initialize lab conversion constants
+      private$.lab.eps <- NULL
+      private$.lab.a <- NULL
+      private$.lab.gamma <- NULL
 
       # compute the scale
       if (self$target.space.id != 'Lab') {
@@ -534,7 +544,13 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         private$.dest.scale <- NULL
       } else {
         scale <- (1/white.ref.XYZ) / (private$.white.raw.level - private$.black.raw.level)
-        private$.dest.scale <- dest.scale
+        # This scale is till not in use
+        private$.dest.scale <- dest.scale/100
+        if ((gamma >= 1) || (gamma < 1/4)) stop ("Invalid gamma.")
+        private$.lab.gamma <- gamma
+        # Compute the joint point
+        private$.lab.a <- (private$.lab.b/((1/gamma)^(gamma/(gamma-1))-(1/gamma)^(1/(gamma-1))))^((gamma-1)/gamma)
+        private$.lab.eps <- (private$.lab.a/gamma)^(1/(gamma-1))
       }
 
       # Apply the scale to the conversion matrix (for performance reasons)
@@ -658,13 +674,14 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
         } else {
 
-        eps <- private$.lab.eps
-        k <- private$.lab.k
-        cubic.root <- 1/3
+        eps   <- private$.lab.eps
+        a     <- private$.lab.a
+        b     <- private$.lab.b
+        gamma <- private$.lab.gamma
 
         f <- function(x) {
           x[x > eps] <- x[x > eps]^cubic.root
-          x[x <= eps] <- (x[x <= eps]*k + 16) / 116
+          x[x <= eps] <- x[x <= eps]*a + b
           # Result
           x;
         }

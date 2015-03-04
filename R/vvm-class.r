@@ -250,6 +250,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,is.neutral     = FALSE
       ,map.to.lab     = stop("The 'map.to.lab' argument is missing.")
       ,lab.scale      = 100
+      ,gamma          = 1/3
     )
     {
       lab.labels <- c('L', 'a', 'b')
@@ -268,6 +269,7 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
         ,FALSE
         ,'linear'
         ,XYZ.of.illuminant('D50')
+        ,gamma
       )
     }
 
@@ -284,7 +286,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       ,rgb.labels     = imgnoiser.option('rgb.labels')
       ,use.camera.tc  = TRUE
       ,target.tc      = imgnoiser.option('tone.curve.id')
+      # Parameters fro Lab conversion
       ,white.ref.XYZ  = XYZ.of.illuminant('D50')
+      ,gamma          = 1/3
     )
     {
 
@@ -336,7 +340,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
 
       # Initialize the RGB conversion (there are some additional validations)
       map.to.rgb$prepare.to.dest.conversions(rgb.scale, self$RGGB.indices,
-                                             use.camera.tc, target.tc, white.ref.XYZ)
+                                             use.camera.tc, target.tc,
+                                             white.ref.XYZ, gamma)
 
       # Get show.progress option
       show.progress <- (package.option('show.progress') == TRUE) && (length(file.names) > 1)
@@ -360,11 +365,9 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       for (file.ix in seq_along(file.names)) {
 
         file.name <- file.names[file.ix]
-        # if (file.name == '_ODL1092s3.pgm') browser()
 
         # Show progress bar
         if (show.progress) setTxtProgressBar(prog.bar, file.ix)
-        # browser()
         cfa <- split_channels(file.name, file.path)
 
         #-- Validate all channel values are in range
