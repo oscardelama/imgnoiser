@@ -535,7 +535,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
       # Initialize lab conversion constants
       private$.lab.eps <- NULL
-      private$.lab.a <- NULL
+      private$.lab.slope <- NULL
       private$.lab.gamma <- NULL
 
       # compute the scale
