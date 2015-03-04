@@ -680,7 +680,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         gamma <- private$.lab.gamma
 
         f <- function(x) {
-          x[x > eps] <- x[x > eps]^cubic.root
+          x[x > eps] <- x[x > eps]^gamma
           x[x <= eps] <- x[x <= eps]*a + b
           # Result
           x;
