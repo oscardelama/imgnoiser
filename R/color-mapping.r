@@ -538,14 +538,13 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       private$.lab.slope <- NULL
       private$.lab.gamma <- NULL
 
-      # compute the scale
+      private$.dest.scale <- dest.scale
+      # compute the scale transformation factor
       if (self$target.space.id != 'Lab') {
         scale <- dest.scale / (private$.white.raw.level - private$.black.raw.level)
-        private$.dest.scale <- NULL
       } else {
         scale <- (1/white.ref.XYZ) / (private$.white.raw.level - private$.black.raw.level)
         # This scale is till not in use
-        private$.dest.scale <- dest.scale/100
         if ((gamma >= 1) || (gamma < 1/4)) stop ("Invalid gamma.")
         private$.lab.gamma <- gamma
         # Compute the joint point
@@ -654,6 +653,14 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       rgb.blue  <- raw.red*raw.to.rgb[3,1] + raw.greens[,,green.indices[3]]*raw.to.rgb[3,2] + raw.blue*raw.to.rgb[3,3]
 
       if (private$.target.space.id != 'Lab') {
+        # Truncate values out of range
+        rgb.red[rgb.red < 0]     <- 0
+        rgb.green[rgb.green < 0] <- 0
+        rgb.blue[rgb.blue < 0]   <- 0
+
+        rgb.red[rgb.red > private$.dest.scale] <- private$.dest.scale
+        rgb.green[rgb.green > private$.dest.scale] <- private$.dest.scale
+        rgb.blue[rgb.blue > private$.dest.scale] <- private$.dest.scale
 
         #-- Apply tone curve
         # This is a "naive" tone curve application. i.e there is no hue chroma compensations,
