@@ -674,6 +674,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
             dims <- dim(img)
             img <- sp(img)
             dim(img) <- dims
+            img;
           }
 
           rgb.red   <- apply.tc(rgb.red)
