@@ -520,6 +520,9 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       invisible(private$.raw.to.dest.mtx);
     },
 
+    #-------------------------
+    # prepare.to.dest.conversions
+    #-------------------------
     prepare.to.dest.conversions = function(
       dest.scale = 255,
       RGGB.indices = c(1,2,3,4),
@@ -667,9 +670,19 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         # this means some color shifting may occurr.
         if (!is.null(private$.spline.tone.curve)) {
           sp <- private$.spline.tone.curve
-          rgb.red   <- predict(sp, rgb.red)[['y']]
-          rgb.green <- predict(sp, rgb.green)[['y']]
-          rgb.blue  <- predict(sp, rgb.blue)[['y']]
+          apply.tc <- function(img) {
+            dims <- dim(img)
+            img <- sp(img)
+            dim(img) <- dims
+          }
+
+          rgb.red   <- apply.tc(rgb.red)
+          rgb.green <- apply.tc(rgb.green)
+          rgb.green <- apply.tc(rgb.green)
+
+#           rgb.red   <- predict(sp, rgb.red)[['y']]
+#           rgb.green <- predict(sp, rgb.green)[['y']]
+#           rgb.green  <- predict(sp, rgb.blue)[['y']]
         }
 
         result <-
