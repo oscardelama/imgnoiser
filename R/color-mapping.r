@@ -599,7 +599,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
           )
         }
       # browser()
-      private$.spline.tone.curve <- prepare.merged.tone.curve(cam.tc, conv.tc, dest.scale)
+      private$.spline.tone.curve <- prepare.merged.tone.curve(conv.tc, cam.tc, dest.scale)
     },
 
     convert.raw.to.dest = function(
