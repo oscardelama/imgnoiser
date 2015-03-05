@@ -655,12 +655,13 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       rgb.green <- raw.red*raw.to.rgb[2,1] + raw.greens[,,green.indices[2]]*raw.to.rgb[2,2] + raw.blue*raw.to.rgb[2,3]
       rgb.blue  <- raw.red*raw.to.rgb[3,1] + raw.greens[,,green.indices[3]]*raw.to.rgb[3,2] + raw.blue*raw.to.rgb[3,3]
 
-      if (private$.target.space.id != 'Lab') {
-        # Truncate values out of range
-        rgb.red[rgb.red < 0]     <- 0
-        rgb.green[rgb.green < 0] <- 0
-        rgb.blue[rgb.blue < 0]   <- 0
+      # Truncate values out of range: underflows
+      rgb.red[rgb.red < 0]     <- 0
+      rgb.green[rgb.green < 0] <- 0
+      rgb.blue[rgb.blue < 0]   <- 0
 
+      if (private$.target.space.id != 'Lab') {
+        # Truncate values out of range: overflows
         rgb.red[rgb.red > private$.dest.scale] <- private$.dest.scale
         rgb.green[rgb.green > private$.dest.scale] <- private$.dest.scale
         rgb.blue[rgb.blue > private$.dest.scale] <- private$.dest.scale
@@ -680,10 +681,6 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
           rgb.red   <- apply.tc(rgb.red)
           rgb.green <- apply.tc(rgb.green)
           rgb.blue <- apply.tc(rgb.blue)
-
-#           rgb.red   <- predict(sp, rgb.red)[['y']]
-#           rgb.green <- predict(sp, rgb.green)[['y']]
-#           rgb.green  <- predict(sp, rgb.blue)[['y']]
         }
 
         result <-
@@ -695,6 +692,12 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
         } else {
 
+        # Truncate values out of range: overflows
+        rgb.red[rgb.red > 1]     <- 1
+        rgb.green[rgb.green > 1] <- 1
+        rgb.blue[rgb.blue > 1]   <- 1
+
+        # Lab tonal scale constants
         eps       <- private$.lab.eps
         slope     <- private$.lab.slope
         intercept <- private$.lab.intercept
