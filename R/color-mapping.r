@@ -678,7 +678,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
 
           rgb.red   <- apply.tc(rgb.red)
           rgb.green <- apply.tc(rgb.green)
-          rgb.green <- apply.tc(rgb.green)
+          rgb.blue <- apply.tc(rgb.blue)
 
 #           rgb.red   <- predict(sp, rgb.red)[['y']]
 #           rgb.green <- predict(sp, rgb.green)[['y']]
