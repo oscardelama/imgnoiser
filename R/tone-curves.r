@@ -143,7 +143,7 @@ prepare.and.save.gamma.curves <- function() {
 #
 #' @importFrom data.table setnames
 #' @export
-prepare.merged.tone.curve <- function(tc1, tc2, scale) {
+prepare.merged.tone.curve <- function(tc1 = NULL, tc2 = NULL, scale = 1) {
 
   spline.of <- function(tc, scale) {
     if (is.null(tc)) return(NULL)
