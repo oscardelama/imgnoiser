@@ -530,15 +530,19 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       neutral.raw = c(1,1,1),
       raw.to.dest.mtx = diag(1,3,3)
     ) {
+      # Customized target space
+      private$.target.space.id <- 'custom'
+      # Set the conversion matrices
       private$.forward.mtx <- raw.to.dest.mtx
-      private$.space.tone.curve.id <- NULL
-      private$.AB.CC.inverse <- NULL
       # Computing white linear (in [0,1])
       white.linear <- private$.raw.to.linear(neutral.raw)
       white.linear <- white.linear/max(white.linear)
       raw.wbal <- mtx.inverse(diag(white.linear, 3L, 3L))
       # Dest.from.raw matrix with raw white balance
       private$.raw.to.dest.mtx <- raw.to.dest.mtx %*% raw.wbal
+      # Set other values for the context
+      private$.space.tone.curve.id <- NULL
+      private$.AB.CC.inverse <- NULL
 
       invisible(private$.raw.to.dest.mtx);
     },
