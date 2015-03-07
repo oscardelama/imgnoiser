@@ -527,8 +527,8 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     # set.conv.matrix.from.raw
     #-------------------------
     set.conv.matrix.from.raw = function(
-      neutral.raw = stop("The 'white.linear' argument is missing."),
-      raw.to.dest.mtx = stop("The 'white.linear' argument is missing.")
+      neutral.raw = c(1,1,1),
+      raw.to.dest.mtx = diag(1,3,3)
     ) {
       private$.forward.mtx <- raw.to.dest.mtx
       private$.space.tone.curve.id <- NULL
