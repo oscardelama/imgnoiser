@@ -425,6 +425,9 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       )
     },
 
+    #-------------------------
+    # get.conv.matrix.from.raw
+    #-------------------------
     get.conv.matrix.from.raw = function(
       from.neutral.raw = stop("The 'white.linear' argument is missing."),
       to.space = imgnoiser.option('target.rgb.space')
@@ -521,6 +524,26 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
     },
 
     #-------------------------
+    # set.conv.matrix.from.raw
+    #-------------------------
+    set.conv.matrix.from.raw = function(
+      neutral.raw = stop("The 'white.linear' argument is missing."),
+      raw.to.dest.mtx = stop("The 'white.linear' argument is missing."),
+    ) {
+      private$.forward.mtx <- raw.to.dest.mtx
+      private$.space.tone.curve.id <- NULL
+      private$.AB.CC.inverse <- NULL
+      # Computing white linear (in [0,1])
+      white.linear <- private$.raw.to.linear(neutral.raw)
+      white.linear <- white.linear/max(white.linear)
+      raw.wbal <- mtx.inverse(diag(white.linear, 3L, 3L))
+      # Dest.from.raw matrix with raw white balance
+      private$.raw.to.dest.mtx <- raw.to.dest.mtx %*% raw.wbal
+
+      invisible(private$.raw.to.dest.mtx);
+    }
+
+    #-------------------------
     # prepare.to.dest.conversions
     #-------------------------
     prepare.to.dest.conversions = function(
@@ -528,6 +551,7 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       RGGB.indices = c(1,2,3,4),
       use.camera.tc = TRUE,
       conv.tone.curve = imgnoiser.option('conv.to.rgb.tc'),
+      # Used only for Lab conversion
       white.ref.XYZ,
       gamma = 1/3
     ) {
@@ -570,7 +594,6 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
       private$.rggb.indices <- RGGB.indices
 
       #-- Prepare a smooth spline through the scaled camera and conversion tone curves
-      # browser()
       cam.tc <-
         if (use.camera.tc == TRUE) private$.tone.curve
         else NULL
