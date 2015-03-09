@@ -725,23 +725,20 @@ colmap <- R6::R6Class('colmap', inherit = R6.base,
         rgb.blue[rgb.blue > 1]   <- 1
 
         # Lab tonal scale constants
-#         eps       <- private$.lab.eps
-        eps       <- 0
+        eps       <- private$.lab.eps
         slope     <- private$.lab.slope
         intercept <- private$.lab.intercept
         gamma     <- private$.lab.gamma
 
         f <- function(x) {
-#           x[x > eps] <- x[x > eps]^gamma
-#           x[x <= eps] <- x[x <= eps]*slope + intercept
+          x[x > eps] <- x[x > eps]^gamma
+          x[x <= eps] <- x[x <= eps]*slope + intercept
           # Result
-#           x;
-          x^gamma
+          x;
         }
 
         f.green <- f(rgb.green)
-#         L <- 116*f.green - 16
-        L <- 100*f.green
+        L <- 116*f.green - 16
         a <- 500*(f(rgb.red) - f.green)
         b <- 200*(f.green - f(rgb.blue))
 
