@@ -52,6 +52,15 @@ These wiki pages are based on the package vignettes. If you install the package,
 ```r
 browseVignettes('imgnoiser')
 ```
+Application
+--------------
+The article [*"Introducing the `imgnoiser` R package"*](http://www.odelama.com/data-analysis/Introducing-the-imgnoiser-R-package/) is a good introduction of this package. It presents the package reusing and extending the documentation in [the wiki pages of this package](https://github.com/oscardelama/imgnoiser/wiki). If you havent read yet those wiki pages we encorage you to read the article.
+
+Other articles using the `imgnoiser` package and including detailed code of its usage are:
+
+* [Noise Analysis: From raw to sRGB](http://www.odelama.com/photo/Noise-Analysis-from-raw-to-sRGB/)
+* [Profiling the Noise in Nikon D7000 Using the imgnoiser R Package](http://www.odelama.com/photo/Profiling-Noise-of-Nikon-D7000-Using-the-imgnoiser-R-Package/)
+* [Developing a RAW Photo by hand Using Imgnoiser](http://www.odelama.com/photo/Developing-a-RAW-Photo-by-hand-Using-Imgnoiser/)
 
 Documentation
 ----------------
