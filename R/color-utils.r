@@ -212,7 +212,7 @@ planckian.temp.from.xy.1931 <- function(xy, verbosity=0) {
 #' @export
 interp.matrix.by.inv.temp = function(cct.k, mat.a, cct.a, mat.b, cct.b) {
 
-  if ( cct.k < 0.9*cct.a | cct.k > 1.1*cct.b)
+  if ( cct.k < 0.7*cct.a | cct.k > 1.6*cct.b)
     stop("The 'cct.k' argument value must be between the illuminants CCTs.")
 
   # If the matrices are equal return eny of them
