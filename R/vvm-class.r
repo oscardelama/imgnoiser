@@ -129,7 +129,8 @@ vvm <- R6::R6Class('vvm', inherit = noise.var,
       }
 
       # Get show.progress option
-      show.progress <- package.option('show.progress')
+      # Get show.progress option
+      show.progress <- (package.option('show.progress') == TRUE) && (length(file.names) > 1)
       # Show progress bar
       if (show.progress) {
         message(paste0("Processing ", length(file.names), " image files:"))
