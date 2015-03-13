@@ -221,8 +221,8 @@ path.with.ending.slah <- function(file.path) {
 #' }
 #'
 #' @export
-#' @importFrom base basename
-#' @importFrom tools file_path_sans_ext
+# ' @importFrom base basename
+# ' @importFrom tools file_path_sans_ext
 select.file.range <- function(
   file.name.from,
   file.name.to,
