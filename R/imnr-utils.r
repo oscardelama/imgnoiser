@@ -221,7 +221,8 @@ path.with.ending.slah <- function(file.path) {
 #' }
 #'
 #' @export
-#'
+#' @importFrom base basename
+#' @importFrom tools file_path_sans_ext
 select.file.range <- function(
   file.name.from,
   file.name.to,
@@ -250,6 +251,10 @@ select.file.range <- function(
   if (length(files) == 0)
     warning("The given folder does not contains any file with the given name extension ", sQuote(file.name.ext))
   else {
+    # Remove possible extension
+    file.name.from <- base::basename(tools::file_path_sans_ext(file.name.from))
+    file.name.to <- base::basename(tools::file_path_sans_ext(file.name.to))
+
     file.name.from <- paste0(file.name.from, '.', file.name.ext)
     file.name.to <- paste0(file.name.to, '.', file.name.ext)
 
