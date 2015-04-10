@@ -445,7 +445,7 @@ sRGB.from.adobeRGB <- function(adobeRGB) {
 #---------------------------------------
 sRGB.from.L.Lab <- function(L) {
   # Converting linear to sRGB
-  sRGB.from.linear(linear.from.L.Lab(lin.result))
+  sRGB.from.linear(linear.from.L.Lab(L))
 }
 
 #---------------------------------------
@@ -459,8 +459,7 @@ sRGB.from.L.Lab <- function(L) {
 #' @export
 #---------------------------------------
 L.Lab.from.sRGB <- function (sRGB) {
-  linear.tones <- linear.from.sRGB(sRGB)
-  L.Lab.from.linear(linear.tones);
+  L.Lab.from.linear(linear.from.sRGB(sRGB));
 }
 
 #---------------------------------------
