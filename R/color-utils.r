@@ -245,3 +245,249 @@ XYZ.of.illuminant <- function (illuminant) {
     stop("Unknown Illuminant.")
   )
 }
+
+#---------------------------------------
+#' Get sRGB from linear tonal values
+#'
+#' Convert linear tonal values to sRGB.
+#'
+#' @param linear tonal values in \code{[0, 1]}
+#' @return sRGB tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+sRGB.from.linear <- function(linear){
+  srgb.lin <- function(linear){
+    12.92*linear
+  }
+
+  srgb.gamma <- function(linear){
+    1.055*linear^(1/2.4) - 0.055
+  }
+
+  sRGB.result <- vector("numeric", length = length(linear))
+  tones.in.linear.part <- which(linear <= 0.0031308)
+
+  if (length(tones.in.linear.part) == 0) {
+    sRGB.result <- srgb.gamma(linear)
+  } else {
+    sRGB.result[tones.in.linear.part] <- srgb.lin(linear[tones.in.linear.part])
+    sRGB.result[-tones.in.linear.part] <- srgb.gamma(linear[-tones.in.linear.part])
+  }
+  # Clip to zero below numerical precision
+  sRGB.result[abs(sRGB.result) < 5e-6] <- 0
+  sRGB.result;
+}
+
+#---------------------------------------
+#' Get linear tonal values from sRGB ones
+#'
+#' Convert sRGB tonal values to linear ones.
+#'
+#' @param sRGB tonal values in \code{[0, 1]}
+#' @return linear tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+linear.from.sRGB <- function(sRGB) {
+
+  linear.from.sRGB.linear <- function(x) {
+    x/12.92;
+  }
+
+  linear.from.sRGB.gamma <- function(x) {
+    ((x + 0.055)/1.055)^2.4;
+  }
+
+  linear.result <- vector("numeric", length = length(sRGB))
+  tones.in.linear.part <- which(sRGB <= 0.04045)
+
+  if (length(tones.in.linear.part) == 0) {
+    linear.result <- linear.from.sRGB.gamma(sRGB)
+  } else  {
+    linear.result[tones.in.linear.part] <- linear.from.sRGB.linear(sRGB[tones.in.linear.part])
+    linear.result[-tones.in.linear.part] <- linear.from.sRGB.gamma(sRGB[-tones.in.linear.part])
+  }
+
+  # Clip to zero below numerical precision
+  linear.result[abs(linear.result) < 5e-6] <- 0
+  linear.result;
+}
+
+#---------------------------------------
+#' Get L.Lab tonal values from linear ones
+#'
+#' Convert linear tonal values to Lighteness (L in Lab).
+#'
+#' @param linear tonal values in \code{[0, 1]}
+#' @return L.Lab tonal values in \code{[0, 100]}
+#'
+#' @export
+#---------------------------------------
+L.Lab.from.linear <- function(linear) {
+  L.Lab.linear <- function(x) {
+    903.2963*x;
+  }
+  L.Lab.gamma <- function(x) {
+    116*x^0.33333333 - 16;
+  }
+
+  L.Lab.result <- vector("numeric", length = length(linear))
+  tones.in.linear.part <- which(linear <= 0.008856452)
+
+  if (length(tones.in.linear.part) == 0) {
+    L.Lab.result <- L.Lab.gamma(linear)
+  } else  {
+    L.Lab.result[tones.in.linear.part] <- L.Lab.linear(linear[tones.in.linear.part])
+    L.Lab.result[-tones.in.linear.part] <- L.Lab.gamma(linear[-tones.in.linear.part])
+  }
+
+  # Clip to zero below numerical precision
+  L.Lab.result[abs(L.Lab.result) < 5e-6] <- 0
+  L.Lab.result;
+}
+
+#---------------------------------------
+#' Get linear tonal values from L.Lab ones
+#'
+#' Convert Lighteness (L in Lab) tonal values to linear ones.
+#'
+#' @param L.Lab tonal values in \code{[0, 100]}
+#' @return linear tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+linear.from.L.Lab <- function(L.Lab) {
+  l.rev.cubic <- function(x) x^3;
+  l.rev.lin <- function(x) 0.1284185*x - 0.0177129;
+
+  # Reverting L to linear
+  l <- (L.Lab + 16)/116
+  tones.in.linear.part <- which(l <= 0.2068966)
+  lin.result <- vector("numeric", length = length(L.Lab))
+  if (length(tones.in.linear.part) == 0) {
+    lin.result <- l.rev.cubic(l)
+  } else {
+    lin.result[tones.in.linear.part] <- l.rev.lin(l[tones.in.linear.part])
+    lin.result[-tones.in.linear.part] <- l.rev.cubic(l[-tones.in.linear.part])
+  }
+  # Result
+  lin.result;
+}
+
+#---------------------------------------
+#' Get Adobe RGB tonal values from linear ones
+#'
+#' Convert linear tonal values to Adobe RGB ones.
+#'
+#' @param linear tonal values in \code{[0, 1]}
+#' @return Adobe RGB tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+adobeRGB.from.linear <- function(linear) {
+  linear^(1/2.19921875);
+}
+
+#---------------------------------------
+#' Get linear tonal values from Adobe RGB ones
+#'
+#' Convert Adobe RGB tonal values to linear ones.
+#'
+#' @param Adobe RGB tonal values in \code{[0, 1]}
+#' @return linear tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+linear.from.adobeRGB <- function(adobeRGB) {
+  adobeRGB^2.19921875;
+}
+
+#---------------------------------------
+#' Get Adobe RGB tonal values from sRGB ones
+#'
+#' Convert sRGB tonal values to Adobe RGB ones.
+#'
+#' @param sRGB tonal values in \code{[0, 1]}
+#' @return Adobe RGB tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+adobeRGB.from.sRGB <- function(sRGB) {
+  linear.tones <- linear.from.sRGB(sRGB)
+  adobeRGB.from.linear(linear.tones) ;
+}
+
+#---------------------------------------
+#' Get sRGB tonal values from Adobe RGB ones
+#'
+#' Convert Adobe RGB tonal values to sRGB ones.
+#'
+#' @param sRGB tonal values in \code{[0, 1]}
+#' @return Adobe RGB tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+sRGB.from.adobeRGB <- function(adobeRGB) {
+  linear.tones <- linear.from.adobeRGB(adobeRGB)
+  sRGB.from.linear(linear.tones) ;
+}
+
+#---------------------------------------
+#' Get sRGB tonal values from L.Lab ones
+#'
+#' Convert Lightness (L from Lab) tonal values to sRGB ones.
+#'
+#' @param L.Lab tonal values in \code{[0, 100]}
+#' @return sRGB tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+sRGB.from.L.Lab <- function(L) {
+  # Converting linear to sRGB
+  sRGB.from.linear(linear.from.L.Lab(lin.result))
+}
+
+#---------------------------------------
+#' Get L.Lab tonal values from sRGB ones
+#'
+#' Convert sRGB tonal values to Lightness (L from Lab) ones.
+#'
+#' @param sRGB tonal values in \code{[0, 1]}
+#' @return L.Lab tonal values in \code{[0, 100]}
+#'
+#' @export
+#---------------------------------------
+L.Lab.from.sRGB <- function (sRGB) {
+  linear.tones <- linear.from.sRGB(sRGB)
+  L.Lab.from.linear(linear.tones);
+}
+
+#---------------------------------------
+#' Get Adobe RGB tonal values from L.Lab ones
+#'
+#' Convert Lightness (L from Lab) tonal values to Adobe RGB ones.
+#'
+#' @param Adobe RGB tonal values in \code{[0, 1]}
+#' @return L.Lab tonal values in \code{[0, 100]}
+#'
+#' @export
+#---------------------------------------
+adobeRGB.from.L.Lab <- function(L) {
+  # Converting linear to sRGB
+  adobeRGB.from.linear(linear.from.L.Lab(lin.result))
+}
+
+#---------------------------------------
+#' Get L.Lab tonal values from Adobe RGB ones
+#'
+#' Convert Adobe RGB tonal values to Lightness (L from Lab) ones.
+#'
+#' @param Adobe RGB tonal values in \code{[0, 1]}
+#' @return L.Lab tonal values in \code{[0, 100]}
+#'
+#' @export
+#---------------------------------------
+L.Lab.from.adobeRGB <- function (adobeRGB) {
+  L.Lab.from.linear(linear.from.sRGB(adobeRGB));
+}
