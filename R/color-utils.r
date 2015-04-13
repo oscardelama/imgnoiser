@@ -505,19 +505,19 @@ proPhoto.from.linear <- function(linear) {
   proPhoto.linear <- function(x) 16*x;
   proPhoto.gamma <- function(x) x^(1/1.8);
 
-  L.Lab.result <- vector("numeric", length = length(linear))
+  proPhoto.result <- vector("numeric", length = length(linear))
   tones.in.linear.part <- which(linear <= 0.001953125)
 
   if (length(tones.in.linear.part) == 0) {
-    L.Lab.result <- proPhoto.gamma(linear)
+    proPhoto.result <- proPhoto.gamma(linear)
   } else  {
-    L.Lab.result[tones.in.linear.part] <- proPhoto.linear(linear[tones.in.linear.part])
-    L.Lab.result[-tones.in.linear.part] <- proPhoto.gamma(linear[-tones.in.linear.part])
+    proPhoto.result[tones.in.linear.part] <- proPhoto.linear(linear[tones.in.linear.part])
+    proPhoto.result[-tones.in.linear.part] <- proPhoto.gamma(linear[-tones.in.linear.part])
   }
 
   # Clip to zero values below numerical precision
-  L.Lab.result[abs(L.Lab.result) < 5e-6] <- 0
-  L.Lab.result;
+  proPhoto.result[abs(proPhoto.result) < 5e-6] <- 0
+  proPhoto.result;
 }
 
 #---------------------------------------
@@ -534,17 +534,17 @@ linear.from.proPhoto<- function(proPhoto) {
   proPhoto.linear <- function(x) x/16;
   proPhoto.gamma <- function(x) x^(1.8);
 
-  L.Lab.result <- vector("numeric", length = length(linear))
-  tones.in.linear.part <- which(linear <= 0.03125)
+  linear.result <- vector("numeric", length = length(proPhoto))
+  tones.in.linear.part <- which(proPhoto <= 0.03125)
 
   if (length(tones.in.linear.part) == 0) {
-    L.Lab.result <- proPhoto.gamma(linear)
+    linear.result <- proPhoto.gamma(proPhoto)
   } else  {
-    L.Lab.result[tones.in.linear.part] <- proPhoto.linear(linear[tones.in.linear.part])
-    L.Lab.result[-tones.in.linear.part] <- proPhoto.gamma(linear[-tones.in.linear.part])
+    linear.result[tones.in.linear.part] <- proPhoto.linear(proPhoto[tones.in.linear.part])
+    linear.result[-tones.in.linear.part] <- proPhoto.gamma(proPhoto[-tones.in.linear.part])
   }
 
   # Clip to zero values below numerical precision
-  L.Lab.result[abs(L.Lab.result) < 5e-6] <- 0
-  L.Lab.result;
+  linear.result[abs(linear.result) < 5e-6] <- 0
+  linear.result;
 }
