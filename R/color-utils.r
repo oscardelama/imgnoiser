@@ -394,7 +394,7 @@ adobeRGB.from.linear <- function(linear) {
 #'
 #' Convert Adobe RGB tonal values to linear ones.
 #'
-#' @param Adobe RGB tonal values in \code{[0, 1]}
+#' @param adobeRGB Adobe RGB tonal values in \code{[0, 1]}
 #' @return linear tonal values in \code{[0, 1]}
 #'
 #' @export
@@ -423,8 +423,8 @@ adobeRGB.from.sRGB <- function(sRGB) {
 #'
 #' Convert Adobe RGB tonal values to sRGB ones.
 #'
-#' @param sRGB tonal values in \code{[0, 1]}
-#' @return Adobe RGB tonal values in \code{[0, 1]}
+#' @param adobeRGB Adobe RGB tonal values in \code{[0, 1]}
+#' @return sRGB tonal values in \code{[0, 1]}
 #'
 #' @export
 #---------------------------------------
@@ -438,7 +438,7 @@ sRGB.from.adobeRGB <- function(adobeRGB) {
 #'
 #' Convert Lightness (L from Lab) tonal values to sRGB ones.
 #'
-#' @param L.Lab tonal values in \code{[0, 100]}
+#' @param L L.Lab tonal values in \code{[0, 100]}
 #' @return sRGB tonal values in \code{[0, 1]}
 #'
 #' @export
@@ -467,8 +467,8 @@ L.Lab.from.sRGB <- function (sRGB) {
 #'
 #' Convert Lightness (L from Lab) tonal values to Adobe RGB ones.
 #'
-#' @param Adobe RGB tonal values in \code{[0, 1]}
-#' @return L.Lab tonal values in \code{[0, 100]}
+#' @param L L.Lab tonal values in \code{[0, 100]}
+#' @return Adobe RGB tonal values in \code{[0, 1]}
 #'
 #' @export
 #---------------------------------------
@@ -482,11 +482,69 @@ adobeRGB.from.L.Lab <- function(L) {
 #'
 #' Convert Adobe RGB tonal values to Lightness (L from Lab) ones.
 #'
-#' @param Adobe RGB tonal values in \code{[0, 1]}
+#' @param adobeRGB Adobe RGB tonal values in \code{[0, 1]}
 #' @return L.Lab tonal values in \code{[0, 100]}
 #'
 #' @export
 #---------------------------------------
 L.Lab.from.adobeRGB <- function (adobeRGB) {
   L.Lab.from.linear(linear.from.sRGB(adobeRGB));
+}
+
+#---------------------------------------
+#' Get proPhoto tonal values from linear ones
+#'
+#' Convert linear tonal values to proPhoto ones.
+#'
+#' @param linear linear tonal values in \code{[0, 1]}
+#' @return proPhoto tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+proPhoto.from.linear <- function(linear) {
+  proPhoto.linear <- function(x) 16*x;
+  proPhoto.gamma <- function(x) x^(1/1.8);
+
+  L.Lab.result <- vector("numeric", length = length(linear))
+  tones.in.linear.part <- which(linear <= 0.001953125)
+
+  if (length(tones.in.linear.part) == 0) {
+    L.Lab.result <- proPhoto.gamma(linear)
+  } else  {
+    L.Lab.result[tones.in.linear.part] <- proPhoto.linear(linear[tones.in.linear.part])
+    L.Lab.result[-tones.in.linear.part] <- proPhoto.gamma(linear[-tones.in.linear.part])
+  }
+
+  # Clip to zero values below numerical precision
+  L.Lab.result[abs(L.Lab.result) < 5e-6] <- 0
+  L.Lab.result;
+}
+
+#---------------------------------------
+#' Get linear tonal values to proPhoto ones
+#'
+#' Convert linear tonal values to proPhoto ones.
+#'
+#' @param proPhoto tonal values in \code{[0, 1]}
+#' @return linear tonal values in \code{[0, 1]}
+#'
+#' @export
+#---------------------------------------
+linear.from.proPhoto<- function(proPhoto) {
+  proPhoto.linear <- function(x) x/16;
+  proPhoto.gamma <- function(x) x^(1.8);
+
+  L.Lab.result <- vector("numeric", length = length(linear))
+  tones.in.linear.part <- which(linear <= 0.03125)
+
+  if (length(tones.in.linear.part) == 0) {
+    L.Lab.result <- proPhoto.gamma(linear)
+  } else  {
+    L.Lab.result[tones.in.linear.part] <- proPhoto.linear(linear[tones.in.linear.part])
+    L.Lab.result[-tones.in.linear.part] <- proPhoto.gamma(linear[-tones.in.linear.part])
+  }
+
+  # Clip to zero values below numerical precision
+  L.Lab.result[abs(L.Lab.result) < 5e-6] <- 0
+  L.Lab.result;
 }

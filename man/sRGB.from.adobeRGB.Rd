@@ -7,10 +7,10 @@
 sRGB.from.adobeRGB(adobeRGB)
 }
 \arguments{
-\item{sRGB}{tonal values in \code{[0, 1]}}
+\item{adobeRGB}{Adobe RGB tonal values in \code{[0, 1]}}
 }
 \value{
-Adobe RGB tonal values in \code{[0, 1]}
+sRGB tonal values in \code{[0, 1]}
 }
 \description{
 Convert Adobe RGB tonal values to sRGB ones.

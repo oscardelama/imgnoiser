@@ -7,7 +7,7 @@
 L.Lab.from.adobeRGB(adobeRGB)
 }
 \arguments{
-\item{Adobe}{RGB tonal values in \code{[0, 1]}}
+\item{adobeRGB}{Adobe RGB tonal values in \code{[0, 1]}}
 }
 \value{
 L.Lab tonal values in \code{[0, 100]}

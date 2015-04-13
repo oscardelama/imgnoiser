@@ -7,7 +7,7 @@
 linear.from.adobeRGB(adobeRGB)
 }
 \arguments{
-\item{Adobe}{RGB tonal values in \code{[0, 1]}}
+\item{adobeRGB}{Adobe RGB tonal values in \code{[0, 1]}}
 }
 \value{
 linear tonal values in \code{[0, 1]}

@@ -7,10 +7,10 @@
 adobeRGB.from.L.Lab(L)
 }
 \arguments{
-\item{Adobe}{RGB tonal values in \code{[0, 1]}}
+\item{L}{L.Lab tonal values in \code{[0, 100]}}
 }
 \value{
-L.Lab tonal values in \code{[0, 100]}
+Adobe RGB tonal values in \code{[0, 1]}
 }
 \description{
 Convert Lightness (L from Lab) tonal values to Adobe RGB ones.

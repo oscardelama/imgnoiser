@@ -7,7 +7,7 @@
 sRGB.from.L.Lab(L)
 }
 \arguments{
-\item{L.Lab}{tonal values in \code{[0, 100]}}
+\item{L}{L.Lab tonal values in \code{[0, 100]}}
 }
 \value{
 sRGB tonal values in \code{[0, 1]}
