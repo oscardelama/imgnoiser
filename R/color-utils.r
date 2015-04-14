@@ -474,7 +474,7 @@ L.Lab.from.sRGB <- function (sRGB) {
 #---------------------------------------
 adobeRGB.from.L.Lab <- function(L) {
   # Converting linear to sRGB
-  adobeRGB.from.linear(linear.from.L.Lab(lin.result))
+  adobeRGB.from.linear(linear.from.L.Lab(L))
 }
 
 #---------------------------------------
